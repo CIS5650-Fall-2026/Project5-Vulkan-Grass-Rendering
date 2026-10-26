@@ -1,0 +1,402 @@
+[
+  {
+    "file": "close-262144-frustum-1.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "frustum",
+    "repeat": 1,
+    "final_visible": 135209,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-orientation-2.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "orientation",
+    "repeat": 2,
+    "final_visible": 61824,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-orientation-1.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "orientation",
+    "repeat": 1,
+    "final_visible": 54129,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-all-2.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "all",
+    "repeat": 2,
+    "final_visible": 2789,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-all-1.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "all",
+    "repeat": 1,
+    "final_visible": 38104,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-distance-2.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "distance",
+    "repeat": 2,
+    "final_visible": 39900,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-all-2.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "all",
+    "repeat": 2,
+    "final_visible": 22327,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-distance-1.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "distance",
+    "repeat": 1,
+    "final_visible": 7061,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-distance-2.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "distance",
+    "repeat": 2,
+    "final_visible": 225062,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-none-2.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "none",
+    "repeat": 2,
+    "final_visible": 65536,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-orientation-2.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "orientation",
+    "repeat": 2,
+    "final_visible": 217088,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-frustum-1.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "frustum",
+    "repeat": 1,
+    "final_visible": 65526,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-all-1.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "all",
+    "repeat": 1,
+    "final_visible": 2789,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-none-1.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "none",
+    "repeat": 1,
+    "final_visible": 65536,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-orientation-1.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "orientation",
+    "repeat": 1,
+    "final_visible": 61824,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-distance-2.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "distance",
+    "repeat": 2,
+    "final_visible": 7061,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-distance-1.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "distance",
+    "repeat": 1,
+    "final_visible": 225062,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-frustum-2.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "frustum",
+    "repeat": 2,
+    "final_visible": 65526,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-orientation-2.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "orientation",
+    "repeat": 2,
+    "final_visible": 6724,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-all-1.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "all",
+    "repeat": 1,
+    "final_visible": 88997,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-frustum-2.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "frustum",
+    "repeat": 2,
+    "final_visible": 4211,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-frustum-2.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "frustum",
+    "repeat": 2,
+    "final_visible": 135209,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-none-1.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "none",
+    "repeat": 1,
+    "final_visible": 262144,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-orientation-1.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "orientation",
+    "repeat": 1,
+    "final_visible": 217088,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-orientation-1.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "orientation",
+    "repeat": 1,
+    "final_visible": 6724,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-distance-2.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "distance",
+    "repeat": 2,
+    "final_visible": 56287,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-all-1.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "all",
+    "repeat": 1,
+    "final_visible": 22327,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-frustum-1.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "frustum",
+    "repeat": 1,
+    "final_visible": 4211,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-orientation-2.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "orientation",
+    "repeat": 2,
+    "final_visible": 54129,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-frustum-2.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "frustum",
+    "repeat": 2,
+    "final_visible": 33783,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-all-2.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "all",
+    "repeat": 2,
+    "final_visible": 38104,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-none-2.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "none",
+    "repeat": 2,
+    "final_visible": 262144,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-distance-1.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "distance",
+    "repeat": 1,
+    "final_visible": 56287,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-none-1.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "none",
+    "repeat": 1,
+    "final_visible": 65536,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-none-2.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "none",
+    "repeat": 2,
+    "final_visible": 8192,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-frustum-1.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "frustum",
+    "repeat": 1,
+    "final_visible": 33783,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-8192-none-1.csv",
+    "view": "close",
+    "blades": 8192,
+    "culling": "none",
+    "repeat": 1,
+    "final_visible": 8192,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-65536-none-2.csv",
+    "view": "close",
+    "blades": 65536,
+    "culling": "none",
+    "repeat": 2,
+    "final_visible": 65536,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "close-262144-all-2.csv",
+    "view": "close",
+    "blades": 262144,
+    "culling": "all",
+    "repeat": 2,
+    "final_visible": 88997,
+    "samples": 180,
+    "warmup": 60
+  },
+  {
+    "file": "overview-65536-distance-1.csv",
+    "view": "overview",
+    "blades": 65536,
+    "culling": "distance",
+    "repeat": 1,
+    "final_visible": 39900,
+    "samples": 180,
+    "warmup": 60
+  }
+]

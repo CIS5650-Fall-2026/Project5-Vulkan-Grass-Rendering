@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-26",
+  "build": "Debug",
+  "mouse_orbit": true,
+  "maximize_restore": true,
+  "clean_close": true,
+  "gpu_readback": true,
+  "validation_messages": 0,
+  "live_keyboard_verified": false,
+  "keyboard_limitation": "Injected key events did not change settings; callback tests passed."
+}

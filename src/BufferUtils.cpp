@@ -1,5 +1,6 @@
 #include "BufferUtils.h"
 #include "Instance.h"
+#include <set>
 
 void BufferUtils::CreateBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
     // Create buffer
@@ -7,7 +8,18 @@ void BufferUtils::CreateBuffer(Device* device, VkDeviceSize size, VkBufferUsageF
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
+    std::set<uint32_t> uniqueFamilies = {
+        device->GetQueueIndex(QueueFlags::Graphics),
+        device->GetQueueIndex(QueueFlags::Compute),
+        device->GetQueueIndex(QueueFlags::Transfer)
+    };
+    std::vector<uint32_t> queueFamilies(uniqueFamilies.begin(), uniqueFamilies.end());
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    if (queueFamilies.size() > 1) {
+        bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+        bufferInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilies.size());
+        bufferInfo.pQueueFamilyIndices = queueFamilies.data();
+    }
 
     if (vkCreateBuffer(device->GetVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create vertex buffer");

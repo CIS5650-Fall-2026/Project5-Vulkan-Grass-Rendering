@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 #define WORKGROUP_SIZE 32
-layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = WORKGROUP_SIZE) in;
 
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
@@ -12,7 +12,18 @@ layout(set = 0, binding = 0) uniform CameraBufferObject {
 layout(set = 1, binding = 0) uniform Time {
     float deltaTime;
     float totalTime;
-};
+    uint culling;
+    uint simulate;
+    float windStrength;
+    float maxDistance;
+    uint distanceBuckets;
+    float orientationThreshold;
+    float windAngle;
+    uint collision;
+    uint occlusion;
+    uint colliderEnabled;
+    vec4 collider;
+} settings;
 
 struct Blade {
     vec4 v0;
@@ -21,36 +32,175 @@ struct Blade {
     vec4 up;
 };
 
-// TODO: Add bindings to:
-// 1. Store the input blades
-// 2. Write out the culled blades
-// 3. Write the total number of blades remaining
+layout(std430, set = 2, binding = 0) buffer InputBlades {
+    Blade blades[];
+} inputBlades;
 
-// The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
-// This is sort of an advanced feature so we've showed you what this buffer should look like
-//
-// layout(set = ???, binding = ???) buffer NumBlades {
-// 	  uint vertexCount;   // Write the number of blades remaining here
-// 	  uint instanceCount; // = 1
-// 	  uint firstVertex;   // = 0
-// 	  uint firstInstance; // = 0
-// } numBlades;
+layout(std430, set = 2, binding = 1) writeonly buffer OutputBlades {
+    Blade blades[];
+} outputBlades;
 
-bool inBounds(float value, float bounds) {
-    return (value >= -bounds) && (value <= bounds);
+layout(std430, set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} numBlades;
+
+layout(set = 2, binding = 3) uniform ModelBufferObject {
+    mat4 model;
+};
+
+vec3 bladeSide(Blade blade) {
+    vec3 up = normalize(blade.up.xyz);
+    vec3 axis = abs(up.y) < 0.99 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(axis - up * dot(axis, up));
+    return cos(blade.v0.w) * tangent + sin(blade.v0.w) * cross(tangent, up);
+}
+
+void correctCurve(inout Blade blade) {
+    vec3 root = blade.v0.xyz;
+    vec3 up = normalize(blade.up.xyz);
+    float height = blade.v1.w;
+    vec3 tip = blade.v2.xyz;
+    tip -= up * min(dot(tip - root, up), 0.0);
+
+    vec3 offset = tip - root;
+    float bend = length(offset - up * dot(offset, up)) / height;
+    vec3 guide = root + up * height * max(1.0 - bend, 0.05 * max(bend, 1.0));
+    // Section 5.2: normalize the estimated quadratic Bezier arc length.
+    float curveLength = (2.0 * length(tip - root) + length(guide - root) + length(tip - guide)) / 3.0;
+    float ratio = height / max(curveLength, 0.00001);
+    blade.v1.xyz = root + ratio * (guide - root);
+    blade.v2.xyz = root + ratio * (tip - root);
+}
+
+void simulateBlade(inout Blade blade) {
+    float dt = clamp(settings.deltaTime, 0.0, 1.0 / 30.0);
+    if (settings.simulate == 0 || dt == 0.0) return;
+
+    vec3 up = normalize(blade.up.xyz);
+    vec3 front = normalize(cross(bladeSide(blade), up));
+    vec3 restTip = blade.v0.xyz + up * blade.v1.w;
+    vec3 gravity = vec3(0.0, -9.81, 0.0) + front * (0.25 * 9.81);
+    int steps = int(ceil(dt * 120.0));
+    float stepTime = dt / float(steps);
+    for (int step = 0; step < steps; ++step) {
+        float time = settings.totalTime - dt + float(step + 1) * stepTime;
+        vec3 root = blade.v0.xyz;
+        float wave = 0.65 + 0.25 * sin(1.7 * time - 0.35 * root.x + 0.2 * root.z)
+                          + 0.1 * sin(3.1 * time + 0.6 * root.z);
+        vec3 windDirection = normalize(vec3(1.0, 0.0, 0.35 + 0.2 * sin(0.7 * time)));
+        float angle = radians(settings.windAngle);
+        windDirection.xz = mat2(cos(angle), sin(angle), -sin(angle), cos(angle)) * windDirection.xz;
+        vec3 tipDirection = normalize(blade.v2.xyz - root);
+        float alignment = (1.0 - abs(dot(windDirection, tipDirection))) * abs(dot(windDirection, front));
+        float upright = clamp(dot(blade.v2.xyz - root, up) / blade.v1.w, 0.0, 1.0);
+        vec3 wind = windDirection * settings.windStrength * wave * alignment * upright;
+        vec3 recovery = (restTip - blade.v2.xyz) * blade.up.w;
+        vec3 contact = vec3(0.0);
+        if (settings.colliderEnabled != 0u && settings.collision != 0u) {
+            // Soft contact samples the curve, not just its tip. Roots stay anchored.
+            for (int sampleIndex = 1; sampleIndex <= 4; ++sampleIndex) {
+                float t = float(sampleIndex) * 0.25;
+                vec3 point = (1.0-t)*(1.0-t)*root + 2.0*(1.0-t)*t*blade.v1.xyz + t*t*blade.v2.xyz;
+                vec3 worldPoint = (model * vec4(point, 1.0)).xyz;
+                vec3 offset = worldPoint - settings.collider.xyz;
+                float distance = length(offset);
+                float penetration = max(settings.collider.w + blade.v2.w * 0.5 - distance, 0.0);
+                vec3 direction = distance > 0.0001 ? offset / distance : vec3(1, 0, 0);
+                contact += mat3(inverse(model)) * direction * penetration * t * 90.0;
+            }
+        }
+        blade.v2.xyz += (gravity + recovery + wind + contact) * stepTime;
+        correctCurve(blade);
+    }
+}
+
+bool outsideFrustum(vec3 root, vec3 guide, vec3 tip, vec3 side, float width) {
+    // The curve lies inside its control-point hull. Test that hull as well as
+    // the midpoint, keeping blades that cross a plane between sample points.
+    vec3 midpoint = 0.25 * root + 0.5 * guide + 0.25 * tip;
+    mat4 vp = camera.proj * camera.view;
+    vec4 points[4] = vec4[4](vp * vec4(root, 1), vp * vec4(midpoint, 1),
+                             vp * vec4(tip, 1), vp * vec4(guide, 1));
+    vec4 extent = abs(vp * vec4(side * width * 0.5, 0));
+    bool outside[6] = bool[6](true, true, true, true, true, true);
+    for (int i = 0; i < 4; ++i) {
+        vec4 p = points[i];
+        float margin = 0.05 * abs(p.w);
+        outside[0] = outside[0] && p.x + p.w < -margin - extent.x - extent.w;
+        outside[1] = outside[1] && p.w - p.x < -margin - extent.x - extent.w;
+        outside[2] = outside[2] && p.y + p.w < -margin - extent.y - extent.w;
+        outside[3] = outside[3] && p.w - p.y < -margin - extent.y - extent.w;
+        // Vulkan's clip depth is [0, w].
+        outside[4] = outside[4] && p.z < -extent.z;
+        outside[5] = outside[5] && p.w - p.z < -extent.z - extent.w;
+    }
+    return outside[0] || outside[1] || outside[2] || outside[3] || outside[4] || outside[5];
+}
+
+uint hashIndex(uint value) {
+    value ^= value >> 16;
+    value *= 0x7feb352du;
+    value ^= value >> 15;
+    value *= 0x846ca68bu;
+    return value ^ (value >> 16);
+}
+
+bool hiddenBySphere(vec3 root, vec3 guide, vec3 tip, vec3 side, float width, vec3 eye) {
+    if (settings.colliderEnabled == 0u || settings.occlusion == 0u) return false;
+    // This ball encloses the entire control hull and its width, including bent blades.
+    vec3 center = (root + guide + tip) / 3.0;
+    float radius = max(length(root-center), max(length(guide-center), length(tip-center))) + length(side)*width*0.5;
+    // If the surface crosses the near plane, the analytic draw may clip its first hit.
+    // Keep all blades in that case rather than using an incomplete occluder.
+    if ((camera.view * vec4(settings.collider.xyz, 1.0)).z + settings.collider.w >= -0.1) return false;
+    vec3 toObject = settings.collider.xyz - eye;
+    vec3 toBlade = center - eye;
+    float objectDistance = length(toObject);
+    float bladeDistance = length(toBlade);
+    float objectRadius = settings.collider.w * 0.995;
+    if (objectDistance <= objectRadius || bladeDistance <= radius) return false;
+    // Require the entire bound to be behind the sphere's far side and inside its silhouette.
+    if (dot(toBlade, toObject / objectDistance) - radius <= objectDistance + objectRadius) return false;
+    float separation = acos(clamp(dot(toBlade/bladeDistance, toObject/objectDistance), -1.0, 1.0));
+    return separation + asin(clamp(radius/bladeDistance, 0.0, 1.0)) < asin(objectRadius/objectDistance);
+}
+
+bool visibleBlade(Blade blade, uint index) {
+    vec3 root = (model * vec4(blade.v0.xyz, 1)).xyz;
+    vec3 guide = (model * vec4(blade.v1.xyz, 1)).xyz;
+    vec3 tip = (model * vec4(blade.v2.xyz, 1)).xyz;
+    vec3 side = mat3(model) * bladeSide(blade);
+    vec3 cameraPosition = inverse(camera.view)[3].xyz;
+    vec3 toCamera = cameraPosition - root;
+    if (hiddenBySphere(root, guide, tip, side, blade.v2.w, cameraPosition)) return false;
+    if ((settings.culling & 1u) != 0u && length(toCamera) > 0.00001) {
+        if (abs(dot(normalize(toCamera), normalize(side))) > settings.orientationThreshold) return false;
+    }
+    if ((settings.culling & 2u) != 0u && outsideFrustum(root, guide, tip, side, blade.v2.w)) return false;
+    if ((settings.culling & 4u) != 0u) {
+        vec3 up = normalize(mat3(model) * blade.up.xyz);
+        float distance = length(toCamera - up * dot(toCamera, up));
+        if (distance >= settings.maxDistance) return false;
+        uint buckets = max(settings.distanceBuckets, 1u);
+        uint bucket = uint(floor(distance / settings.maxDistance * float(buckets)));
+        // A stable hash avoids patterns and changing the subset every frame.
+        if (hashIndex(index) % buckets < bucket) return false;
+    }
+    return true;
 }
 
 void main() {
-	// Reset the number of blades to 0
-	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
-	}
-	barrier(); // Wait till all threads reach this point
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= uint(inputBlades.blades.length())) return;
 
-    // TODO: Apply forces on every blade and update the vertices in the buffer
-
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
-	// to the culled blades buffer
-	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
-	// You want to write the visible blades to the buffer without write conflicts between threads
+    Blade blade = inputBlades.blades[index];
+    simulateBlade(blade);
+    inputBlades.blades[index] = blade;
+    if (visibleBlade(blade, index)) {
+        uint outputIndex = atomicAdd(numBlades.vertexCount, 1);
+        outputBlades.blades[outputIndex] = blade;
+    }
 }

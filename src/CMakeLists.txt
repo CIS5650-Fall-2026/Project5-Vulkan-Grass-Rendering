@@ -30,22 +30,28 @@ else(WIN32)
     target_link_libraries(vulkan_grass_rendering ${CMAKE_THREAD_LIBS_INIT})
 endif(WIN32)
 
+find_program(GLSLANG_VALIDATOR glslangValidator
+    HINTS "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin" "$ENV{VK_SDK_PATH}/Bin")
+if(NOT GLSLANG_VALIDATOR)
+    message(FATAL_ERROR "glslangValidator was not found. Set VULKAN_SDK to your Vulkan SDK directory.")
+endif()
+
+set(SHADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 foreach(SHADER_SOURCE ${SHADER_SOURCES})
-    set(SHADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/shaders)
-
-    if(WIN32)
-        get_filename_component(fname ${SHADER_SOURCE} NAME)
-        add_custom_target(${fname}.spv
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_DIR} && 
-            $ENV{VK_SDK_PATH}/Bin/glslangValidator.exe -V ${SHADER_SOURCE} -o ${SHADER_DIR}/${fname}.spv -g
-            SOURCES ${SHADER_SOURCE}
-        )
-        ExternalTarget("Shaders" ${fname}.spv)
-        add_dependencies(vulkan_grass_rendering ${fname}.spv)
-    endif(WIN32)
-
-    # TODO: Build shaders on not windows
+    get_filename_component(fname ${SHADER_SOURCE} NAME)
+    add_custom_command(OUTPUT ${SHADER_DIR}/${fname}.spv
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_DIR}
+        COMMAND "${GLSLANG_VALIDATOR}" -V ${SHADER_SOURCE} -o ${SHADER_DIR}/${fname}.spv -g
+        DEPENDS ${SHADER_SOURCE}
+        VERBATIM
+    )
+    list(APPEND SHADER_BINARIES ${SHADER_DIR}/${fname}.spv)
 endforeach()
+add_custom_target(grass_shaders DEPENDS ${SHADER_BINARIES})
+ExternalTarget("Shaders" grass_shaders)
+add_dependencies(vulkan_grass_rendering grass_shaders)
+
+set_property(TARGET vulkan_grass_rendering PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(vulkan_grass_rendering ${ASSIMP_LIBRARIES} Vulkan::Vulkan glfw)
 target_include_directories(vulkan_grass_rendering PRIVATE

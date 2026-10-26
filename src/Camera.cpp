@@ -9,26 +9,31 @@
 #include "BufferUtils.h"
 
 Camera::Camera(Device* device, float aspectRatio) : device(device) {
-    r = 10.0f;
-    theta = 0.0f;
-    phi = 0.0f;
-    cameraBufferObject.viewMatrix = glm::lookAt(glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    r = 20.0f;
+    theta = 25.0f;
+    phi = -25.0f;
     cameraBufferObject.projectionMatrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
     cameraBufferObject.projectionMatrix[1][1] *= -1; // y-coordinate is flipped
 
     BufferUtils::CreateBuffer(device, sizeof(CameraBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer, bufferMemory);
     vkMapMemory(device->GetVkDevice(), bufferMemory, 0, sizeof(CameraBufferObject), 0, &mappedData);
-    memcpy(mappedData, &cameraBufferObject, sizeof(CameraBufferObject));
+    UpdateOrbit(0.0f, 0.0f, 0.0f);
 }
 
 VkBuffer Camera::GetBuffer() const {
     return buffer;
 }
 
+void Camera::UpdateAspectRatio(float aspectRatio) {
+    cameraBufferObject.projectionMatrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+    cameraBufferObject.projectionMatrix[1][1] *= -1;
+    memcpy(mappedData, &cameraBufferObject, sizeof(CameraBufferObject));
+}
+
 void Camera::UpdateOrbit(float deltaX, float deltaY, float deltaZ) {
     theta += deltaX;
     phi += deltaY;
-    r = glm::clamp(r - deltaZ, 1.0f, 50.0f);
+    r = glm::clamp(r - deltaZ, 1.0f, 100.0f);
 
     float radTheta = glm::radians(theta);
     float radPhi = glm::radians(phi);
@@ -45,4 +50,17 @@ Camera::~Camera() {
   vkUnmapMemory(device->GetVkDevice(), bufferMemory);
   vkDestroyBuffer(device->GetVkDevice(), buffer, nullptr);
   vkFreeMemory(device->GetVkDevice(), bufferMemory, nullptr);
+}
+
+void Camera::SetView(const std::string& name) {
+    theta = 25.0f;
+    phi = -25.0f;
+    r = 20.0f;
+    if (name == "close") { r = 7.0f; phi = -12.0f; }
+    if (name == "distant") { r = 60.0f; phi = -10.0f; }
+    UpdateOrbit(0.0f, 0.0f, 0.0f);
+    if (name == "away") {
+        cameraBufferObject.viewMatrix = glm::lookAt(glm::vec3(0, 4, 20), glm::vec3(0, 4, 30), glm::vec3(0, 1, 0));
+        memcpy(mappedData, &cameraBufferObject, sizeof(CameraBufferObject));
+    }
 }

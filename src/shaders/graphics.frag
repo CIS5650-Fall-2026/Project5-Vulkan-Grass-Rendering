@@ -9,5 +9,7 @@ layout(location = 1) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(texSampler, fragTexCoord);
+    vec3 ground = texture(texSampler, fragTexCoord).rgb;
+    // Match the warm sunlight and keep the ground quieter than the blades.
+    outColor = vec4(ground * vec3(0.48, 0.48, 0.32), 1.0);
 }

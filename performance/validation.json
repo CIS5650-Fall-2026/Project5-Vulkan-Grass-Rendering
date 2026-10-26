@@ -1,0 +1,106 @@
+[
+  {
+    "case": "none",
+    "blades": 8193,
+    "visible": 8193,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "all",
+    "blades": 8193,
+    "visible": 4767,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "orientation",
+    "blades": 8193,
+    "visible": 7742,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "frustum",
+    "blades": 8193,
+    "visible": 4199,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "distance",
+    "blades": 8193,
+    "visible": 4993,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "away",
+    "blades": 8193,
+    "visible": 0,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "distant",
+    "blades": 8193,
+    "visible": 0,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "single",
+    "blades": 1,
+    "visible": 1,
+    "bent": 1,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "static",
+    "blades": 8193,
+    "visible": 8193,
+    "bent": 0,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "strong-wind",
+    "blades": 8193,
+    "visible": 4767,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "long-run",
+    "blades": 8193,
+    "visible": 4767,
+    "bent": 8193,
+    "frames": 600,
+    "validation_messages": 0
+  },
+  {
+    "case": "many",
+    "blades": 65537,
+    "visible": 38104,
+    "bent": 65537,
+    "frames": 120,
+    "validation_messages": 0
+  },
+  {
+    "case": "profile",
+    "blades": 8193,
+    "visible": 4767,
+    "bent": 8193,
+    "frames": 120,
+    "validation_messages": 0
+  }
+]

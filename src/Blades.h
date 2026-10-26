@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <array>
+#include <string>
 #include "Model.h"
 
 constexpr static unsigned int NUM_BLADES = 1 << 13;
@@ -69,8 +70,12 @@ struct BladeDrawIndirect {
     uint32_t firstInstance;
 };
 
+static_assert(sizeof(Blade) == 64, "Blade must match the shader's four vec4 fields");
+static_assert(sizeof(BladeDrawIndirect) == sizeof(VkDrawIndirectCommand), "Indirect draw layout must match Vulkan");
+
 class Blades : public Model {
 private:
+    uint32_t bladeCount;
     VkBuffer bladesBuffer;
     VkBuffer culledBladesBuffer;
     VkBuffer numBladesBuffer;
@@ -80,7 +85,9 @@ private:
     VkDeviceMemory numBladesBufferMemory;
 
 public:
-    Blades(Device* device, VkCommandPool commandPool, float planeDim);
+    Blades(Device* device, VkCommandPool commandPool, float planeDim, uint32_t count = NUM_BLADES);
+    uint32_t GetBladeCount() const;
+    uint32_t ReadBack(VkCommandPool commandPool, bool verify, const std::string& dumpPath = "") const;
     VkBuffer GetBladesBuffer() const;
     VkBuffer GetCulledBladesBuffer() const;
     VkBuffer GetNumBladesBuffer() const;

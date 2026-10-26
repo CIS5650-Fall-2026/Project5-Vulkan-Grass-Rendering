@@ -9,7 +9,7 @@ GLFWwindow* GetGLFWWindow() {
     return window;
 }
 
-void InitializeWindow(int width, int height, const char* name) {
+void InitializeWindow(int width, int height, const char* name, bool hidden) {
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         exit(EXIT_FAILURE);
@@ -21,6 +21,7 @@ void InitializeWindow(int width, int height, const char* name) {
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_VISIBLE, hidden ? GLFW_FALSE : GLFW_TRUE);
     window = glfwCreateWindow(width, height, name, nullptr, nullptr);
 
     if (!window) {
@@ -36,5 +37,5 @@ bool ShouldQuit() {
 
 void DestroyWindow() {
     glfwDestroyWindow(window);
-    glfwTerminate();
+    window = nullptr;
 }

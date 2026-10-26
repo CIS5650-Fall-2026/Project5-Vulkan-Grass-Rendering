@@ -13,6 +13,6 @@
 struct GLFWwindow;
 struct GLFWwindow* GetGLFWWindow();
 
-void InitializeWindow(int width, int height, const char* name);
+void InitializeWindow(int width, int height, const char* name, bool hidden = false);
 bool ShouldQuit();
 void DestroyWindow();

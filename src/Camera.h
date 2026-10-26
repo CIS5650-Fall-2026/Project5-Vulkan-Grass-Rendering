@@ -2,6 +2,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <string>
 #include "Device.h"
 
 struct CameraBufferObject {
@@ -27,6 +28,9 @@ public:
     ~Camera();
 
     VkBuffer GetBuffer() const;
+    const CameraBufferObject& GetState() const { return cameraBufferObject; }
     
     void UpdateOrbit(float deltaX, float deltaY, float deltaZ);
+    void UpdateAspectRatio(float aspectRatio);
+    void SetView(const std::string& name);
 };
