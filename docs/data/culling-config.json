@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "frames": 1200,
+  "warmup_frames": 240,
+  "repetitions": 3,
+  "fixed_dt": "0.0166666666666667",
+  "resolution": [1280, 720],
+  "seed": 1337,
+  "field_size": [15, 15],
+  "modes": ["none", "frustum", "orientation", "distance", "all"],
+  "common_arguments": ["--scene", "field", "--simulation", "physics", "--max-distance", "60", "--distance-buckets", "4", "--orientation-threshold", "0.9", "--frustum-tolerance", "0.01"],
+  "scenarios": [
+    {"id": "overview", "label": "Overview", "label_zh": "总览", "yaw": 25, "pitch": -25, "radius": 23, "counts": [8192, 32768, 65536, 131072]},
+    {"id": "close", "label": "Close / partial field", "label_zh": "近景／部分草地", "yaw": 25, "pitch": -12, "radius": 8, "counts": [65536]},
+    {"id": "grazing", "label": "Low viewing angle", "label_zh": "低角度", "yaw": 25, "pitch": -5, "radius": 23, "counts": [65536]},
+    {"id": "overhead", "label": "Overhead", "label_zh": "俯视", "yaw": 25, "pitch": -65, "radius": 23, "counts": [65536]},
+    {"id": "far", "label": "Far view", "label_zh": "远景", "yaw": 25, "pitch": -12, "radius": 45, "counts": [65536]}
+  ],
+  "protocol": {
+    "order": "Three blocks. Rotate the eight scenario/count groups between blocks; rotate five culling modes within each group. Repetition 1 reverses mode traversal.",
+    "timing": "Median of three run medians; retain frames 241..1200; report the min/max of run medians, not a confidence interval.",
+    "capture": "Separate validation-enabled runs capture the final framebuffer at application frame 1200 (20 simulated seconds). No screenshot layer or intermediate state readback during timing runs.",
+    "scope": "Density changes in the same 15x15 field; all blades continue physical simulation; unchanged Stage 3 renderer.",
+    "limitations": "Serialized Vulkan frame loop and profiling boundary; intervals may include waits within their GPU timestamp endpoints. Not end-to-end FPS. GPU clocks are not locked and desktop activity is not fully isolated. Final draw counts are endpoint counts, not time averages."
+  }
+}

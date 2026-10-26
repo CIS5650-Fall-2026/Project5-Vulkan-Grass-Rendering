@@ -1,0 +1,335 @@
+{
+  "method": "Mean of four per-run medians; 180 warmup + 540 measured frames per run, GPU timestamp intervals only. Range bars show min/max run medians, not confidence intervals. Paired ratios retained separately.",
+  "results": [
+    {
+      "scenario": "overview-8192",
+      "count": 8192,
+      "visible": 5745,
+      "geometry": {
+        "off": {
+          "patches": 5745,
+          "tes": 155115
+        },
+        "on": {
+          "patches": 5745,
+          "tes": 147621
+        }
+      },
+      "tesReductionPercent": 4.831254230732041,
+      "quality": {
+        "psnr": 36.471925914517215,
+        "foregroundPsnr": 30.083381587613363,
+        "mae": 0.3221502459490741
+      },
+      "compute": {
+        "off": 0.008591999999999999,
+        "on": 0.008544,
+        "offMin": 0.00816,
+        "offMax": 0.00976,
+        "onMin": 0.00816,
+        "onMax": 0.009632,
+        "reductionPercent": 0.5586592178770888,
+        "pairedReductionPercent": [
+          1.3114754098360604,
+          0.0,
+          1.1627906976744096,
+          -0.39215686274509665
+        ]
+      },
+      "graphics": {
+        "off": 0.065024,
+        "on": 0.063744,
+        "offMin": 0.060416,
+        "offMax": 0.078848,
+        "onMin": 0.059392,
+        "onMax": 0.0768,
+        "reductionPercent": 1.9685039370078816,
+        "pairedReductionPercent": [
+          2.5974025974026094,
+          1.6949152542372836,
+          1.6949152542372836,
+          1.6949152542372836
+        ]
+      },
+      "gpu": {
+        "off": 0.07361600000000001,
+        "on": 0.072184,
+        "offMin": 0.068576,
+        "offMax": 0.088576,
+        "onMin": 0.067424,
+        "onMax": 0.0864,
+        "reductionPercent": 1.9452292979787233,
+        "pairedReductionPercent": [
+          2.4566473988439252,
+          1.724941724941731,
+          1.817334575955265,
+          1.633224451703219
+        ]
+      }
+    },
+    {
+      "scenario": "near-65536",
+      "count": 65536,
+      "visible": 31691,
+      "geometry": {
+        "off": {
+          "patches": 31691,
+          "tes": 855657
+        },
+        "on": {
+          "patches": 31691,
+          "tes": 855657
+        }
+      },
+      "tesReductionPercent": 0.0,
+      "quality": {
+        "psnr": 61.457801232351144,
+        "foregroundPsnr": 60.02363881632959,
+        "mae": 0.0007349537037037037
+      },
+      "compute": {
+        "off": 0.020636,
+        "on": 0.020943999999999997,
+        "offMin": 0.020544,
+        "offMax": 0.020880000000000003,
+        "onMin": 0.020576,
+        "onMax": 0.021792,
+        "reductionPercent": -1.492537313432818,
+        "pairedReductionPercent": [
+          -1.244167962674947,
+          -6.074766355140193,
+          1.4559386973180155,
+          -0.15576323987538387
+        ]
+      },
+      "graphics": {
+        "off": 0.41984000000000005,
+        "on": 0.420608,
+        "offMin": 0.418816,
+        "offMax": 0.420864,
+        "onMin": 0.41984,
+        "onMax": 0.422912,
+        "reductionPercent": -0.18292682926828174,
+        "pairedReductionPercent": [
+          -0.24449877750609694,
+          -0.7317073170731714,
+          0.24330900243310083,
+          0.0
+        ]
+      },
+      "gpu": {
+        "off": 0.440816,
+        "on": 0.44164800000000004,
+        "offMin": 0.439456,
+        "offMax": 0.442448,
+        "onMin": 0.44075200000000003,
+        "onMax": 0.443728,
+        "reductionPercent": -0.18874088054881,
+        "pairedReductionPercent": [
+          -0.37136823709311706,
+          -0.6898304469375338,
+          0.321845731023751,
+          -0.018154091932331973
+        ]
+      }
+    },
+    {
+      "scenario": "overview-65536",
+      "count": 65536,
+      "visible": 46169,
+      "geometry": {
+        "off": {
+          "patches": 46169,
+          "tes": 1246563
+        },
+        "on": {
+          "patches": 46169,
+          "tes": 1187403
+        }
+      },
+      "tesReductionPercent": 4.745849186924367,
+      "quality": {
+        "psnr": 34.586717526704916,
+        "foregroundPsnr": 28.518793286425968,
+        "mae": 0.6016905381944444
+      },
+      "compute": {
+        "off": 0.024016000000000003,
+        "on": 0.024,
+        "offMin": 0.023984,
+        "offMax": 0.024048,
+        "onMin": 0.023984,
+        "onMax": 0.024016000000000003,
+        "reductionPercent": 0.06662225183211579,
+        "pairedReductionPercent": [
+          0.0,
+          0.13306719893545482,
+          0.13315579227696217,
+          0.0
+        ]
+      },
+      "graphics": {
+        "off": 0.360448,
+        "on": 0.34739200000000003,
+        "offMin": 0.360448,
+        "offMax": 0.360448,
+        "onMin": 0.347136,
+        "onMax": 0.34816,
+        "reductionPercent": 3.622159090909083,
+        "pairedReductionPercent": [
+          3.693181818181812,
+          3.409090909090895,
+          3.693181818181812,
+          3.693181818181812
+        ]
+      },
+      "gpu": {
+        "off": 0.384336,
+        "on": 0.37160799999999994,
+        "offMin": 0.384096,
+        "offMax": 0.384432,
+        "onMin": 0.371248,
+        "onMax": 0.37185599999999996,
+        "reductionPercent": 3.311685608425985,
+        "pairedReductionPercent": [
+          3.3449970840623067,
+          3.2713197652640913,
+          3.2840790842871947,
+          3.3463747606759298
+        ]
+      }
+    },
+    {
+      "scenario": "far-65536",
+      "count": 65536,
+      "visible": 19133,
+      "geometry": {
+        "off": {
+          "patches": 19133,
+          "tes": 516591
+        },
+        "on": {
+          "patches": 19133,
+          "tes": 241959
+        }
+      },
+      "tesReductionPercent": 53.16236635946039,
+      "quality": {
+        "psnr": 35.68295019371274,
+        "foregroundPsnr": 21.248513917457373,
+        "mae": 0.42690140335648147
+      },
+      "compute": {
+        "off": 0.017632000000000002,
+        "on": 0.017616,
+        "offMin": 0.017568,
+        "offMax": 0.017696,
+        "onMin": 0.0176,
+        "onMax": 0.017632,
+        "reductionPercent": 0.09074410163341096,
+        "pairedReductionPercent": [
+          0.0,
+          0.36231884057970065,
+          0.3616636528029016,
+          -0.36429872495444826
+        ]
+      },
+      "graphics": {
+        "off": 0.115712,
+        "on": 0.06272,
+        "offMin": 0.115712,
+        "offMax": 0.115712,
+        "onMin": 0.062464,
+        "onMax": 0.063488,
+        "reductionPercent": 45.79646017699115,
+        "pairedReductionPercent": [
+          46.017699115044245,
+          45.13274336283185,
+          46.017699115044245,
+          46.017699115044245
+        ]
+      },
+      "gpu": {
+        "off": 0.133472,
+        "on": 0.080568,
+        "offMin": 0.13344,
+        "offMax": 0.133504,
+        "onMin": 0.080512,
+        "onMax": 0.080608,
+        "reductionPercent": 39.636777751138816,
+        "pairedReductionPercent": [
+          39.63078398465596,
+          39.63078398465596,
+          39.62128475551295,
+          39.6642685851319
+        ]
+      }
+    },
+    {
+      "scenario": "overview-131072",
+      "count": 131072,
+      "visible": 92370,
+      "geometry": {
+        "off": {
+          "patches": 92370,
+          "tes": 2493990
+        },
+        "on": {
+          "patches": 92370,
+          "tes": 2377584
+        }
+      },
+      "tesReductionPercent": 4.667460575222837,
+      "quality": {
+        "psnr": 34.10211929831847,
+        "foregroundPsnr": 28.100065421943622,
+        "mae": 0.6989152922453704
+      },
+      "compute": {
+        "off": 0.058548,
+        "on": 0.058552,
+        "offMin": 0.056672,
+        "offMax": 0.063776,
+        "onMin": 0.056768,
+        "onMax": 0.063696,
+        "reductionPercent": -0.006832001093104445,
+        "pairedReductionPercent": [
+          -12.394127611518924,
+          0.16882386043893804,
+          10.81284495735073,
+          0.02812939521800173
+        ]
+      },
+      "graphics": {
+        "off": 0.694272,
+        "on": 0.666624,
+        "offMin": 0.694272,
+        "offMax": 0.694272,
+        "onMin": 0.666624,
+        "onMax": 0.666624,
+        "reductionPercent": 3.9823008849557584,
+        "pairedReductionPercent": [
+          3.9823008849557584,
+          3.9823008849557584,
+          3.9823008849557584,
+          3.9823008849557584
+        ]
+      },
+      "gpu": {
+        "off": 0.7522760000000001,
+        "on": 0.7251640000000001,
+        "offMin": 0.750704,
+        "offMax": 0.756704,
+        "onMin": 0.723152,
+        "onMax": 0.729936,
+        "reductionPercent": 3.603996405574539,
+        "pairedReductionPercent": [
+          2.7664698736119653,
+          3.680419401585544,
+          4.378990992514908,
+          3.583908633768007
+        ]
+      }
+    }
+  ]
+}

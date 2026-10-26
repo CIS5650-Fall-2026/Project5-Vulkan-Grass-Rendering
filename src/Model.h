@@ -9,6 +9,7 @@
 
 struct ModelBufferObject {
     glm::mat4 modelMatrix;
+    glm::vec4 material = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f); // w: vertex-colour material
 };
 
 class Model {
@@ -27,6 +28,7 @@ protected:
     VkDeviceMemory modelBufferMemory;
 
     ModelBufferObject modelBufferObject;
+    void* mappedModel = nullptr;
 
     VkImage texture = VK_NULL_HANDLE;
     VkImageView textureView = VK_NULL_HANDLE;
@@ -38,6 +40,9 @@ public:
     virtual ~Model();
 
     void SetTexture(VkImage texture);
+    // Call only after the previous frame has completed (the renderer serializes frames).
+    void SetTransform(const glm::mat4& transform);
+    void SetVertexColorMaterial(bool enabled);
 
     const std::vector<Vertex>& getVertices() const;
 

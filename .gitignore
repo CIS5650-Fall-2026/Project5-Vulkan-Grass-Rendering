@@ -560,3 +560,32 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 *.xcuserstate
+
+# Local experiment workspace. Publish selected media and summaries in docs/.
+/milestones/
+/output/
+/scripts/
+/.codex/
+/.agents/
+.playwright-cli/
+/playwright-report/
+/test-results/
+/tmp/
+/temp/
+
+# Generated shader binaries, raw captures, and analysis caches.
+*.spv
+*.ppm
+*.npy
+*.npz
+*.pid
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Machine-local environment configuration.
+.env
+.env.*
+!.env.example
