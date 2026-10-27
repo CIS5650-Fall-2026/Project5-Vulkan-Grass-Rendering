@@ -32,6 +32,7 @@ public:
     void CreateGrassPipeline();
     void CreateComputePipeline();
 
+    void CreateSyncResources();
     void CreateFrameResources();
     void DestroyFrameResources();
     void RecreateFrameResources();
@@ -56,12 +57,15 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
 
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
@@ -79,4 +83,7 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+
+    VkSemaphore computeSemaphore;
+    VkFence frameFinishedFence;
 };

@@ -17,7 +17,7 @@ public:
     VkInstance GetVkInstance();
     VkPhysicalDevice GetPhysicalDevice();
     const QueueFamilyIndices& GetQueueFamilyIndices() const;
-    const VkSurfaceCapabilitiesKHR& GetSurfaceCapabilities() const;
+    const VkSurfaceCapabilitiesKHR& GetSurfaceCapabilities(VkSurfaceKHR vkSurface = VK_NULL_HANDLE);
     const std::vector<VkSurfaceFormatKHR>& GetSurfaceFormats() const;
     const std::vector<VkPresentModeKHR>& GetPresentModes() const;
     

@@ -36,21 +36,163 @@ struct Blade {
 // 	  uint firstInstance; // = 0
 // } numBlades;
 
-bool inBounds(float value, float bounds) {
-    return (value >= -bounds) && (value <= bounds);
+layout(set = 2, binding = 0) buffer InputBlades {
+    Blade blades[];
+} inputBlades;
+
+layout(set = 2, binding = 1) buffer CulledBlades {
+    Blade blades[];
+} culledBlades;
+
+layout(set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;   // Write the number of blades remaining here
+    uint instanceCount; // = 1
+    uint firstVertex;   // = 0
+    uint firstInstance; // = 0
+} numBlades;
+
+const vec3 Z_AXIS = vec3(0.0, 0.0, 1.0);
+const vec3 GRAVITY_DIR = vec3(0.0, -1.0, 0.0);
+const float GRAVITY_INTENSITY = 7.0;
+const vec3 WIND_DIR = normalize(vec3(1.33, 0.0, 0.66));
+const float WIND_INTENSITY = 10.0;
+const float MAX_DIST = 50.0;
+const uint BUCKET_COUNT = 8u;
+
+vec2 random2(vec2 p)
+{
+    return fract(
+        sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5,183.3))))
+            * 43758.5453);
+}
+
+float computeSurflet(vec2 P, vec2 gridPoint)
+{
+    // Compute falloff function by converting linear distance to a polynomial
+    float distX = abs(P.x - gridPoint.x);
+    float distY = abs(P.y - gridPoint.y);
+    float tX = 1.0 - 6.0 * pow(distX, 5.0) + 15.0 * pow(distX, 4.0) - 10.0 * pow(distX, 3.0);
+    float tY = 1.0 - 6.0 * pow(distY, 5.0) + 15.0 * pow(distY, 4.0) - 10.0 * pow(distY, 3.0);
+
+    // Get the random vector for the grid point
+    vec2 gradient = 2.0 * random2(gridPoint) - vec2(1.0);
+
+    // Get the vector from the grid point to P
+    vec2 diff = P - gridPoint;
+
+    // Get the value of our height field by dotting grid->P with our gradient
+    float height = dot(diff, gradient);
+
+    // Scale our height field (i.e. reduce it) by our polynomial falloff function
+    return height * tX * tY;
+}
+
+float perlinNoise(vec2 uv)
+{
+    float surfletSum = 0.0;
+
+    // Iterate over the four integer corners surrounding uv
+    for(int dx = 0; dx <= 1; dx++)
+    {
+        for(int dy = 0; dy <= 1; dy++)
+        {
+            surfletSum += computeSurflet(uv, floor(uv) + vec2(dx, dy));
+        }
+    }
+
+    return (surfletSum + 1.0) * 0.5;
+}
+
+float animatedNoise(vec2 p)
+{
+    vec2 offset = WIND_DIR.xz * totalTime;
+    float x = perlinNoise(p - offset);
+    float y = perlinNoise(p - offset + x);
+    float z = perlinNoise(p - offset - x + y);
+    return perlinNoise(p + vec2(x, y) + vec2(y, z) + vec2(z, x) - offset);
+}
+
+vec3 wind(vec3 v0)
+{
+    return WIND_DIR * WIND_INTENSITY * (animatedNoise(v0.xz * 0.5) + 0.01); 
 }
 
 void main() {
-	// Reset the number of blades to 0
-	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
-	}
-	barrier(); // Wait till all threads reach this point
+    if (gl_GlobalInvocationID.x >= inputBlades.blades.length())
+    {
+        return;
+    }
 
     // TODO: Apply forces on every blade and update the vertices in the buffer
+    Blade blade = inputBlades.blades[gl_GlobalInvocationID.x];
+    vec3 totalForce = vec3(0.0, 0.0, 0.0);
+
+    // Add Recovery force
+    totalForce += ((blade.v0.xyz + blade.up.xyz * blade.v1.w) - blade.v2.xyz) * blade.up.w;
+
+    // Add Gravity force
+    vec3 planeX = normalize(cross(blade.up.xyz, Z_AXIS));
+    vec3 planeZ = normalize(cross(planeX, blade.up.xyz));
+    vec3 t1 = (cos(blade.v0.w) * planeX) + (sin(blade.v0.w) * planeZ);
+    vec3 f = normalize(cross(t1, blade.up.xyz));
+    vec3 gE = GRAVITY_DIR * GRAVITY_INTENSITY;
+    totalForce += gE + (0.25 * length(gE) * f);
+
+    // Add Wind force
+    vec3 wi = wind(blade.v0.xyz);
+    vec3 displ = blade.v2.xyz - blade.v0.xyz;
+    float fd = 1.0 - abs(dot(normalize(wi), normalize(displ)));
+    float fr = dot(displ, blade.up.xyz) / blade.v1.w;
+    totalForce += wi * fd * fr;
+
+    // Update position
+    blade.v2.xyz += totalForce * deltaTime;
+
+    // Handle invalid states
+    blade.v2.xyz -= blade.up.xyz * min(dot(blade.up.xyz, blade.v2.xyz - blade.v0.xyz), 0.0);
+    displ = blade.v2.xyz - blade.v0.xyz;
+    float lproj = length(displ - (blade.up.xyz * (dot(displ, blade.up.xyz))));
+    lproj /= blade.v1.w;
+    blade.v1.xyz = blade.v0.xyz + (blade.v1.w * blade.up.xyz * max(1.0 - lproj, 0.05 * max(lproj, 1.0)));
+    float L = (2.0 * length(displ)) + length(blade.v1.xyz - blade.v0.xyz) + length(blade.v2.xyz - blade.v1.xyz);
+    float r = 3.0 * blade.v1.w / L;
+    vec3 v1Corr = blade.v0.xyz + (r * (blade.v1.xyz - blade.v0.xyz));
+    blade.v2.xyz = v1Corr + (r * (blade.v2.xyz - blade.v1.xyz));
+    blade.v1.xyz = v1Corr;
+
+    inputBlades.blades[gl_GlobalInvocationID.x] = blade;
 
 	// TODO: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
+    bool shouldRender = true;
+
+    // Cull based on alignment with view dir
+    vec3 viewDir = blade.v0.xyz + transpose(mat3(camera.view)) * camera.view[3].xyz;
+    shouldRender = shouldRender && (0.9 > abs(dot(normalize(viewDir), t1)));
+
+    // Cull based on view frustum
+    vec4 m = vec4((0.25 * blade.v0.xyz) + (0.5 * blade.v1.xyz) + (0.25 * blade.v2.xyz), 1.0);
+    m = camera.proj * camera.view * m;
+    vec4 v0p = camera.proj * camera.view * vec4(blade.v0.xyz, 1.0);
+    vec4 v2p = camera.proj * camera.view * vec4(blade.v2.xyz, 1.0);
+    shouldRender = shouldRender
+        && !(any(greaterThan(abs(v0p).xyz, vec3(v0p.w + 0.5)))
+            && any(greaterThan(abs(v2p).xyz, vec3(v2p.w + 0.5)))
+            && any(greaterThan(abs(m).xyz, vec3(m.w + 0.5)))); 
+
+    // Cull based on distance
+    float dProj = length(viewDir - (blade.up.xyz * dot(viewDir, blade.up.xyz)));
+    shouldRender = shouldRender
+        && (gl_GlobalInvocationID.x % BUCKET_COUNT
+            < uint(max(float(BUCKET_COUNT) * (1.0 - (dProj / MAX_DIST)), 0.0)));
+
+    if (!shouldRender)
+    {
+        return;
+    }
+
+    uint bladeIdx = atomicAdd(numBlades.vertexCount, 1u);
+    culledBlades.blades[bladeIdx] = blade;
 }

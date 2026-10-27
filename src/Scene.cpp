@@ -28,7 +28,7 @@ void Scene::UpdateTime() {
     duration<float> nextDeltaTime = duration_cast<duration<float>>(currentTime - startTime);
     startTime = currentTime;
 
-    time.deltaTime = nextDeltaTime.count();
+    time.deltaTime = std::fmin(nextDeltaTime.count(), 0.0333333);
     time.totalTime += time.deltaTime;
 
     memcpy(mappedData, &time, sizeof(Time));

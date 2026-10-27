@@ -88,8 +88,13 @@ VkPhysicalDevice Instance::GetPhysicalDevice() {
     return physicalDevice;
 }
 
-const VkSurfaceCapabilitiesKHR& Instance::GetSurfaceCapabilities() const {
-    return surfaceCapabilities;
+const VkSurfaceCapabilitiesKHR& Instance::GetSurfaceCapabilities(VkSurfaceKHR vkSurface) {
+    if (vkSurface != VK_NULL_HANDLE)
+    {
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->GetPhysicalDevice(), vkSurface, &this->surfaceCapabilities);
+    }
+
+    return this->surfaceCapabilities;
 }
 
 const QueueFamilyIndices& Instance::GetQueueFamilyIndices() const {

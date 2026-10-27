@@ -145,6 +145,14 @@ int main() {
 
     while (!ShouldQuit()) {
         glfwPollEvents();
+
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(GetGLFWWindow(), &width, &height);
+        if (width == 0 || height == 0) {
+            glfwWaitEvents();
+            continue;
+        }
+
         scene->UpdateTime();
         renderer->Frame();
     }
@@ -161,6 +169,7 @@ int main() {
     delete renderer;
     delete swapChain;
     delete device;
+    vkDestroySurfaceKHR(instance->GetVkInstance(), surface, nullptr);
     delete instance;
     DestroyWindow();
     return 0;
