@@ -14,7 +14,11 @@ Model::Model(Device* device, VkCommandPool commandPool, const std::vector<Vertex
     }
 
     modelBufferObject.modelMatrix = glm::mat4(1.0f);
-    BufferUtils::CreateBufferFromData(device, commandPool, &modelBufferObject, sizeof(ModelBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, modelBuffer, modelBufferMemory);
+    BufferUtils::CreateBuffer(device, sizeof(ModelBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, modelBuffer, modelBufferMemory);
+    if (vkMapMemory(device->GetVkDevice(), modelBufferMemory, 0, sizeof(ModelBufferObject), 0, &mappedModel) != VK_SUCCESS)
+        throw std::runtime_error("Failed to map model uniforms");
+    memcpy(mappedModel, &modelBufferObject, sizeof(modelBufferObject));
 }
 
 Model::~Model() {
@@ -28,6 +32,7 @@ Model::~Model() {
         vkFreeMemory(device->GetVkDevice(), vertexBufferMemory, nullptr);
     }
 
+    vkUnmapMemory(device->GetVkDevice(), modelBufferMemory);
     vkDestroyBuffer(device->GetVkDevice(), modelBuffer, nullptr);
     vkFreeMemory(device->GetVkDevice(), modelBufferMemory, nullptr);
 
@@ -40,6 +45,14 @@ Model::~Model() {
     }
 }
 
+void Model::SetTransform(const glm::mat4& transform) {
+    modelBufferObject.modelMatrix = transform;
+    memcpy(mappedModel, &modelBufferObject, sizeof(modelBufferObject));
+}
+void Model::SetVertexColorMaterial(bool enabled) {
+    modelBufferObject.material.w = enabled ? 1.0f : 0.0f;
+    memcpy(mappedModel, &modelBufferObject, sizeof(modelBufferObject));
+}
 void Model::SetTexture(VkImage texture) {
     this->texture = texture;
     this->textureView = Image::CreateView(device, texture, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);

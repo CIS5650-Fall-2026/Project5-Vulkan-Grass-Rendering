@@ -12,6 +12,8 @@ constexpr static float MAX_WIDTH = 0.14f;
 constexpr static float MIN_BEND = 7.0f;
 constexpr static float MAX_BEND = 13.0f;
 
+enum class GrassPreset { Single, Bent, Patch, Field };
+
 struct Blade {
     // Position and direction
     glm::vec4 v0;
@@ -69,20 +71,33 @@ struct BladeDrawIndirect {
     uint32_t firstInstance;
 };
 
+static_assert(sizeof(Blade) == 64, "Blade must match std430");
+static_assert(sizeof(BladeDrawIndirect) == sizeof(VkDrawIndirectCommand), "Indirect layout");
+
 class Blades : public Model {
 private:
     VkBuffer bladesBuffer;
     VkBuffer culledBladesBuffer;
     VkBuffer numBladesBuffer;
+    VkBuffer initialBladesBuffer;
+    VkBuffer visibleIdsBuffer;
 
     VkDeviceMemory bladesBufferMemory;
     VkDeviceMemory culledBladesBufferMemory;
     VkDeviceMemory numBladesBufferMemory;
+    VkDeviceMemory initialBladesBufferMemory;
+    VkDeviceMemory visibleIdsBufferMemory;
+    std::vector<Blade> initialBlades;
+    uint32_t bladeCount;
 
 public:
-    Blades(Device* device, VkCommandPool commandPool, float planeDim);
+    Blades(Device* device, VkCommandPool commandPool, float planeDim, GrassPreset preset = GrassPreset::Field, uint32_t fieldCount = NUM_BLADES);
+    uint32_t GetBladeCount() const;
     VkBuffer GetBladesBuffer() const;
     VkBuffer GetCulledBladesBuffer() const;
     VkBuffer GetNumBladesBuffer() const;
+    VkBuffer GetInitialBladesBuffer() const { return initialBladesBuffer; }
+    VkBuffer GetVisibleIdsBuffer() const { return visibleIdsBuffer; }
+    const std::vector<Blade>& GetInitialBlades() const { return initialBlades; }
     ~Blades();
 };

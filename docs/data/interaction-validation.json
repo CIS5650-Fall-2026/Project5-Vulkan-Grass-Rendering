@@ -1,0 +1,1144 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "field-baseline: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-baseline: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-baseline: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-baseline: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-baseline: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-baseline: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-baseline: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-baseline: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-baseline: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-off: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-off: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-off: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-on: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-on: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-on: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hidden: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hidden: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hidden: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-recovery: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-recovery: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-recovery: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hold: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hold: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-hold: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-off: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-off: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-off: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-on: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-on: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "middle-on: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-off: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-off: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-off: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-on: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-on: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fast-on: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-on: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-on: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-on: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-hidden: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-hidden: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-hidden: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-lod-off: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-lod-off: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-lod-off: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-orbit: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-orbit: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-orbit: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "offscreen-orbit: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "offscreen-orbit: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "offscreen-orbit: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-33: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-33: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-33: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-8193: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-8193: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-8193: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "zero-strength: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "zero-strength: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "zero-strength: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "distant-sphere: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "distant-sphere: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "distant-sphere: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "controls: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "controls: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "controls: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-30: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-30: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-30: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-120: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-120: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "rate-120: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "large-sphere: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "large-sphere: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "large-sphere: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "strong-fast: numerical/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "strong-fast: GPU patches match draw",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "strong-fast: Vulkan core/synchronization validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: pre-interaction image regression",
+      "passed": true,
+      "details": {
+        "changedPixels": 4,
+        "mae8bit": 4.376446759259259e-05,
+        "rmse8bit": 0.03179501584222608
+      }
+    },
+    {
+      "name": "field: pre-interaction state regression",
+      "passed": true,
+      "details": {
+        "maxError": 1.0728836059570312e-06,
+        "tolerance": 1e-05,
+        "note": "Shader recompilation changes FP32 rounding; comparisons within the new executable remain bit exact."
+      }
+    },
+    {
+      "name": "near: pre-interaction image regression",
+      "passed": true,
+      "details": {
+        "changedPixels": 18,
+        "mae8bit": 2.5318287037037036e-05,
+        "rmse8bit": 0.022146137109863854
+      }
+    },
+    {
+      "name": "near: pre-interaction state regression",
+      "passed": true,
+      "details": {
+        "maxError": 1.0728836059570312e-06,
+        "tolerance": 1e-05,
+        "note": "Shader recompilation changes FP32 rounding; comparisons within the new executable remain bit exact."
+      }
+    },
+    {
+      "name": "bent: pre-interaction image regression",
+      "passed": true,
+      "details": {
+        "changedPixels": 0,
+        "mae8bit": 0.0,
+        "rmse8bit": 0.0
+      }
+    },
+    {
+      "name": "bent: pre-interaction state regression",
+      "passed": true,
+      "details": {
+        "maxError": 0.0,
+        "tolerance": 1e-05,
+        "note": "Shader recompilation changes FP32 rounding; comparisons within the new executable remain bit exact."
+      }
+    },
+    {
+      "name": "field-baseline / zero-strength: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "field-baseline / distant-sphere: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "field-on / field-lod-off: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "field-on / field-hidden: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "field-orbit / offscreen-orbit: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "rate-30 / rate-120: identical physics",
+      "passed": true,
+      "details": {
+        "maxError": 0.0
+      }
+    },
+    {
+      "name": "Single blade bends away from positive X sphere",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Single blade contact penetration removed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Middle contact detected while initial tip is outside sphere",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Fast swept pass affects blade",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Stationary contact reaches stable hold",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Recovery decreases to rest after sphere leaves",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Default field residual penetration below 6 cm",
+      "passed": true,
+      "details": {
+        "max": 0.053827949201345815,
+        "meanAllSamples": 2.93083977662851e-05,
+        "bladesOver1cm": 47
+      }
+    },
+    {
+      "name": "Paused input does not advance simulation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Single step advances exactly one substep",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Contact toggles reach uniforms",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Reset restores exact initial state",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Sphere motion modes switch",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Manual input actually moves sphere",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Offscreen draws zero patches then recovers",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "single-off: independent float64 contact reference",
+      "passed": true,
+      "details": {
+        "case": "single-off",
+        "maxError": 2.384185791015625e-07,
+        "tolerance": 0.0003
+      }
+    },
+    {
+      "name": "single-on: independent float64 contact reference",
+      "passed": true,
+      "details": {
+        "case": "single-on",
+        "maxError": 1.2546840011395943e-07,
+        "tolerance": 0.0003
+      }
+    },
+    {
+      "name": "single-recovery: independent float64 contact reference",
+      "passed": true,
+      "details": {
+        "case": "single-recovery",
+        "maxError": 2.384185791015625e-07,
+        "tolerance": 0.0003
+      }
+    },
+    {
+      "name": "middle-on: independent float64 contact reference",
+      "passed": true,
+      "details": {
+        "case": "middle-on",
+        "maxError": 2.1736006927675078e-07,
+        "tolerance": 0.0003
+      }
+    },
+    {
+      "name": "fast-on: independent float64 contact reference",
+      "passed": true,
+      "details": {
+        "case": "fast-on",
+        "maxError": 2.79185299323359e-07,
+        "tolerance": 0.0003
+      }
+    },
+    {
+      "name": "README.md unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "INSTRUCTION.md unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/grass.vert unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/grass.tesc unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/grass.tese unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/grass.frag unchanged",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "cases": [
+    {
+      "case": "field-baseline",
+      "blades": 8192,
+      "visible": 5755,
+      "sphere": [
+        -4,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.832218587398529,
+      "penetration": {
+        "max": 1.0095330778622218,
+        "meanAllSamples": 0.004874415972419933,
+        "bladesOver1cm": 159
+      }
+    },
+    {
+      "case": "near-baseline",
+      "blades": 8192,
+      "visible": 4037,
+      "sphere": [
+        -4,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.832218587398529,
+      "penetration": {
+        "max": 1.0095330778622218,
+        "meanAllSamples": 0.004874415972419933,
+        "bladesOver1cm": 159
+      }
+    },
+    {
+      "case": "bent-baseline",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        -4,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.0,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "single-off",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.400000006,
+        1.200000048,
+        0
+      ],
+      "radius": 0.8999999762,
+      "maxTipDisplacement": 0.0,
+      "penetration": {
+        "max": 0.49999291997120304,
+        "meanAllSamples": 0.1963617625094579,
+        "bladesOver1cm": 1
+      }
+    },
+    {
+      "case": "single-on",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.400000006,
+        1.200000048,
+        0
+      ],
+      "radius": 0.8999999762,
+      "maxTipDisplacement": 1.6720637083053589,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "single-hidden",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.400000006,
+        1.200000048,
+        0
+      ],
+      "radius": 0.8999999762,
+      "maxTipDisplacement": 1.6720637083053589,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "single-recovery",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        20,
+        1.200000048,
+        0
+      ],
+      "radius": 0.8999999762,
+      "maxTipDisplacement": 0.0,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "single-hold",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.400000006,
+        1.200000048,
+        0
+      ],
+      "radius": 0.8999999762,
+      "maxTipDisplacement": 1.6720637083053589,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "middle-off",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0,
+        1.649999976,
+        0
+      ],
+      "radius": 0.25,
+      "maxTipDisplacement": 0.0,
+      "penetration": {
+        "max": 0.2499998210279235,
+        "meanAllSamples": 0.03553412574888691,
+        "bladesOver1cm": 1
+      }
+    },
+    {
+      "case": "middle-on",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0,
+        1.649999976,
+        0
+      ],
+      "radius": 0.25,
+      "maxTipDisplacement": 0.486640065908432,
+      "penetration": {
+        "max": 0.06684295409805283,
+        "meanAllSamples": 0.009276825460876659,
+        "bladesOver1cm": 1
+      }
+    },
+    {
+      "case": "fast-off",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.3333334923,
+        1.200000048,
+        0
+      ],
+      "radius": 0.25,
+      "maxTipDisplacement": 0.0,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "fast-on",
+      "blades": 1,
+      "visible": 1,
+      "sphere": [
+        0.3333334923,
+        1.200000048,
+        0
+      ],
+      "radius": 0.25,
+      "maxTipDisplacement": 0.092767633497715,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "field-off",
+      "blades": 8192,
+      "visible": 6085,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.832218587398529,
+      "penetration": {
+        "max": 1.0309552625614087,
+        "meanAllSamples": 0.0034352445129658955,
+        "bladesOver1cm": 133
+      }
+    },
+    {
+      "case": "field-on",
+      "blades": 8192,
+      "visible": 6086,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7493205070495605,
+      "penetration": {
+        "max": 0.053827949201345815,
+        "meanAllSamples": 2.93083977662851e-05,
+        "bladesOver1cm": 47
+      }
+    },
+    {
+      "case": "field-hidden",
+      "blades": 8192,
+      "visible": 6086,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7493205070495605,
+      "penetration": {
+        "max": 0.053827949201345815,
+        "meanAllSamples": 2.93083977662851e-05,
+        "bladesOver1cm": 47
+      }
+    },
+    {
+      "case": "field-lod-off",
+      "blades": 8192,
+      "visible": 6086,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7493205070495605,
+      "penetration": {
+        "max": 0.053827949201345815,
+        "meanAllSamples": 2.93083977662851e-05,
+        "bladesOver1cm": 47
+      }
+    },
+    {
+      "case": "field-orbit",
+      "blades": 8192,
+      "visible": 5762,
+      "sphere": [
+        0.8431832194,
+        1.200000048,
+        3.910120487
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.8448474407196045,
+      "penetration": {
+        "max": 0.06296318870289697,
+        "meanAllSamples": 2.3034336173542356e-05,
+        "bladesOver1cm": 39
+      }
+    },
+    {
+      "case": "offscreen-orbit",
+      "blades": 8192,
+      "visible": 5762,
+      "sphere": [
+        0.8431832194,
+        1.200000048,
+        3.910120487
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.8448474407196045,
+      "penetration": {
+        "max": 0.06296318870289697,
+        "meanAllSamples": 2.3034336173542356e-05,
+        "bladesOver1cm": 39
+      }
+    },
+    {
+      "case": "count-33",
+      "blades": 33,
+      "visible": 23,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 1.2660950422286987,
+      "penetration": {
+        "max": 0.013917856162656062,
+        "meanAllSamples": 4.8969966919050705e-05,
+        "bladesOver1cm": 1
+      }
+    },
+    {
+      "case": "count-8193",
+      "blades": 8193,
+      "visible": 5753,
+      "sphere": [
+        0,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.749051570892334,
+      "penetration": {
+        "max": 0.05539474294411906,
+        "meanAllSamples": 3.0288552821127385e-05,
+        "bladesOver1cm": 48
+      }
+    },
+    {
+      "case": "zero-strength",
+      "blades": 8192,
+      "visible": 5755,
+      "sphere": [
+        -4,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.832218587398529,
+      "penetration": {
+        "max": 1.0095330778622218,
+        "meanAllSamples": 0.004874415972419933,
+        "bladesOver1cm": 159
+      }
+    },
+    {
+      "case": "distant-sphere",
+      "blades": 8192,
+      "visible": 5755,
+      "sphere": [
+        20,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 0.832218587398529,
+      "penetration": {
+        "max": 0.0,
+        "meanAllSamples": 0.0,
+        "bladesOver1cm": 0
+      }
+    },
+    {
+      "case": "controls",
+      "blades": 8192,
+      "visible": 5755,
+      "sphere": [
+        -3.806271791,
+        1.200000048,
+        -1.22975409
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7030982971191406,
+      "penetration": {
+        "max": 0.05782123609546286,
+        "meanAllSamples": 1.683063852151321e-05,
+        "bladesOver1cm": 34
+      }
+    },
+    {
+      "case": "rate-30",
+      "blades": 8192,
+      "visible": 8192,
+      "sphere": [
+        3.959969997,
+        1.200000048,
+        -0.5644800067
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7738003730773926,
+      "penetration": {
+        "max": 0.06369582517152406,
+        "meanAllSamples": 2.3010398053700514e-05,
+        "bladesOver1cm": 37
+      }
+    },
+    {
+      "case": "rate-120",
+      "blades": 8192,
+      "visible": 8192,
+      "sphere": [
+        3.959969997,
+        1.200000048,
+        -0.5644800067
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 2.7738003730773926,
+      "penetration": {
+        "max": 0.06369582517152406,
+        "meanAllSamples": 2.3010398053700514e-05,
+        "bladesOver1cm": 37
+      }
+    },
+    {
+      "case": "large-sphere",
+      "blades": 8192,
+      "visible": 8192,
+      "sphere": [
+        0,
+        3,
+        0
+      ],
+      "radius": 3,
+      "maxTipDisplacement": 3.3219478130340576,
+      "penetration": {
+        "max": 0.17516132402327766,
+        "meanAllSamples": 0.0005201586498336995,
+        "bladesOver1cm": 236
+      }
+    },
+    {
+      "case": "strong-fast",
+      "blades": 8192,
+      "visible": 5758,
+      "sphere": [
+        8,
+        1.200000048,
+        0
+      ],
+      "radius": 1.100000024,
+      "maxTipDisplacement": 1.997065544128418,
+      "penetration": {
+        "max": 0.046269461333252604,
+        "meanAllSamples": 1.2476633038918045e-06,
+        "bladesOver1cm": 1
+      }
+    }
+  ],
+  "cpuReference": [
+    {
+      "case": "single-off",
+      "maxError": 2.384185791015625e-07,
+      "tolerance": 0.0003
+    },
+    {
+      "case": "single-on",
+      "maxError": 1.2546840011395943e-07,
+      "tolerance": 0.0003
+    },
+    {
+      "case": "single-recovery",
+      "maxError": 2.384185791015625e-07,
+      "tolerance": 0.0003
+    },
+    {
+      "case": "middle-on",
+      "maxError": 2.1736006927675078e-07,
+      "tolerance": 0.0003
+    },
+    {
+      "case": "fast-on",
+      "maxError": 2.79185299323359e-07,
+      "tolerance": 0.0003
+    }
+  ],
+  "contactMetric": "65 centreline samples in t=[0.2,1], excludes anchored basal region; geometric overlap in world units, not full ribbon mesh collision. Six cm is an engineering bound for the specified default-field fixture, not a course requirement."
+}

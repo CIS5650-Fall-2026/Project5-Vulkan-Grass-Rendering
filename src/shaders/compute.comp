@@ -1,56 +1,235 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-#define WORKGROUP_SIZE 32
-layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
-
-layout(set = 0, binding = 0) uniform CameraBufferObject {
+layout(local_size_x = 32) in;
+layout(std140, set = 0, binding = 0) uniform Camera {
     mat4 view;
-    mat4 proj;
+    mat4 projection;
+    vec4 position;
+    vec4 frustumPlanes[6];
 } camera;
+layout(std140, set = 1, binding = 0) uniform Simulation {
+    float stepSeconds;
+    float startTime;
+    float gravityStrength;
+    float windStrength;
+    vec4 windDirection;
+    uint stepCount;
+    uint forceMask;
+    uint reset;
+    uint physics;
+    uint cullingMask;
+    uint distanceBuckets;
+    float orientationThreshold;
+    float maxDistance;
+    vec4 cullingSettings;
+    vec4 lodDistances;
+    uvec4 lodControls;
+    vec4 spherePath[9];
+    vec4 contactSettings;
+    uvec4 contactControls;
+} sim;
 
-layout(set = 1, binding = 0) uniform Time {
-    float deltaTime;
-    float totalTime;
-};
+struct Blade { vec4 v0; vec4 v1; vec4 v2; vec4 up; };
+layout(std430, set = 2, binding = 0) buffer State { Blade blades[]; } state;
+layout(std430, set = 2, binding = 1) writeonly buffer Output { Blade blades[]; } outputBlades;
+layout(std430, set = 2, binding = 2) readonly buffer Initial { Blade blades[]; } initial;
+layout(std430, set = 2, binding = 3) buffer Indirect {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} draw;
+layout(std430, set = 2, binding = 4) writeonly buffer VisibleIds { uint ids[]; } visible;
+layout(push_constant) uniform Dispatch { mat4 model; uint bladeCount; } dispatch;
 
-struct Blade {
-    vec4 v0;
-    vec4 v1;
-    vec4 v2;
-    vec4 up;
-};
-
-// TODO: Add bindings to:
-// 1. Store the input blades
-// 2. Write out the culled blades
-// 3. Write the total number of blades remaining
-
-// The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
-// This is sort of an advanced feature so we've showed you what this buffer should look like
-//
-// layout(set = ???, binding = ???) buffer NumBlades {
-// 	  uint vertexCount;   // Write the number of blades remaining here
-// 	  uint instanceCount; // = 1
-// 	  uint firstVertex;   // = 0
-// 	  uint firstInstance; // = 0
-// } numBlades;
-
-bool inBounds(float value, float bounds) {
-    return (value >= -bounds) && (value <= bounds);
+vec3 safeDirection(vec3 v, vec3 fallback) {
+    float n2 = dot(v, v);
+    return n2 > 1e-12 ? v * inversesqrt(n2) : fallback;
 }
-
+// Same orientation frame as grass.vert; physics stays in model space.
+vec3 frontDirection(Blade blade, vec3 up) {
+    vec3 reference = abs(up.y) < 0.99 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(reference - dot(reference, up) * up);
+    vec3 side = cos(blade.v0.w) * tangent + sin(blade.v0.w) * cross(tangent, up);
+    return normalize(cross(side, up));
+}
+vec3 widthDirection(Blade blade, vec3 up) {
+    vec3 reference = abs(up.y) < 0.99 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(reference - dot(reference, up) * up);
+    return cos(blade.v0.w) * tangent + sin(blade.v0.w) * cross(tangent, up);
+}
+bool pointInside(vec3 p) {
+    for (int plane = 0; plane < 6; ++plane)
+        if (dot(camera.frustumPlanes[plane], vec4(p, 1)) < -sim.cullingSettings.x) return false;
+    return true;
+}
+bool outsideFrustum(vec3 p0, vec3 p1, vec3 p2, vec3 width) {
+    vec3 midpoint = 0.25 * p0 + 0.5 * p1 + 0.25 * p2;
+    // Course samples provide fast acceptance, not conservative rejection.
+    if (pointInside(p0) || pointInside(midpoint) || pointInside(p2)) return false;
+    // Edge Bezier controls: p0 +/- width/2, p1 +/- width/4, p2.
+    // Their convex hull contains every vertex of the current tapered ribbon.
+    for (int i = 0; i < 6; ++i) {
+        vec4 plane = camera.frustumPlanes[i];
+        float widthSupport = abs(dot(plane.xyz, width));
+        float farthest = max(dot(plane, vec4(p0, 1)) + 0.5 * widthSupport,
+            max(dot(plane, vec4(p1, 1)) + 0.25 * widthSupport, dot(plane, vec4(p2, 1))));
+        if (farthest < -sim.cullingSettings.x) return true;
+    }
+    return false;
+}
+uint stableHash(uint id) {
+    id ^= id >> 16; id *= 0x7feb352du;
+    id ^= id >> 15; id *= 0x846ca68bu;
+    return id ^ (id >> 16);
+}
+bool keepBlade(Blade blade, vec3 localUp, uint id) {
+    vec3 p0 = (dispatch.model * vec4(blade.v0.xyz, 1)).xyz;
+    vec3 p1 = (dispatch.model * vec4(blade.v1.xyz, 1)).xyz;
+    vec3 p2 = (dispatch.model * vec4(blade.v2.xyz, 1)).xyz;
+    vec3 width = mat3(dispatch.model) * (widthDirection(blade, localUp) * blade.v2.w);
+    if ((sim.cullingMask & 1u) != 0 && outsideFrustum(p0, p1, p2, width)) return false;
+    if ((sim.cullingMask & 2u) != 0) {
+        vec3 viewDir = safeDirection(camera.position.xyz - (0.25 * p0 + 0.5 * p1 + 0.25 * p2), vec3(0));
+        // Paper prose uses WIDTH direction; draft Eq. 17 reverses this inequality.
+        if (abs(dot(viewDir, safeDirection(width, vec3(0)))) > sim.orientationThreshold) return false;
+    }
+    if ((sim.cullingMask & 4u) != 0) {
+        vec3 up = safeDirection(mat3(dispatch.model) * localUp, vec3(0, 1, 0));
+        vec3 offset = p0 - camera.position.xyz;
+        float distance = length(offset - up * dot(offset, up));
+        if (distance >= sim.maxDistance) return false;
+        uint bucket = min(uint(distance / sim.maxDistance * float(sim.distanceBuckets)), sim.distanceBuckets - 1u);
+        if (stableHash(id) % sim.distanceBuckets >= sim.distanceBuckets - bucket) return false;
+    }
+    return true;
+}
+vec3 windForce(Blade blade, vec3 up, float time) {
+    vec3 direction = safeDirection(sim.windDirection.xyz, vec3(0));
+    float phase = dot(blade.v0.xyz, vec3(0.45, 0.0, 0.30));
+    float wave = 0.55 + 0.35 * sin(phase - 1.7 * time)
+                      + 0.10 * sin(1.8 * phase + 3.1 * time);
+    vec3 field = direction * sim.windStrength * wave;
+    if (dot(field, field) < 1e-12) return vec3(0);
+    // Course slides 11-12 and paper equations 7-8.
+    vec3 tip = blade.v2.xyz - blade.v0.xyz;
+    float alignment = 1.0 - abs(dot(normalize(field), safeDirection(tip, up)));
+    float heightRatio = clamp(dot(tip, up) / blade.v1.w, 0.0, 1.0);
+    return field * clamp(alignment, 0.0, 1.0) * heightRatio;
+}
+void correctCurve(inout Blade blade, vec3 up) {
+    vec3 root = blade.v0.xyz;
+    float height = max(blade.v1.w, 1e-6);
+    vec3 tip = blade.v2.xyz - root;
+    // Paper equation 9: the local ground half-space.
+    tip -= up * min(dot(tip, up), 0.0);
+    float projectedLength = length(tip - up * dot(tip, up));
+    float ratio = projectedLength / height;
+    // Equations 10-11: the guide remains above the root.
+    vec3 guide = height * up * max(1.0 - ratio, 0.05 * max(ratio, 1.0));
+    float estimatedLength = (2.0 * length(tip) + length(guide) + length(tip - guide)) / 3.0;
+    if (estimatedLength < 1e-6) { tip = up * height; guide = tip; estimatedLength = height; }
+    // Equations 12-13: correct the estimated quadratic Bezier length.
+    float scale = height / estimatedLength;
+    blade.v1.xyz = root + guide * scale;
+    blade.v2.xyz = root + tip * scale;
+}
+vec3 closestOnSegment(vec3 p, vec3 a, vec3 b) {
+    vec3 ab = b - a;
+    float denominator = dot(ab, ab);
+    return a + ab * (denominator > 1e-12 ? clamp(dot(p - a, ab) / denominator, 0.0, 1.0) : 0.0);
+}
+// A bounded tip response from sampled curve contacts. The root and guide
+// constraints are still enforced by correctCurve; this is compliant contact,
+// not an exact continuous collision solver for the full ribbon mesh.
+vec4 sphereContact(Blade blade, vec3 up, vec4 startSphere, vec4 endSphere) {
+    vec3 root = (dispatch.model * vec4(blade.v0.xyz, 1)).xyz;
+    vec3 guide = (dispatch.model * vec4(blade.v1.xyz, 1)).xyz;
+    vec3 tip = (dispatch.model * vec4(blade.v2.xyz, 1)).xyz;
+    float radius = endSphere.w + sim.contactSettings.y;
+    // The Bezier curve lies inside the control-point convex hull.
+    float bound = max(length(guide - root), length(tip - root)) + radius;
+    vec3 nearest = closestOnSegment(root, startSphere.xyz, endSphere.xyz);
+    if (dot(root - nearest, root - nearest) > bound * bound) return vec4(0);
+    vec3 worldUp = safeDirection(mat3(dispatch.model) * up, vec3(0, 1, 0));
+    vec3 response = vec3(0);
+    float bestScore = 0.0, maxDepth = 0.0;
+    for (int sampleIndex = 1; sampleIndex <= 4; ++sampleIndex) {
+        float t = float(sampleIndex) * 0.25;
+        vec3 p = (1.0-t)*(1.0-t)*root + 2.0*(1.0-t)*t*guide + t*t*tip;
+        vec3 centre = closestOnSegment(p, startSphere.xyz, endSphere.xyz);
+        vec3 offset = p - centre;
+        float depth = max(radius - length(offset), 0.0);
+        maxDepth = max(maxDepth, depth);
+        float score = depth * t;
+        if (score > bestScore) {
+            vec3 lateral = root - centre;
+            lateral -= worldUp * dot(lateral, worldUp);
+            vec3 fallback = safeDirection(mat3(dispatch.model) * frontDirection(blade, up), vec3(1, 0, 0));
+            lateral = safeDirection(lateral, fallback);
+            // Root anchoring requires lateral bending even for a centred,
+            // vertically downward contact; use a stable blade-frame direction.
+            vec3 normal = safeDirection(offset, lateral);
+            normal = safeDirection(normal + 0.65 * lateral, lateral);
+            float smoothDepth = depth * smoothstep(0.0, sim.contactSettings.y, depth);
+            response = normal * smoothDepth / max(t*t, 0.25);
+            bestScore = score;
+        }
+    }
+    return vec4(inverse(mat3(dispatch.model)) * response, clamp(maxDepth / endSphere.w, 0.0, 1.0));
+}
+vec3 limitedContactStep(vec3 response, float height, float gain) {
+    vec3 delta = response * gain;
+    float magnitude = length(delta);
+    float limit = height * sim.contactSettings.z;
+    return magnitude > limit ? delta * (limit / magnitude) : delta;
+}
 void main() {
-	// Reset the number of blades to 0
-	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
-	}
-	barrier(); // Wait till all threads reach this point
-
-    // TODO: Apply forces on every blade and update the vertices in the buffer
-
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
-	// to the culled blades buffer
-	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
-	// You want to write the visible blades to the buffer without write conflicts between threads
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= dispatch.bladeCount) return;
+    Blade blade = sim.reset != 0 ? initial.blades[id] : state.blades[id];
+    vec3 up = safeDirection(blade.up.xyz, vec3(0, 1, 0));
+    if (sim.physics != 0) {
+        for (uint step = 0; step < sim.stepCount; ++step) {
+            float time = sim.startTime + float(step + 1) * sim.stepSeconds;
+            vec3 force = vec3(0);
+            bool contactEnabled = sim.contactControls.x != 0u && sim.contactSettings.x > 0.0;
+            vec4 contact = vec4(0);
+            if (contactEnabled) contact = sphereContact(blade, up, sim.spherePath[step], sim.spherePath[step + 1]);
+            if ((sim.forceMask & 1u) != 0) {
+                vec3 environmentalGravity = vec3(0, -sim.gravityStrength, 0);
+                force += environmentalGravity + 0.25 * length(environmentalGravity) * frontDirection(blade, up);
+            }
+            if ((sim.forceMask & 2u) != 0)
+                force += (blade.v0.xyz + blade.v1.w * up - blade.v2.xyz) * blade.up.w * (1.0 - 0.85 * contact.w);
+            if ((sim.forceMask & 4u) != 0) force += windForce(blade, up, time);
+            blade.v2.xyz += force * sim.stepSeconds;
+            float contactGain = min(sim.contactSettings.x * sim.stepSeconds, 1.0);
+            if (contactEnabled) blade.v2.xyz += limitedContactStep(contact.xyz, blade.v1.w, contactGain);
+            correctCurve(blade, up);
+            if (contactEnabled && contact.w > 0.0) {
+                // Couple contact and length constraints with two bounded
+                // relaxation passes at the current substep's endpoint.
+                for (int iteration = 0; iteration < 2; ++iteration) {
+                    vec4 correction = sphereContact(blade, up, sim.spherePath[step + 1], sim.spherePath[step + 1]);
+                    if (correction.w <= 0.0) break;
+                    blade.v2.xyz += limitedContactStep(correction.xyz, blade.v1.w, contactGain * 0.65);
+                    correctCurve(blade, up);
+                }
+            }
+        }
+    }
+    // Always persist full simulation state, including invisible blades.
+    state.blades[id] = blade;
+    if (sim.cullingMask == 0u) {
+        // Uniform branch, one writer, no competing atomics. Preserve original ordering.
+        if (id == 0u) draw.vertexCount = dispatch.bladeCount;
+        outputBlades.blades[id] = blade;
+        visible.ids[id] = id;
+    } else if (keepBlade(blade, up, id)) {
+        uint slot = atomicAdd(draw.vertexCount, 1u);
+        outputBlades.blades[slot] = blade;
+        visible.ids[slot] = id;
+    }
 }

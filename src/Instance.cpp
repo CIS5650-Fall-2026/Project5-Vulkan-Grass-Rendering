@@ -215,6 +215,19 @@ namespace {
             i++;
         }
 
+        // Stage 2 submits uploads, compute, and graphics to one queue. Select a
+        // combined family explicitly instead of assuming independent indices match.
+        if (requiredQueues[QueueFlags::Graphics] && requiredQueues[QueueFlags::Compute]) {
+            indices[QueueFlags::Graphics] = indices[QueueFlags::Compute] = -1;
+            for (uint32_t family = 0; family < queueFamilies.size(); ++family) {
+                const VkQueueFlags both = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
+                if (queueFamilies[family].queueCount && (queueFamilies[family].queueFlags & both) == both) {
+                    indices[QueueFlags::Graphics] = indices[QueueFlags::Compute] = family;
+                    indices[QueueFlags::Transfer] = family;
+                    break;
+                }
+            }
+        }
         return indices;
     }
 
@@ -333,16 +346,12 @@ Device* Instance::CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFea
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    // Enable device-specific extensions and validation layers
+    // Enable device-specific extensions. Validation layers are enabled on the instance.
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if (ENABLE_VALIDATION) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
+    createInfo.enabledLayerCount = 0;
+    createInfo.ppEnabledLayerNames = nullptr;
 
     VkDevice vkDevice;
     // Create logical device

@@ -1,0 +1,11 @@
+{
+  "frames":720,"warmup":180,"repetitions":4,"fixedDt":"0.0166666666666667",
+  "common":["--scene","field","--culling","all","--lod-near","15","--lod-far","45","--lod-min","2","--lod-max","8"],
+  "scenarios":[
+    {"id":"overview-8192","count":8192,"radius":23,"pitch":-25,"yaw":25},
+    {"id":"near-65536","count":65536,"radius":8,"pitch":-12,"yaw":25},
+    {"id":"overview-65536","count":65536,"radius":23,"pitch":-25,"yaw":25},
+    {"id":"far-65536","count":65536,"radius":45,"pitch":-12,"yaw":25},
+    {"id":"overview-131072","count":131072,"radius":23,"pitch":-25,"yaw":25}
+  ]
+}

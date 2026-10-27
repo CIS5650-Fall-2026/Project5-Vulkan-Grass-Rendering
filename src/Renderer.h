@@ -5,10 +5,20 @@
 #include "Scene.h"
 #include "Camera.h"
 
+struct GrassSnapshot {
+    std::vector<Blade> state;
+    std::vector<Blade> output;
+    std::vector<uint32_t> visibleIds;
+    BladeDrawIndirect draw;
+    CameraBufferObject camera;
+    SimulationUniforms simulation;
+    glm::mat4 model;
+};
+
 class Renderer {
 public:
     Renderer() = delete;
-    Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* camera);
+    Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* camera, bool wireframe = false, bool timings = false, bool geometryStats = false);
     ~Renderer();
 
     void CreateCommandPools();
@@ -39,7 +49,11 @@ public:
     void RecordCommandBuffers();
     void RecordComputeCommandBuffer();
 
-    void Frame();
+    bool Frame();
+    void WaitForFrame();
+    GrassSnapshot Readback(const Blades& blades);
+    std::array<double, 2> ReadGpuTimings(); // compute and graphics intervals, milliseconds
+    std::array<uint64_t, 2> ReadGpuGeometry(); // grass TCS patches and TES invocations (optional)
 
 private:
     Device* device;
@@ -47,6 +61,7 @@ private:
     SwapChain* swapChain;
     Scene* scene;
     Camera* camera;
+    bool wireframe;
 
     VkCommandPool graphicsCommandPool;
     VkCommandPool computeCommandPool;
@@ -56,12 +71,15 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
 
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
@@ -79,4 +97,10 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+    CameraBufferObject lastCamera;
+    SimulationUniforms lastSimulation;
+    VkQueryPool timestampPool = VK_NULL_HANDLE;
+    VkQueryPool geometryPool = VK_NULL_HANDLE;
+    float timestampPeriod = 0.0f;
+    uint32_t timestampBits = 0;
 };

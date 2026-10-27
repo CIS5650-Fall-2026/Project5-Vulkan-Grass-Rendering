@@ -1,0 +1,1335 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "Hardware calibration at level 2",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 9,
+        "gpuInvocations": 9
+      }
+    },
+    {
+      "name": "Hardware calibration at level 4",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 15,
+        "gpuInvocations": 15
+      }
+    },
+    {
+      "name": "Hardware calibration at level 6",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 21,
+        "gpuInvocations": 21
+      }
+    },
+    {
+      "name": "Hardware calibration at level 8",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 27,
+        "gpuInvocations": 27
+      }
+    },
+    {
+      "name": "Hardware calibration at level 10",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 33,
+        "gpuInvocations": 44
+      }
+    },
+    {
+      "name": "Hardware calibration at level 12",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 39,
+        "gpuInvocations": 52
+      }
+    },
+    {
+      "name": "Hardware calibration at level 16",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 51,
+        "gpuInvocations": 70
+      }
+    },
+    {
+      "name": "Hardware calibration at level 32",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 99,
+        "gpuInvocations": 138
+      }
+    },
+    {
+      "name": "Hardware calibration at level 64",
+      "passed": true,
+      "details": {
+        "uniqueGridVertices": 195,
+        "gpuInvocations": 274
+      }
+    },
+    {
+      "name": "field-off: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 155385,
+        "cpuUniqueVertices": 155385,
+        "predictedInvocations": 155385,
+        "allowedRange": [
+          155385,
+          155385
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "field-off-repeat: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off-repeat: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-off-repeat: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 155385,
+        "cpuUniqueVertices": 155385,
+        "predictedInvocations": 155385,
+        "allowedRange": [
+          155385,
+          155385
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "near-off: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-off: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-off: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 108999,
+        "cpuUniqueVertices": 108999,
+        "predictedInvocations": 108999,
+        "allowedRange": [
+          108999,
+          108999
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "bent-off: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-off: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-off: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 27,
+        "cpuUniqueVertices": 27,
+        "predictedInvocations": 27,
+        "allowedRange": [
+          27,
+          27
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "bent-near: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-near: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-near: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 27,
+        "cpuUniqueVertices": 27,
+        "predictedInvocations": 27,
+        "allowedRange": [
+          27,
+          27
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "bent-low: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-low: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-low: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 9,
+        "cpuUniqueVertices": 9,
+        "predictedInvocations": 9,
+        "allowedRange": [
+          9,
+          9
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "bent-middle: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-middle: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent-middle: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 21,
+        "cpuUniqueVertices": 21,
+        "predictedInvocations": 21,
+        "allowedRange": [
+          21,
+          21
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "near-on: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-on: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near-on: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 108999,
+        "cpuUniqueVertices": 108999,
+        "predictedInvocations": 108999,
+        "allowedRange": [
+          108999,
+          108999
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "field-on: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-on: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-on: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 147873,
+        "cpuUniqueVertices": 147873,
+        "predictedInvocations": 147873,
+        "allowedRange": [
+          147873,
+          147873
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "far-off: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far-off: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far-off: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 63774,
+        "cpuUniqueVertices": 63774,
+        "predictedInvocations": 63774,
+        "allowedRange": [
+          63774,
+          63774
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "far-on: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far-on: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far-on: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 29880,
+        "cpuUniqueVertices": 29910,
+        "predictedInvocations": 29910,
+        "allowedRange": [
+          29862,
+          29910
+        ],
+        "floatBoundaryBlades": 8
+      }
+    },
+    {
+      "name": "field-colors: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-colors: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field-colors: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 147873,
+        "cpuUniqueVertices": 147873,
+        "predictedInvocations": 147873,
+        "allowedRange": [
+          147873,
+          147873
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "count-33: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-33: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-33: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 867,
+        "cpuUniqueVertices": 867,
+        "predictedInvocations": 867,
+        "allowedRange": [
+          867,
+          867
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "count-8193: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-8193: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "count-8193: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 147723,
+        "cpuUniqueVertices": 147723,
+        "predictedInvocations": 147723,
+        "allowedRange": [
+          147723,
+          147723
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "empty: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "empty: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "empty: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 0,
+        "cpuUniqueVertices": 0,
+        "predictedInvocations": 0,
+        "allowedRange": [
+          0,
+          0
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-four: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-four: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-four: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 15,
+        "cpuUniqueVertices": 15,
+        "predictedInvocations": 15,
+        "allowedRange": [
+          15,
+          15
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "custom-levels: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "custom-levels: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "custom-levels: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 225704,
+        "cpuUniqueVertices": 182256,
+        "predictedInvocations": 225712,
+        "allowedRange": [
+          225704,
+          225712
+        ],
+        "floatBoundaryBlades": 1
+      }
+    },
+    {
+      "name": "fixed-ten: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-ten: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-ten: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 44,
+        "cpuUniqueVertices": 33,
+        "predictedInvocations": 44,
+        "allowedRange": [
+          44,
+          44
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-six: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-six: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-six: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 21,
+        "cpuUniqueVertices": 21,
+        "predictedInvocations": 21,
+        "allowedRange": [
+          21,
+          21
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-twelve: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-twelve: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-twelve: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 52,
+        "cpuUniqueVertices": 39,
+        "predictedInvocations": 52,
+        "allowedRange": [
+          52,
+          52
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-sixteen: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-sixteen: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-sixteen: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 70,
+        "cpuUniqueVertices": 51,
+        "predictedInvocations": 70,
+        "allowedRange": [
+          70,
+          70
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-thirtytwo: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-thirtytwo: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-thirtytwo: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 138,
+        "cpuUniqueVertices": 99,
+        "predictedInvocations": 138,
+        "allowedRange": [
+          138,
+          138
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "fixed-sixtyfour: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-sixtyfour: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fixed-sixtyfour: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 274,
+        "cpuUniqueVertices": 195,
+        "predictedInvocations": 274,
+        "allowedRange": [
+          274,
+          274
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "profile-15-45: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-15-45: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-15-45: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 147873,
+        "cpuUniqueVertices": 147873,
+        "predictedInvocations": 147873,
+        "allowedRange": [
+          147873,
+          147873
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "profile-20-45: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-20-45: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-20-45: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 154023,
+        "cpuUniqueVertices": 154023,
+        "predictedInvocations": 154023,
+        "allowedRange": [
+          154023,
+          154023
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "profile-20-50: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-20-50: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile-20-50: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 155331,
+        "cpuUniqueVertices": 155331,
+        "predictedInvocations": 155331,
+        "allowedRange": [
+          155331,
+          155331
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "controls: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "controls: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "controls: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 147696,
+        "cpuUniqueVertices": 147696,
+        "predictedInvocations": 147696,
+        "allowedRange": [
+          147696,
+          147696
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "distance-sweep: physics/culling invariants",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "distance-sweep: GPU patch count",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "distance-sweep: CPU LOD with calibrated GPU invocation counts",
+      "passed": true,
+      "details": {
+        "gpu": 9,
+        "cpuUniqueVertices": 9,
+        "predictedInvocations": 9,
+        "allowedRange": [
+          9,
+          9
+        ],
+        "floatBoundaryBlades": 0
+      }
+    },
+    {
+      "name": "Distance sweep: all 360 GPU geometry samples",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Distance sweep: bounded monotonic continuous requested level",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: disabled LOD matches old image",
+      "passed": true,
+      "details": {
+        "mae8bit": 4.15943287037037e-05,
+        "rmse8bit": 0.030303967393970295,
+        "max8bit": 32.0,
+        "changedPixels": 3,
+        "fractionPixelsOver8": 2.170138888888889e-06,
+        "psnr": 78.50081380792987,
+        "case": "pre-LOD vs disabled / field"
+      }
+    },
+    {
+      "name": "field: old physics state unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: old visibility set unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near: disabled LOD matches old image",
+      "passed": true,
+      "details": {
+        "mae8bit": 1.9169560185185184e-05,
+        "rmse8bit": 0.022006877607626145,
+        "max8bit": 33.0,
+        "changedPixels": 1,
+        "fractionPixelsOver8": 1.0850694444444444e-06,
+        "psnr": 81.27963504654701,
+        "case": "pre-LOD vs disabled / near"
+      }
+    },
+    {
+      "name": "near: old physics state unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near: old visibility set unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent: disabled LOD matches old image",
+      "passed": true,
+      "details": {
+        "mae8bit": 0.0,
+        "rmse8bit": 0.0,
+        "max8bit": 0.0,
+        "changedPixels": 0,
+        "fractionPixelsOver8": 0.0,
+        "psnr": null,
+        "case": "pre-LOD vs disabled / bent"
+      }
+    },
+    {
+      "name": "bent: old physics state unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "bent: old visibility set unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: LOD does not change physics",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: LOD does not change visible blades",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "field: image PSNR >= 35 dB",
+      "passed": true,
+      "details": {
+        "mae8bit": 0.32931785300925925,
+        "rmse8bit": 3.8339333769496946,
+        "max8bit": 176.0,
+        "changedPixels": 76341,
+        "fractionPixelsOver8": 0.009784071180555555,
+        "psnr": 36.457912373020854,
+        "case": "field / off vs on"
+      }
+    },
+    {
+      "name": "near: LOD does not change physics",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near: LOD does not change visible blades",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "near: image PSNR >= 35 dB",
+      "passed": true,
+      "details": {
+        "mae8bit": 0.0004470486111111111,
+        "rmse8bit": 0.17009282256179134,
+        "max8bit": 115.0,
+        "changedPixels": 143,
+        "fractionPixelsOver8": 7.595486111111111e-06,
+        "psnr": 63.51708384878212,
+        "case": "near / off vs on"
+      }
+    },
+    {
+      "name": "far: LOD does not change physics",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far: LOD does not change visible blades",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "far: image PSNR >= 35 dB",
+      "passed": true,
+      "details": {
+        "mae8bit": 0.341103515625,
+        "rmse8bit": 4.10087920895731,
+        "max8bit": 171.0,
+        "changedPixels": 23031,
+        "fractionPixelsOver8": 0.011571180555555555,
+        "psnr": 35.87326406129021,
+        "case": "far / off vs on"
+      }
+    },
+    {
+      "name": "Single blade near LOD equals full detail exactly",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Single blade: high 27 to low 9 TES invocations",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Live LOD/colour events affect submitted settings",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Zero-visible frame and recovery",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "README.md unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "INSTRUCTION.md unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/compute.comp unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "src/shaders/grass.vert unchanged",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "cases": [
+    {
+      "case": "field-off",
+      "visible": 5755,
+      "gpuTesInvocations": 155385,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 5755
+      }
+    },
+    {
+      "case": "field-off-repeat",
+      "visible": 5755,
+      "gpuTesInvocations": 155385,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 5755
+      }
+    },
+    {
+      "case": "near-off",
+      "visible": 4037,
+      "gpuTesInvocations": 108999,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 4037
+      }
+    },
+    {
+      "case": "bent-off",
+      "visible": 1,
+      "gpuTesInvocations": 27,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 1
+      }
+    },
+    {
+      "case": "bent-near",
+      "visible": 1,
+      "gpuTesInvocations": 27,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 1
+      }
+    },
+    {
+      "case": "bent-low",
+      "visible": 1,
+      "gpuTesInvocations": 9,
+      "requestedMin": 2.0,
+      "requestedMax": 2.0,
+      "requestedMean": 2.0,
+      "segmentHistogram": {
+        "2": 1
+      }
+    },
+    {
+      "case": "bent-middle",
+      "visible": 1,
+      "gpuTesInvocations": 21,
+      "requestedMin": 4.7233621510662775,
+      "requestedMax": 4.7233621510662775,
+      "requestedMean": 4.7233621510662775,
+      "segmentHistogram": {
+        "6": 1
+      }
+    },
+    {
+      "case": "near-on",
+      "visible": 4037,
+      "gpuTesInvocations": 108999,
+      "requestedMin": 7.822942788808344,
+      "requestedMax": 8.0,
+      "requestedMean": 7.998320562321612,
+      "segmentHistogram": {
+        "8": 4037
+      }
+    },
+    {
+      "case": "field-on",
+      "visible": 5755,
+      "gpuTesInvocations": 147873,
+      "requestedMin": 4.3477764247981,
+      "requestedMax": 7.9970957907435585,
+      "requestedMean": 6.800048135520756,
+      "segmentHistogram": {
+        "6": 1252,
+        "8": 4503
+      }
+    },
+    {
+      "case": "far-off",
+      "visible": 2362,
+      "gpuTesInvocations": 63774,
+      "requestedMin": 8.0,
+      "requestedMax": 8.0,
+      "requestedMean": 8.0,
+      "segmentHistogram": {
+        "8": 2362
+      }
+    },
+    {
+      "case": "far-on",
+      "visible": 2362,
+      "gpuTesInvocations": 29880,
+      "requestedMin": 2.0,
+      "requestedMax": 3.3673269850070175,
+      "requestedMean": 2.1732418877479835,
+      "segmentHistogram": {
+        "2": 920,
+        "4": 1442
+      }
+    },
+    {
+      "case": "field-colors",
+      "visible": 5755,
+      "gpuTesInvocations": 147873,
+      "requestedMin": 4.3477764247981,
+      "requestedMax": 7.9970957907435585,
+      "requestedMean": 6.800048135520756,
+      "segmentHistogram": {
+        "6": 1252,
+        "8": 4503
+      }
+    },
+    {
+      "case": "count-33",
+      "visible": 33,
+      "gpuTesInvocations": 867,
+      "requestedMin": 5.260771732274719,
+      "requestedMax": 7.966729682436414,
+      "requestedMean": 6.8636929406847464,
+      "segmentHistogram": {
+        "6": 4,
+        "8": 29
+      }
+    },
+    {
+      "case": "count-8193",
+      "visible": 5749,
+      "gpuTesInvocations": 147723,
+      "requestedMin": 4.3477764247981,
+      "requestedMax": 7.9970957907435585,
+      "requestedMean": 6.800341080208018,
+      "segmentHistogram": {
+        "6": 1250,
+        "8": 4499
+      }
+    },
+    {
+      "case": "empty",
+      "visible": 0,
+      "gpuTesInvocations": 0,
+      "requestedMin": null,
+      "requestedMax": null,
+      "requestedMean": null,
+      "segmentHistogram": {}
+    },
+    {
+      "case": "fixed-four",
+      "visible": 1,
+      "gpuTesInvocations": 15,
+      "requestedMin": 4.0,
+      "requestedMax": 4.0,
+      "requestedMean": 4.0,
+      "segmentHistogram": {
+        "4": 1
+      }
+    },
+    {
+      "case": "custom-levels",
+      "visible": 5748,
+      "gpuTesInvocations": 225704,
+      "requestedMin": 5.936020026893421,
+      "requestedMax": 10.662809066569322,
+      "requestedMean": 8.563807559344188,
+      "segmentHistogram": {
+        "6": 1,
+        "8": 1921,
+        "10": 3141,
+        "12": 685
+      }
+    },
+    {
+      "case": "fixed-ten",
+      "visible": 1,
+      "gpuTesInvocations": 44,
+      "requestedMin": 10.0,
+      "requestedMax": 10.0,
+      "requestedMean": 10.0,
+      "segmentHistogram": {
+        "10": 1
+      }
+    },
+    {
+      "case": "fixed-six",
+      "visible": 1,
+      "gpuTesInvocations": 21,
+      "requestedMin": 6.0,
+      "requestedMax": 6.0,
+      "requestedMean": 6.0,
+      "segmentHistogram": {
+        "6": 1
+      }
+    },
+    {
+      "case": "fixed-twelve",
+      "visible": 1,
+      "gpuTesInvocations": 52,
+      "requestedMin": 12.0,
+      "requestedMax": 12.0,
+      "requestedMean": 12.0,
+      "segmentHistogram": {
+        "12": 1
+      }
+    },
+    {
+      "case": "fixed-sixteen",
+      "visible": 1,
+      "gpuTesInvocations": 70,
+      "requestedMin": 16.0,
+      "requestedMax": 16.0,
+      "requestedMean": 16.0,
+      "segmentHistogram": {
+        "16": 1
+      }
+    },
+    {
+      "case": "fixed-thirtytwo",
+      "visible": 1,
+      "gpuTesInvocations": 138,
+      "requestedMin": 32.0,
+      "requestedMax": 32.0,
+      "requestedMean": 32.0,
+      "segmentHistogram": {
+        "32": 1
+      }
+    },
+    {
+      "case": "fixed-sixtyfour",
+      "visible": 1,
+      "gpuTesInvocations": 274,
+      "requestedMin": 64.0,
+      "requestedMax": 64.0,
+      "requestedMean": 64.0,
+      "segmentHistogram": {
+        "64": 1
+      }
+    },
+    {
+      "case": "profile-15-45",
+      "visible": 5755,
+      "gpuTesInvocations": 147873,
+      "requestedMin": 4.3477764247981,
+      "requestedMax": 7.9970957907435585,
+      "requestedMean": 6.800048135520756,
+      "segmentHistogram": {
+        "6": 1252,
+        "8": 4503
+      }
+    },
+    {
+      "case": "profile-20-45",
+      "visible": 5755,
+      "gpuTesInvocations": 154023,
+      "requestedMin": 5.1117097317683795,
+      "requestedMax": 8.0,
+      "requestedMean": 7.47210455900023,
+      "segmentHistogram": {
+        "6": 227,
+        "8": 5528
+      }
+    },
+    {
+      "case": "profile-20-50",
+      "visible": 5755,
+      "gpuTesInvocations": 155331,
+      "requestedMin": 5.833245344824993,
+      "requestedMax": 8.0,
+      "requestedMean": 7.618095292266272,
+      "segmentHistogram": {
+        "6": 9,
+        "8": 5746
+      }
+    },
+    {
+      "case": "controls",
+      "visible": 5748,
+      "gpuTesInvocations": 147696,
+      "requestedMin": 4.3477764247981,
+      "requestedMax": 7.9970957907435585,
+      "requestedMean": 6.8003778064381395,
+      "segmentHistogram": {
+        "6": 1250,
+        "8": 4498
+      }
+    },
+    {
+      "case": "distance-sweep",
+      "visible": 1,
+      "gpuTesInvocations": 9,
+      "requestedMin": 2.0,
+      "requestedMax": 2.0,
+      "requestedMean": 2.0,
+      "segmentHistogram": {
+        "2": 1
+      }
+    }
+  ],
+  "imageDifferences": [
+    {
+      "mae8bit": 4.15943287037037e-05,
+      "rmse8bit": 0.030303967393970295,
+      "max8bit": 32.0,
+      "changedPixels": 3,
+      "fractionPixelsOver8": 2.170138888888889e-06,
+      "psnr": 78.50081380792987,
+      "case": "pre-LOD vs disabled / field"
+    },
+    {
+      "mae8bit": 1.9169560185185184e-05,
+      "rmse8bit": 0.022006877607626145,
+      "max8bit": 33.0,
+      "changedPixels": 1,
+      "fractionPixelsOver8": 1.0850694444444444e-06,
+      "psnr": 81.27963504654701,
+      "case": "pre-LOD vs disabled / near"
+    },
+    {
+      "mae8bit": 0.0,
+      "rmse8bit": 0.0,
+      "max8bit": 0.0,
+      "changedPixels": 0,
+      "fractionPixelsOver8": 0.0,
+      "psnr": null,
+      "case": "pre-LOD vs disabled / bent"
+    },
+    {
+      "mae8bit": 0.32931785300925925,
+      "rmse8bit": 3.8339333769496946,
+      "max8bit": 176.0,
+      "changedPixels": 76341,
+      "fractionPixelsOver8": 0.009784071180555555,
+      "psnr": 36.457912373020854,
+      "case": "field / off vs on"
+    },
+    {
+      "mae8bit": 0.0004470486111111111,
+      "rmse8bit": 0.17009282256179134,
+      "max8bit": 115.0,
+      "changedPixels": 143,
+      "fractionPixelsOver8": 7.595486111111111e-06,
+      "psnr": 63.51708384878212,
+      "case": "near / off vs on"
+    },
+    {
+      "mae8bit": 0.341103515625,
+      "rmse8bit": 4.10087920895731,
+      "max8bit": 171.0,
+      "changedPixels": 23031,
+      "fractionPixelsOver8": 0.011571180555555555,
+      "psnr": 35.87326406129021,
+      "case": "far / off vs on"
+    },
+    {
+      "mae8bit": 2.9658564814814815e-05,
+      "rmse8bit": 0.02381448361039201,
+      "max8bit": 27.0,
+      "changedPixels": 2,
+      "fractionPixelsOver8": 2.170138888888889e-06,
+      "psnr": 80.59398023318289,
+      "case": "disabled repeatability"
+    }
+  ],
+  "hardwareCalibration": {
+    "2": 9,
+    "4": 15,
+    "6": 21,
+    "8": 27,
+    "10": 44,
+    "12": 52,
+    "16": 70,
+    "32": 138,
+    "64": 274
+  },
+  "scope": "Distance tessellation only; unchanged compute physics and visibility. TES invocation counts, not unique physical vertices or frame FPS.",
+  "criteria": "Existing numerical invariants; calibrated geometry counts with 2e-5 level-boundary tolerance; disabled baseline <=9 changed pixels and MAE<0.0001/255; 35 dB full-frame quality target. These image thresholds are experiment criteria, not course requirements."
+}
