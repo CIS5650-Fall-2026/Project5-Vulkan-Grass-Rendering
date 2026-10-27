@@ -13,6 +13,11 @@ struct Time {
     float totalTime = 0.0f;
 };
 
+struct Sun {
+    glm::vec4 direction;
+    glm::vec4 color;
+};
+
 class Scene {
 private:
     Device* device;
@@ -22,6 +27,12 @@ private:
     Time time;
     
     void* mappedData;
+
+    VkBuffer sunBuffer;
+    VkDeviceMemory sunBufferMemory;
+    Sun sun;
+
+    void* mappedSunData;
 
     std::vector<Model*> models;
     std::vector<Blades*> blades;
@@ -40,6 +51,10 @@ public:
     void AddBlades(Blades* blades);
 
     VkBuffer GetTimeBuffer() const;
+
+    VkBuffer GetSunBuffer() const;
+
+    void UpdateSun();
 
     void UpdateTime();
 };

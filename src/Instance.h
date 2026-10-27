@@ -18,6 +18,7 @@ public:
     VkPhysicalDevice GetPhysicalDevice();
     const QueueFamilyIndices& GetQueueFamilyIndices() const;
     const VkSurfaceCapabilitiesKHR& GetSurfaceCapabilities() const;
+    void RefreshSurfaceCapabilities(VkSurfaceKHR surface);
     const std::vector<VkSurfaceFormatKHR>& GetSurfaceFormats() const;
     const std::vector<VkPresentModeKHR>& GetPresentModes() const;
     

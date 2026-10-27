@@ -3,8 +3,9 @@
 #include <glm/glm.hpp>
 #include <array>
 #include "Model.h"
+#include "ExperimentConfig.h"
 
-constexpr static unsigned int NUM_BLADES = 1 << 13;
+constexpr static unsigned int NUM_BLADES = ExperimentConfig::ENABLED ? ExperimentConfig::BLADE_COUNT : (1u << 13);
 constexpr static float MIN_HEIGHT = 1.3f;
 constexpr static float MAX_HEIGHT = 2.5f;
 constexpr static float MIN_WIDTH = 0.1f;

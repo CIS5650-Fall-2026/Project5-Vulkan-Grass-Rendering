@@ -28,7 +28,7 @@ public:
     void CreateTimeDescriptorSet();
     void CreateComputeDescriptorSets();
 
-    void CreateGraphicsPipeline();
+    void CreateGraphicsPipeline(bool sky = true);
     void CreateGrassPipeline();
     void CreateComputePipeline();
 
@@ -56,20 +56,25 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
 
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
     VkPipelineLayout computePipelineLayout;
+    VkPipelineLayout skyPipelineLayout;
 
     VkPipeline graphicsPipeline;
     VkPipeline grassPipeline;
     VkPipeline computePipeline;
+    VkPipeline skyPipeline;
 
     std::vector<VkImageView> imageViews;
     VkImage depthImage;

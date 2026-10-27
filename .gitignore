@@ -560,3 +560,5 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 *.xcuserstate
+
+/performance/

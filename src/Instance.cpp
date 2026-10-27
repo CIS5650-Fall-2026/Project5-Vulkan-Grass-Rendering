@@ -92,6 +92,16 @@ const VkSurfaceCapabilitiesKHR& Instance::GetSurfaceCapabilities() const {
     return surfaceCapabilities;
 }
 
+void Instance::RefreshSurfaceCapabilities(VkSurfaceKHR surface) {
+    VkSurfaceCapabilitiesKHR capabilities{};
+    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+        physicalDevice, surface, &capabilities) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to query surface capabilities");
+    }
+
+    surfaceCapabilities = capabilities;
+}
+
 const QueueFamilyIndices& Instance::GetQueueFamilyIndices() const {
     return queueFamilyIndices;
 }
@@ -337,12 +347,8 @@ Device* Instance::CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFea
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if (ENABLE_VALIDATION) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
+    createInfo.enabledLayerCount = 0;
+    createInfo.ppEnabledLayerNames = nullptr;
 
     VkDevice vkDevice;
     // Create logical device
