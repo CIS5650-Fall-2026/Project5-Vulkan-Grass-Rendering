@@ -4,6 +4,7 @@
 
 - [Didrik Wiig-Andersen](https://github.com/didrikwiigandersen)
 - Tested on: Ubuntu 24.04.4 LTS, AMD EPYC 7R32 (4 vCPUs), 15.4 GiB usable RAM, NVIDIA A10G with 23,028 MiB reported VRAM (AWS g5.xlarge).
+- Late days used: 1
 
 [![Watch the controls walkthrough: a late-afternoon Vulkan meadow](img/hero.png)](img/controls-walkthrough.mp4)
 
