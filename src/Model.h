@@ -9,6 +9,7 @@
 
 struct ModelBufferObject {
     glm::mat4 modelMatrix;
+    glm::vec4 materialColor;
 };
 
 class Model {
@@ -25,6 +26,7 @@ protected:
 
     VkBuffer modelBuffer;
     VkDeviceMemory modelBufferMemory;
+    void* mappedModelData;
 
     ModelBufferObject modelBufferObject;
 
@@ -50,6 +52,8 @@ public:
     const ModelBufferObject& getModelBufferObject() const;
 
     VkBuffer GetModelBuffer() const;
+    void SetTransform(const glm::mat4& transform);
+    void SetMaterialColor(const glm::vec4& color);
     VkImageView GetTextureView() const;
     VkSampler GetTextureSampler() const;
 };

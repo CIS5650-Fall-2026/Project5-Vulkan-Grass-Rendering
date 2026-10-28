@@ -12,6 +12,11 @@ layout(set = 0, binding = 0) uniform CameraBufferObject {
 layout(set = 1, binding = 0) uniform Time {
     float deltaTime;
     float totalTime;
+    float windStrength;
+    float windDirectionAngle;
+    vec4 collider;
+    vec4 colliderVelocity;
+    uvec4 performanceSettings;
 };
 
 struct Blade {
@@ -21,36 +26,189 @@ struct Blade {
     vec4 up;
 };
 
-// TODO: Add bindings to:
-// 1. Store the input blades
-// 2. Write out the culled blades
-// 3. Write the total number of blades remaining
+layout(set = 2, binding = 0) buffer InputBlades {
+    Blade blades[];
+} inputBlades;
 
-// The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
-// This is sort of an advanced feature so we've showed you what this buffer should look like
-//
-// layout(set = ???, binding = ???) buffer NumBlades {
-// 	  uint vertexCount;   // Write the number of blades remaining here
-// 	  uint instanceCount; // = 1
-// 	  uint firstVertex;   // = 0
-// 	  uint firstInstance; // = 0
-// } numBlades;
+layout(set = 2, binding = 1) buffer CulledBlades {
+    Blade blades[];
+} culledBlades;
 
-bool inBounds(float value, float bounds) {
-    return (value >= -bounds) && (value <= bounds);
+layout(set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} numBlades;
+
+float bladeHash(uint value) {
+    value = value * 747796405u + 2891336453u;
+    value = ((value >> ((value >> 28u) + 4u)) ^ value) * 277803737u;
+    value = (value >> 22u) ^ value;
+    return float(value) / 4294967295.0;
 }
 
 void main() {
-	// Reset the number of blades to 0
-	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
-	}
-	barrier(); // Wait till all threads reach this point
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= performanceSettings.x) {
+        return;
+    }
 
-    // TODO: Apply forces on every blade and update the vertices in the buffer
+    Blade blade = inputBlades.blades[index];
+    vec3 up = normalize(blade.up.xyz);
+    float height = blade.v1.w;
+    float width = blade.v2.w;
+    float stiffness = max(blade.up.w, 0.001);
+    vec3 restV2 = blade.v0.xyz + up * height;
 
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
-	// to the culled blades buffer
-	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
-	// You want to write the visible blades to the buffer without write conflicts between threads
+    vec3 reference = abs(up.x) > 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    reference = normalize(reference - up * dot(reference, up));
+    float orientation = blade.v0.w;
+    vec3 facing = normalize(reference * cos(orientation) + cross(up, reference) * sin(orientation));
+    vec3 side = normalize(cross(up, facing));
+
+    vec3 environmentalGravity = vec3(0.0, -9.8, 0.0);
+    vec3 frontGravity = 0.25 * length(environmentalGravity) * facing;
+    vec3 gravity = environmentalGravity + frontGravity;
+
+    float gustAngle = windDirectionAngle + sin(blade.v0.x * 0.7 + blade.v0.z * 0.8 + totalTime * 1.1) * 0.35;
+    vec3 windDirection = vec3(cos(gustAngle), 0.0, sin(gustAngle));
+    float windAlignment = abs(dot(facing, windDirection));
+    vec3 wind = windDirection * windAlignment * windStrength;
+
+    vec3 recovery = (restV2 - blade.v2.xyz) * stiffness;
+    vec3 translatedV2 = blade.v2.xyz + (gravity + recovery + wind) * deltaTime;
+    vec3 bladeSegment = translatedV2 - blade.v0.xyz;
+    float segmentLengthSquared = max(dot(bladeSegment, bladeSegment), 0.0001);
+    float closestT = clamp(dot(collider.xyz - blade.v0.xyz, bladeSegment) / segmentLengthSquared, 0.0, 1.0);
+    vec3 closestPoint = blade.v0.xyz + bladeSegment * closestT;
+    vec3 contactOffset = closestPoint - collider.xyz;
+    float contactDistance = length(contactOffset);
+    float contactRange = collider.w + width;
+    if (contactDistance < contactRange && contactDistance > 0.0001) {
+        float penetration = contactRange - contactDistance;
+        vec3 contactDirection = contactOffset / contactDistance;
+        vec3 colliderPush = contactDirection * (penetration * (8.0 + length(colliderVelocity.xyz) * 2.0));
+        colliderPush += colliderVelocity.xyz * min(penetration / contactRange, 1.0) * 2.0;
+        translatedV2 += colliderPush * deltaTime;
+    }
+    vec3 colliderOffset = translatedV2 - collider.xyz;
+    float colliderDistance = length(colliderOffset);
+    if (colliderDistance < collider.w) {
+        vec3 pushDirection = colliderDistance > 0.0001
+            ? colliderOffset / colliderDistance
+            : normalize(blade.v0.xyz - collider.xyz + vec3(0.0, 0.001, 0.0));
+        translatedV2 = collider.xyz + pushDirection * collider.w;
+    }
+    vec3 offset = translatedV2 - blade.v0.xyz;
+    vec3 lateralOffset = offset - up * dot(offset, up);
+    float minimumVerticalOffset = height * 0.05;
+    float maximumLateralLength = sqrt(max(height * height - minimumVerticalOffset * minimumVerticalOffset, 0.0));
+    float lateralLength = length(lateralOffset);
+    if (lateralLength > maximumLateralLength) {
+        lateralOffset *= maximumLateralLength / lateralLength;
+        lateralLength = maximumLateralLength;
+    }
+
+    float correctedVerticalOffset = sqrt(max(height * height - lateralLength * lateralLength, 0.0));
+    blade.v2.xyz = blade.v0.xyz + lateralOffset + up * correctedVerticalOffset;
+    blade.v2.w = width;
+    blade.v1.xyz = blade.v0.xyz + (blade.v2.xyz - blade.v0.xyz) * 0.5 + side * (height * 0.15);
+
+    Blade simulationBlade = blade;
+
+    vec2 sphereOffset = blade.v0.xz - collider.xz;
+    float sphereDistance = length(sphereOffset);
+    vec2 awayDirection = sphereDistance > 0.0001
+        ? sphereOffset / sphereDistance
+        : vec2(cos(orientation), sin(orientation));
+    float jitter = (bladeHash(index ^ 0x9e3779b9u) - 0.5) * 0.9;
+    float jitterCos = cos(jitter);
+    float jitterSin = sin(jitter);
+    vec2 leanDirection = vec2(
+        awayDirection.x * jitterCos - awayDirection.y * jitterSin,
+        awayDirection.x * jitterSin + awayDirection.y * jitterCos
+    );
+    float influenceRadius = collider.w + 0.75 * mix(0.7, 1.3, bladeHash(index));
+    float flattenWeight = 1.0 - smoothstep(collider.w * 0.5, influenceRadius, sphereDistance);
+    float lean = clamp(flattenWeight * mix(0.68, 0.94, bladeHash(index + 0x68bc21ebu)), 0.0, 0.94);
+    vec3 leanDirection3 = normalize(vec3(leanDirection.x, 0.0, leanDirection.y));
+    vec3 flattenedTip = blade.v0.xyz
+        + leanDirection3 * (height * lean)
+        + up * (height * sqrt(1.0 - lean * lean));
+    float sphereBlend = flattenWeight * 0.65;
+    vec3 sphereBentTip = mix(blade.v2.xyz, flattenedTip, sphereBlend);
+    vec3 windDeflection = windDirection * height * windStrength * windAlignment * (0.08 * flattenWeight);
+    blade.v2.xyz = sphereBentTip + windDeflection;
+
+    vec3 curvedGuide = blade.v0.xyz
+        + up * (height * 0.58)
+        + leanDirection3 * (height * lean * 0.28);
+    vec3 windBentGuide = blade.v1.xyz + windDirection * height * windStrength * windAlignment * (0.04 * flattenWeight);
+    blade.v1.xyz = mix(windBentGuide, curvedGuide, sphereBlend);
+
+    vec3 cameraPosition = vec3(0.0);
+    if ((performanceSettings.y & 5u) != 0u) {
+        cameraPosition = (inverse(camera.view) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+    }
+
+    bool orientationVisible = true;
+    if ((performanceSettings.y & 1u) != 0u) {
+        vec3 viewDirection = normalize(cameraPosition - blade.v0.xyz);
+        float facingAlignment = abs(dot(facing, viewDirection));
+        orientationVisible = (1.0 - facingAlignment) <= 0.9;
+    }
+
+    bool frustumVisible = true;
+    if ((performanceSettings.y & 2u) != 0u) {
+        vec4 clipV0 = camera.proj * camera.view * vec4(blade.v0.xyz, 1.0);
+        vec4 clipV2 = camera.proj * camera.view * vec4(blade.v2.xyz, 1.0);
+        vec3 midpoint = (blade.v0.xyz + 2.0 * blade.v1.xyz + blade.v2.xyz) * 0.25;
+        vec4 clipMidpoint = camera.proj * camera.view * vec4(midpoint, 1.0);
+        vec4 clipSamples[3] = vec4[3](clipV0, clipMidpoint, clipV2);
+        vec4 clipSide = camera.proj * camera.view * vec4(side * width, 0.0);
+        bool outsideLeft = true;
+        bool outsideRight = true;
+        bool outsideBottom = true;
+        bool outsideTop = true;
+        bool outsideNear = true;
+        bool outsideFar = true;
+        for (int sampleIndex = 0; sampleIndex < 3; ++sampleIndex) {
+            vec4 clipPlus = clipSamples[sampleIndex] + clipSide;
+            vec4 clipMinus = clipSamples[sampleIndex] - clipSide;
+            outsideLeft = outsideLeft && clipPlus.x < -clipPlus.w && clipMinus.x < -clipMinus.w;
+            outsideRight = outsideRight && clipPlus.x > clipPlus.w && clipMinus.x > clipMinus.w;
+            outsideBottom = outsideBottom && clipPlus.y < -clipPlus.w && clipMinus.y < -clipMinus.w;
+            outsideTop = outsideTop && clipPlus.y > clipPlus.w && clipMinus.y > clipMinus.w;
+            outsideNear = outsideNear && clipPlus.z < 0.0 && clipMinus.z < 0.0;
+            outsideFar = outsideFar && clipPlus.z > clipPlus.w && clipMinus.z > clipMinus.w;
+        }
+        frustumVisible = !(outsideLeft || outsideRight || outsideBottom || outsideTop || outsideNear || outsideFar);
+    }
+
+    bool distanceVisible = true;
+    if ((performanceSettings.y & 4u) != 0u) {
+        const float maxCullDistance = 50.0;
+        const uint distanceBucketCount = 8u;
+        float cameraDistance = length(cameraPosition - blade.v0.xyz);
+        distanceVisible = false;
+        if (cameraDistance < maxCullDistance) {
+            uint distanceBucket = min(uint(cameraDistance / maxCullDistance * float(distanceBucketCount)), distanceBucketCount - 1u);
+            float keepProbability = 1.0 - float(distanceBucket) / float(distanceBucketCount);
+            uint hash = index * 1664525u + 1013904223u;
+            hash ^= hash >> 16;
+            hash *= 2246822519u;
+            hash ^= hash >> 13;
+            float bladeSample = float(hash & 0x00ffffffu) / 16777216.0;
+            distanceVisible = bladeSample < keepProbability;
+        }
+    }
+
+    bool visible = orientationVisible && frustumVisible && distanceVisible;
+
+    inputBlades.blades[index] = simulationBlade;
+    if (visible) {
+        uint writeIndex = atomicAdd(numBlades.vertexCount, 1u);
+        culledBlades.blades[writeIndex] = blade;
+    }
 }

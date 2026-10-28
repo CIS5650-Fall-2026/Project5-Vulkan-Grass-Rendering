@@ -9,17 +9,17 @@ constexpr static float MIN_HEIGHT = 1.3f;
 constexpr static float MAX_HEIGHT = 2.5f;
 constexpr static float MIN_WIDTH = 0.1f;
 constexpr static float MAX_WIDTH = 0.14f;
-constexpr static float MIN_BEND = 7.0f;
-constexpr static float MAX_BEND = 13.0f;
+constexpr static float MIN_STIFFNESS = 7.0f;
+constexpr static float MAX_STIFFNESS = 13.0f;
 
 struct Blade {
-    // Position and direction
+    // Base position; w stores the blade-face orientation.
     glm::vec4 v0;
-    // Bezier point and height
+    // Bezier guide; w stores the blade height.
     glm::vec4 v1;
-    // Physical model guide and width
+    // Physical guide; w stores the blade width.
     glm::vec4 v2;
-    // Up vector and stiffness coefficient
+    // Surface normal; w stores the stiffness coefficient.
     glm::vec4 up;
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -61,6 +61,7 @@ struct Blade {
         return attributeDescriptions;
     }
 };
+static_assert(sizeof(Blade) == sizeof(glm::vec4) * 4, "Blade must remain four packed vec4s");
 
 struct BladeDrawIndirect {
     uint32_t vertexCount;

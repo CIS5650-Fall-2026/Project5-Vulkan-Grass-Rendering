@@ -1,6 +1,7 @@
 #include "Model.h"
 #include "BufferUtils.h"
 #include "Image.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 Model::Model(Device* device, VkCommandPool commandPool, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
   : device(device), vertices(vertices), indices(indices) {
@@ -14,10 +15,17 @@ Model::Model(Device* device, VkCommandPool commandPool, const std::vector<Vertex
     }
 
     modelBufferObject.modelMatrix = glm::mat4(1.0f);
-    BufferUtils::CreateBufferFromData(device, commandPool, &modelBufferObject, sizeof(ModelBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, modelBuffer, modelBufferMemory);
+    modelBufferObject.materialColor = glm::vec4(1.0f);
+    BufferUtils::CreateBuffer(device, sizeof(ModelBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, modelBuffer, modelBufferMemory);
+    if (vkMapMemory(device->GetVkDevice(), modelBufferMemory, 0, sizeof(ModelBufferObject), 0, &mappedModelData) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to map model uniform buffer");
+    }
+    memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
 }
 
 Model::~Model() {
+    vkUnmapMemory(device->GetVkDevice(), modelBufferMemory);
     if (indices.size() > 0) {
         vkDestroyBuffer(device->GetVkDevice(), indexBuffer, nullptr);
         vkFreeMemory(device->GetVkDevice(), indexBufferMemory, nullptr);
@@ -104,6 +112,16 @@ const ModelBufferObject& Model::getModelBufferObject() const {
 
 VkBuffer Model::GetModelBuffer() const {
     return modelBuffer;
+}
+
+void Model::SetTransform(const glm::mat4& transform) {
+    modelBufferObject.modelMatrix = transform;
+    memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
+}
+
+void Model::SetMaterialColor(const glm::vec4& color) {
+    modelBufferObject.materialColor = color;
+    memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
 }
 
 VkImageView Model::GetTextureView() const {

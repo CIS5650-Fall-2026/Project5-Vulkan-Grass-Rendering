@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "Scene.h"
 #include "Camera.h"
+#include <fstream>
 
 class Renderer {
 public:
@@ -31,6 +32,8 @@ public:
     void CreateGraphicsPipeline();
     void CreateGrassPipeline();
     void CreateComputePipeline();
+    void CreateSkyPipeline();
+    void TogglePerformanceCapture();
 
     void CreateFrameResources();
     void DestroyFrameResources();
@@ -56,12 +59,15 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
 
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
@@ -70,6 +76,7 @@ private:
     VkPipeline graphicsPipeline;
     VkPipeline grassPipeline;
     VkPipeline computePipeline;
+    VkPipeline skyPipeline;
 
     std::vector<VkImageView> imageViews;
     VkImage depthImage;
@@ -79,4 +86,21 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+    VkSemaphore computeFinishedSemaphore;
+    VkFence frameFence;
+    VkQueryPool performanceQueryPool;
+    double timestampPeriodNanoseconds;
+    uint32_t computeTimestampValidBits;
+    uint32_t graphicsTimestampValidBits;
+    bool timestampQueriesSupported;
+    bool performanceCaptureEnabled;
+    bool performanceLogInitialized;
+    bool hasSubmittedPerformanceFrame;
+    uint64_t performanceFrameNumber;
+    uint32_t submittedBladeCount;
+    uint32_t submittedCullingMask;
+    uint32_t recordedComputeBladeCount;
+    std::ofstream performanceLog;
+
+    void RecordCompletedPerformanceFrame();
 };

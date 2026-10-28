@@ -8,6 +8,7 @@ layout(set = 0, binding = 0) uniform CameraBufferObject {
 
 layout(set = 1, binding = 0) uniform ModelBufferObject {
     mat4 model;
+    vec4 materialColor;
 };
 
 layout(location = 0) in vec3 inPosition;
@@ -16,6 +17,9 @@ layout(location = 2) in vec2 inTexCoord;
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) out vec4 fragMaterialColor;
+layout(location = 3) out vec3 fragNormal;
+layout(location = 4) out vec3 fragWorldPosition;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -25,4 +29,7 @@ void main() {
     gl_Position = camera.proj * camera.view * model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord;
+    fragMaterialColor = materialColor;
+    fragNormal = normalize(mat3(model) * inPosition);
+    fragWorldPosition = (model * vec4(inPosition, 1.0)).xyz;
 }

@@ -1,13 +1,19 @@
 #include "BufferUtils.h"
 #include "Instance.h"
 
-void BufferUtils::CreateBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+void BufferUtils::CreateBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const std::vector<uint32_t>& queueFamilyIndices) {
     // Create buffer
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    if (queueFamilyIndices.size() > 1) {
+        bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+        bufferInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
+        bufferInfo.pQueueFamilyIndices = queueFamilyIndices.data();
+    } else {
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    }
 
     if (vkCreateBuffer(device->GetVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create vertex buffer");
@@ -58,12 +64,12 @@ void BufferUtils::CopyBuffer(Device* device, VkCommandPool commandPool, VkBuffer
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(device->GetQueue(QueueFlags::Graphics), 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(device->GetQueue(QueueFlags::Graphics));
+    vkQueueSubmit(device->GetQueue(QueueFlags::Transfer), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device->GetQueue(QueueFlags::Transfer));
     vkFreeCommandBuffers(device->GetVkDevice(), commandPool, 1, &commandBuffer);
 }
 
-void BufferUtils::CreateBufferFromData(Device* device, VkCommandPool commandPool, void* bufferData, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+void BufferUtils::CreateBufferFromData(Device* device, VkCommandPool commandPool, void* bufferData, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkBuffer& buffer, VkDeviceMemory& bufferMemory, const std::vector<uint32_t>& queueFamilyIndices) {
     // Create the staging buffer
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -81,7 +87,7 @@ void BufferUtils::CreateBufferFromData(Device* device, VkCommandPool commandPool
     // Create the buffer
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | bufferUsage;
     VkMemoryPropertyFlags flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    BufferUtils::CreateBuffer(device, bufferSize, usage, flags, buffer, bufferMemory);
+    BufferUtils::CreateBuffer(device, bufferSize, usage, flags, buffer, bufferMemory, queueFamilyIndices);
 
     // Copy data from staging to buffer
     BufferUtils::CopyBuffer(device, commandPool, stagingBuffer, buffer, bufferSize);

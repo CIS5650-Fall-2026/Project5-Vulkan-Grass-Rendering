@@ -29,4 +29,7 @@ public:
     VkBuffer GetBuffer() const;
     
     void UpdateOrbit(float deltaX, float deltaY, float deltaZ);
+    void UpdatePan(float deltaX, float deltaY, int viewportHeight);
+    bool ScreenRayIntersectsSphere(double x, double y, int width, int height, const glm::vec3& center, float radius) const;
+    bool ScreenToWorldOnPlane(double x, double y, int width, int height, float planeY, glm::vec3& worldPosition) const;
 };
