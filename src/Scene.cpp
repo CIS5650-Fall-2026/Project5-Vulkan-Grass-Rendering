@@ -1,5 +1,11 @@
 #include "Scene.h"
 #include "BufferUtils.h"
+#include <algorithm>
+
+namespace {
+    // Zero uses elapsed time
+    constexpr float FIXED_DELTA_TIME = 0.0f;
+}
 
 Scene::Scene(Device* device) : device(device) {
     BufferUtils::CreateBuffer(device, sizeof(Time), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, timeBuffer, timeBufferMemory);
@@ -28,7 +34,8 @@ void Scene::UpdateTime() {
     duration<float> nextDeltaTime = duration_cast<duration<float>>(currentTime - startTime);
     startTime = currentTime;
 
-    time.deltaTime = nextDeltaTime.count();
+    // Cap long steps after pauses
+    time.deltaTime = FIXED_DELTA_TIME > 0.0f ? FIXED_DELTA_TIME : std::min(nextDeltaTime.count(), 1.0f / 30.0f);
     time.totalTime += time.deltaTime;
 
     memcpy(mappedData, &time, sizeof(Time));
@@ -36,6 +43,14 @@ void Scene::UpdateTime() {
 
 VkBuffer Scene::GetTimeBuffer() const {
     return timeBuffer;
+}
+
+void Scene::ToggleCulling(CullingTest test) {
+    time.options.x ^= static_cast<uint32_t>(test);
+}
+
+uint32_t Scene::GetCullingMask() const {
+    return time.options.x;
 }
 
 Scene::~Scene() {

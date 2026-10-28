@@ -6,11 +6,12 @@ float generateRandomFloat() {
     return rand() / (float)RAND_MAX;
 }
 
-Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Model(device, commandPool, {}, {}) {
+Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim, uint32_t bladeCount)
+    : Model(device, commandPool, {}, {}), bladeCount(bladeCount) {
     std::vector<Blade> blades;
-    blades.reserve(NUM_BLADES);
+    blades.reserve(bladeCount);
 
-    for (int i = 0; i < NUM_BLADES; i++) {
+    for (uint32_t i = 0; i < bladeCount; i++) {
         Blade currentBlade = Blade();
 
         glm::vec3 bladeUp(0.0f, 1.0f, 0.0f);
@@ -39,14 +40,21 @@ Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Mode
     }
 
     BladeDrawIndirect indirectDraw;
-    indirectDraw.vertexCount = NUM_BLADES;
+    indirectDraw.vertexCount = 0;
     indirectDraw.instanceCount = 1;
     indirectDraw.firstVertex = 0;
     indirectDraw.firstInstance = 0;
 
-    BufferUtils::CreateBufferFromData(device, commandPool, blades.data(), NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, bladesBuffer, bladesBufferMemory);
-    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, culledBladesBuffer, culledBladesBufferMemory);
-    BufferUtils::CreateBufferFromData(device, commandPool, &indirectDraw, sizeof(BladeDrawIndirect), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, numBladesBuffer, numBladesBufferMemory);
+    // Keep hidden blades in the simulation
+    VkDeviceSize bladeBytes = static_cast<VkDeviceSize>(bladeCount) * sizeof(Blade);
+    BufferUtils::CreateBufferFromData(device, commandPool, blades.data(), bladeBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, bladesBuffer, bladesBufferMemory, true);
+    // Compute output doubles as vertex input
+    BufferUtils::CreateBuffer(device, bladeBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, culledBladesBuffer, culledBladesBufferMemory, true);
+    BufferUtils::CreateBufferFromData(device, commandPool, &indirectDraw, sizeof(BladeDrawIndirect), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, numBladesBuffer, numBladesBufferMemory, true);
+}
+
+uint32_t Blades::GetBladeCount() const {
+    return bladeCount;
 }
 
 VkBuffer Blades::GetBladesBuffer() const {

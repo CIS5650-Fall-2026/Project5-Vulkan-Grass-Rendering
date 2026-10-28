@@ -11,6 +11,7 @@ public:
     VkSwapchainKHR GetVkSwapChain() const;
     VkFormat GetVkImageFormat() const;
     VkExtent2D GetVkExtent() const;
+    VkPresentModeKHR GetPresentMode() const;
     uint32_t GetIndex() const;
     uint32_t GetCount() const;
     VkImage GetVkImage(uint32_t index) const;
@@ -34,8 +35,10 @@ private:
     std::vector<VkImage> vkSwapChainImages;
     VkFormat vkSwapChainImageFormat;
     VkExtent2D vkSwapChainExtent;
+    VkPresentModeKHR vkSwapChainPresentMode;
     uint32_t imageIndex = 0;
 
     VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
+    // Reuse after reacquiring the same image
+    std::vector<VkSemaphore> renderFinishedSemaphores;
 };

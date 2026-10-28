@@ -68,8 +68,7 @@ SwapChain::SwapChain(Device* device, VkSurfaceKHR vkSurface, unsigned int numBuf
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    if (vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
-        vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
+    if (vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create semaphores");
     }
 }
@@ -77,7 +76,9 @@ SwapChain::SwapChain(Device* device, VkSurfaceKHR vkSurface, unsigned int numBuf
 void SwapChain::Create() {
     auto* instance = device->GetInstance();
 
-    const auto& surfaceCapabilities = instance->GetSurfaceCapabilities();
+    // Refresh the window size
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(instance->GetPhysicalDevice(), vkSurface, &surfaceCapabilities);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(instance->GetSurfaceFormats());
     VkPresentModeKHR presentMode = chooseSwapPresentMode(instance->GetPresentModes());
@@ -105,14 +106,15 @@ void SwapChain::Create() {
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     const auto& queueFamilyIndices = instance->GetQueueFamilyIndices();
+    // Keep indices alive through creation
+    unsigned int indices[] = {
+        static_cast<unsigned int>(queueFamilyIndices[QueueFlags::Graphics]),
+        static_cast<unsigned int>(queueFamilyIndices[QueueFlags::Present])
+    };
     if (queueFamilyIndices[QueueFlags::Graphics] != queueFamilyIndices[QueueFlags::Present]) {
         // Images can be used across multiple queue families without explicit ownership transfers
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
-        unsigned int indices[] = {
-            static_cast<unsigned int>(queueFamilyIndices[QueueFlags::Graphics]),
-            static_cast<unsigned int>(queueFamilyIndices[QueueFlags::Present])
-        };
         createInfo.pQueueFamilyIndices = indices;
     }
     else {
@@ -147,11 +149,23 @@ void SwapChain::Create() {
     vkSwapChainImages.resize(imageCount);
     vkGetSwapchainImagesKHR(device->GetVkDevice(), vkSwapChain, &imageCount, vkSwapChainImages.data());
 
+    // One presentation semaphore per image
+    renderFinishedSemaphores.resize(imageCount);
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    for (VkSemaphore& semaphore : renderFinishedSemaphores) {
+        vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &semaphore);
+    }
+
     vkSwapChainImageFormat = surfaceFormat.format;
     vkSwapChainExtent = extent;
+    vkSwapChainPresentMode = presentMode;
 }
 
 void SwapChain::Destroy() {
+    for (VkSemaphore semaphore : renderFinishedSemaphores) {
+        vkDestroySemaphore(device->GetVkDevice(), semaphore, nullptr);
+    }
     vkDestroySwapchainKHR(device->GetVkDevice(), vkSwapChain, nullptr);
 }
 
@@ -165,6 +179,10 @@ VkFormat SwapChain::GetVkImageFormat() const {
 
 VkExtent2D SwapChain::GetVkExtent() const {
     return vkSwapChainExtent;
+}
+
+VkPresentModeKHR SwapChain::GetPresentMode() const {
+    return vkSwapChainPresentMode;
 }
 
 uint32_t SwapChain::GetIndex() const {
@@ -185,7 +203,7 @@ VkSemaphore SwapChain::GetImageAvailableVkSemaphore() const {
 }
 
 VkSemaphore SwapChain::GetRenderFinishedVkSemaphore() const {
-    return renderFinishedSemaphore;
+    return renderFinishedSemaphores[imageIndex];
 }
 
 void SwapChain::Recreate() {
@@ -199,20 +217,18 @@ bool SwapChain::Acquire() {
         vkQueueWaitIdle(device->GetQueue(QueueFlags::Present));
     }
     VkResult result = vkAcquireNextImageKHR(device->GetVkDevice(), vkSwapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        return false;
+    }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("Failed to acquire swap chain image");
-    }
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        Recreate();
-        return false;
     }
 
     return true;
 }
 
 bool SwapChain::Present() {
-    VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+    VkSemaphore signalSemaphores[] = { GetRenderFinishedVkSemaphore() };
 
     // Submit result back to swap chain for presentation
     VkPresentInfoKHR presentInfo = {};
@@ -228,13 +244,12 @@ bool SwapChain::Present() {
 
     VkResult result = vkQueuePresentKHR(device->GetQueue(QueueFlags::Present), &presentInfo);
 
-    if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to present swap chain image");
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        return false;
     }
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        Recreate();
-        return false;
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to present swap chain image");
     }
 
     return true;
@@ -242,6 +257,5 @@ bool SwapChain::Present() {
 
 SwapChain::~SwapChain() {
     vkDestroySemaphore(device->GetVkDevice(), imageAvailableSemaphore, nullptr);
-    vkDestroySemaphore(device->GetVkDevice(), renderFinishedSemaphore, nullptr);
     Destroy();
 }

@@ -31,6 +31,23 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateGraphicsPipeline();
     CreateGrassPipeline();
     CreateComputePipeline();
+
+    // Reuse one set of blade buffers
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &graphicsFinishedSemaphore);
+    vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &computeFinishedSemaphore);
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    vkCreateFence(logicalDevice, &fenceInfo, nullptr, &frameFence);
+
+    // Make uploads visible to compute
+    VkSubmitInfo uploadsFinished = {};
+    uploadsFinished.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    uploadsFinished.signalSemaphoreCount = 1;
+    uploadsFinished.pSignalSemaphores = &graphicsFinishedSemaphore;
+    vkQueueSubmit(device->GetQueue(QueueFlags::Graphics), 1, &uploadsFinished, VK_NULL_HANDLE);
     RecordCommandBuffers();
     RecordComputeCommandBuffer();
 }
@@ -170,6 +187,11 @@ void Renderer::CreateModelDescriptorSetLayout() {
     if (vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &modelDescriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create descriptor set layout");
     }
+
+    // Grass only needs a transform
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+    vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &grassDescriptorSetLayout);
 }
 
 void Renderer::CreateTimeDescriptorSetLayout() {
@@ -198,31 +220,45 @@ void Renderer::CreateComputeDescriptorSetLayout() {
     // TODO: Create the descriptor set layout for the compute pipeline
     // Remember this is like a class definition stating why types of information
     // will be stored at each binding
+    // Set 2: blades, survivors, draw count, transform
+    std::array<VkDescriptorSetLayoutBinding, 4> bindings = {};
+    for (uint32_t binding = 0; binding < bindings.size(); ++binding) {
+        bindings[binding].binding = binding;
+        bindings[binding].descriptorCount = 1;
+        bindings[binding].descriptorType = binding < 3 ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        bindings[binding].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    layoutInfo.pBindings = bindings.data();
+    vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &computeDescriptorSetLayout);
 }
 
 void Renderer::CreateDescriptorPool() {
+    uint32_t modelCount = static_cast<uint32_t>(scene->GetModels().size());
+    uint32_t grassCount = static_cast<uint32_t>(scene->GetBlades().size());
     // Describe which descriptor types that the descriptor sets will contain
     std::vector<VkDescriptorPoolSize> poolSizes = {
         // Camera
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER , 1},
-
         // Models + Blades
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER , static_cast<uint32_t>(scene->GetModels().size() + scene->GetBlades().size()) },
-
-        // Models + Blades
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER , static_cast<uint32_t>(scene->GetModels().size() + scene->GetBlades().size()) },
-
         // Time (compute)
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER , 1 },
+        // Grass shares transforms across two sets
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2 + modelCount + 2 * grassCount },
+
+        // Models + Blades
+        // Grass has no texture
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, modelCount },
 
         // TODO: Add any additional types and counts of descriptors you will need to allocate
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3 * grassCount }
     };
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = 5;
+    poolInfo.maxSets = 2 + modelCount + 2 * grassCount;
 
     if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create descriptor pool");
@@ -268,12 +304,12 @@ void Renderer::CreateModelDescriptorSets() {
     modelDescriptorSets.resize(scene->GetModels().size());
 
     // Describe the desciptor set
-    VkDescriptorSetLayout layouts[] = { modelDescriptorSetLayout };
+    std::vector<VkDescriptorSetLayout> layouts(modelDescriptorSets.size(), modelDescriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(modelDescriptorSets.size());
-    allocInfo.pSetLayouts = layouts;
+    allocInfo.pSetLayouts = layouts.data();
 
     // Allocate descriptor sets
     if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, modelDescriptorSets.data()) != VK_SUCCESS) {
@@ -281,15 +317,18 @@ void Renderer::CreateModelDescriptorSets() {
     }
 
     std::vector<VkWriteDescriptorSet> descriptorWrites(2 * modelDescriptorSets.size());
+    // Keep infos alive until descriptor writes
+    std::vector<VkDescriptorBufferInfo> bufferInfos(modelDescriptorSets.size());
+    std::vector<VkDescriptorImageInfo> imageInfos(modelDescriptorSets.size());
 
     for (uint32_t i = 0; i < scene->GetModels().size(); ++i) {
-        VkDescriptorBufferInfo modelBufferInfo = {};
+        VkDescriptorBufferInfo& modelBufferInfo = bufferInfos[i];
         modelBufferInfo.buffer = scene->GetModels()[i]->GetModelBuffer();
         modelBufferInfo.offset = 0;
         modelBufferInfo.range = sizeof(ModelBufferObject);
 
         // Bind image and sampler resources to the descriptor
-        VkDescriptorImageInfo imageInfo = {};
+        VkDescriptorImageInfo& imageInfo = imageInfos[i];
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = scene->GetModels()[i]->GetTextureView();
         imageInfo.sampler = scene->GetModels()[i]->GetTextureSampler();
@@ -320,6 +359,28 @@ void Renderer::CreateModelDescriptorSets() {
 void Renderer::CreateGrassDescriptorSets() {
     // TODO: Create Descriptor sets for the grass.
     // This should involve creating descriptor sets which point to the model matrix of each group of grass blades
+    grassDescriptorSets.resize(scene->GetBlades().size());
+    std::vector<VkDescriptorSetLayout> layouts(grassDescriptorSets.size(), grassDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+    allocInfo.pSetLayouts = layouts.data();
+    vkAllocateDescriptorSets(logicalDevice, &allocInfo, grassDescriptorSets.data());
+
+    for (uint32_t i = 0; i < grassDescriptorSets.size(); ++i) {
+        VkDescriptorBufferInfo modelInfo = {};
+        modelInfo.buffer = scene->GetBlades()[i]->GetModelBuffer();
+        modelInfo.range = sizeof(ModelBufferObject);
+        VkWriteDescriptorSet write = {};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.dstSet = grassDescriptorSets[i];
+        write.dstBinding = 0;
+        write.descriptorCount = 1;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        write.pBufferInfo = &modelInfo;
+        vkUpdateDescriptorSets(logicalDevice, 1, &write, 0, nullptr);
+    }
 }
 
 void Renderer::CreateTimeDescriptorSet() {
@@ -360,6 +421,39 @@ void Renderer::CreateTimeDescriptorSet() {
 void Renderer::CreateComputeDescriptorSets() {
     // TODO: Create Descriptor sets for the compute pipeline
     // The descriptors should point to Storage buffers which will hold the grass blades, the culled grass blades, and the output number of grass blades 
+    computeDescriptorSets.resize(scene->GetBlades().size());
+    std::vector<VkDescriptorSetLayout> layouts(computeDescriptorSets.size(), computeDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+    allocInfo.pSetLayouts = layouts.data();
+    vkAllocateDescriptorSets(logicalDevice, &allocInfo, computeDescriptorSets.data());
+
+    for (uint32_t i = 0; i < computeDescriptorSets.size(); ++i) {
+        Blades* blades = scene->GetBlades()[i];
+        VkDeviceSize bladeBytes = static_cast<VkDeviceSize>(blades->GetBladeCount()) * sizeof(Blade);
+        std::array<VkDescriptorBufferInfo, 4> infos = {};
+        infos[0].buffer = blades->GetBladesBuffer();
+        infos[0].range = bladeBytes;
+        infos[1].buffer = blades->GetCulledBladesBuffer();
+        infos[1].range = bladeBytes;
+        infos[2].buffer = blades->GetNumBladesBuffer();
+        infos[2].range = sizeof(BladeDrawIndirect);
+        infos[3].buffer = blades->GetModelBuffer();
+        infos[3].range = sizeof(ModelBufferObject);
+
+        std::array<VkWriteDescriptorSet, 4> writes = {};
+        for (uint32_t binding = 0; binding < writes.size(); ++binding) {
+            writes[binding].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writes[binding].dstSet = computeDescriptorSets[i];
+            writes[binding].dstBinding = binding;
+            writes[binding].descriptorCount = 1;
+            writes[binding].descriptorType = binding < 3 ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            writes[binding].pBufferInfo = &infos[binding];
+        }
+        vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+    }
 }
 
 void Renderer::CreateGraphicsPipeline() {
@@ -654,7 +748,7 @@ void Renderer::CreateGrassPipeline() {
     colorBlending.blendConstants[2] = 0.0f;
     colorBlending.blendConstants[3] = 0.0f;
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, modelDescriptorSetLayout };
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, grassDescriptorSetLayout };
 
     // Pipeline layout: used to specify uniform values
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -717,7 +811,7 @@ void Renderer::CreateComputePipeline() {
     computeShaderStageInfo.pName = "main";
 
     // TODO: Add the compute dsecriptor set layout you create to this list
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, timeDescriptorSetLayout };
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, timeDescriptorSetLayout, computeDescriptorSetLayout };
 
     // Create pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -825,20 +919,22 @@ void Renderer::CreateFrameResources() {
 }
 
 void Renderer::DestroyFrameResources() {
+    // Drop framebuffers before their views
+    for (size_t i = 0; i < framebuffers.size(); i++) {
+        vkDestroyFramebuffer(logicalDevice, framebuffers[i], nullptr);
+    }
     for (size_t i = 0; i < imageViews.size(); i++) {
         vkDestroyImageView(logicalDevice, imageViews[i], nullptr);
     }
 
     vkDestroyImageView(logicalDevice, depthImageView, nullptr);
-    vkFreeMemory(logicalDevice, depthImageMemory, nullptr);
     vkDestroyImage(logicalDevice, depthImage, nullptr);
-
-    for (size_t i = 0; i < framebuffers.size(); i++) {
-        vkDestroyFramebuffer(logicalDevice, framebuffers[i], nullptr);
-    }
+    vkFreeMemory(logicalDevice, depthImageMemory, nullptr);
 }
 
 void Renderer::RecreateFrameResources() {
+    // Finish old frames before rebuilding
+    vkDeviceWaitIdle(logicalDevice);
     vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
     vkDestroyPipeline(logicalDevice, grassPipeline, nullptr);
     vkDestroyPipelineLayout(logicalDevice, graphicsPipelineLayout, nullptr);
@@ -846,7 +942,11 @@ void Renderer::RecreateFrameResources() {
     vkFreeCommandBuffers(logicalDevice, graphicsCommandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
     DestroyFrameResources();
+    // Drop views before swapchain images
+    swapChain->Recreate();
     CreateFrameResources();
+    VkExtent2D extent = swapChain->GetVkExtent();
+    camera->UpdateAspectRatio(static_cast<float>(extent.width) / extent.height);
     CreateGraphicsPipeline();
     CreateGrassPipeline();
     RecordCommandBuffers();
@@ -884,6 +984,34 @@ void Renderer::RecordComputeCommandBuffer() {
     vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 1, 1, &timeDescriptorSet, 0, nullptr);
 
     // TODO: For each group of blades bind its descriptor set and dispatch
+    // Previous frame's simulation writes
+    VkMemoryBarrier stateBarrier = {};
+    stateBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    stateBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+    stateBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+    vkCmdPipelineBarrier(computeCommandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        0, 1, &stateBarrier, 0, nullptr, 0, nullptr);
+
+    for (uint32_t i = 0; i < scene->GetBlades().size(); ++i) {
+        Blades* blades = scene->GetBlades()[i];
+        // Reset count before any workgroup runs
+        vkCmdFillBuffer(computeCommandBuffer, blades->GetNumBladesBuffer(), 0, sizeof(uint32_t), 0);
+        VkBufferMemoryBarrier countBarrier = {};
+        countBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+        countBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        countBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+        countBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        countBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        countBarrier.buffer = blades->GetNumBladesBuffer();
+        countBarrier.size = sizeof(uint32_t);
+        vkCmdPipelineBarrier(computeCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            0, 0, nullptr, 1, &countBarrier, 0, nullptr);
+
+        vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout,
+            2, 1, &computeDescriptorSets[i], 0, nullptr);
+        uint32_t groups = (blades->GetBladeCount() + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
+        vkCmdDispatch(computeCommandBuffer, groups, 1, 1);
+    }
 
     // ~ End recording ~
     if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
@@ -931,19 +1059,29 @@ void Renderer::RecordCommandBuffers() {
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
-        std::vector<VkBufferMemoryBarrier> barriers(scene->GetBlades().size());
-        for (uint32_t j = 0; j < barriers.size(); ++j) {
-            barriers[j].sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            barriers[j].srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-            barriers[j].dstAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
-            barriers[j].srcQueueFamilyIndex = device->GetQueueIndex(QueueFlags::Compute);
-            barriers[j].dstQueueFamilyIndex = device->GetQueueIndex(QueueFlags::Graphics);
-            barriers[j].buffer = scene->GetBlades()[j]->GetNumBladesBuffer();
-            barriers[j].offset = 0;
-            barriers[j].size = sizeof(BladeDrawIndirect);
-        }
+        // Same queue: compute writes before draw reads
+        if (device->GetQueue(QueueFlags::Compute) == device->GetQueue(QueueFlags::Graphics)) {
+            std::vector<VkBufferMemoryBarrier> barriers(2 * scene->GetBlades().size());
+            for (uint32_t j = 0; j < scene->GetBlades().size(); ++j) {
+                VkBufferMemoryBarrier& count = barriers[2 * j];
+                count.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+                count.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                count.dstAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+                count.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                count.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                count.buffer = scene->GetBlades()[j]->GetNumBladesBuffer();
+                count.size = sizeof(BladeDrawIndirect);
 
-        vkCmdPipelineBarrier(commandBuffers[i], VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, 0, 0, nullptr, barriers.size(), barriers.data(), 0, nullptr);
+                VkBufferMemoryBarrier& vertices = barriers[2 * j + 1];
+                vertices = count;
+                vertices.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+                vertices.buffer = scene->GetBlades()[j]->GetCulledBladesBuffer();
+                vertices.size = static_cast<VkDeviceSize>(scene->GetBlades()[j]->GetBladeCount()) * sizeof(Blade);
+            }
+            vkCmdPipelineBarrier(commandBuffers[i], VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                0, 0, nullptr, static_cast<uint32_t>(barriers.size()), barriers.data(), 0, nullptr);
+        }
 
         // Bind the camera descriptor set. This is set 0 in all pipelines so it will be inherited
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineLayout, 0, 1, &cameraDescriptorSet, 0, nullptr);
@@ -977,12 +1115,16 @@ void Renderer::RecordCommandBuffers() {
             VkDeviceSize offsets[] = { 0 };
             // TODO: Uncomment this when the buffers are populated
             // vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
             // TODO: Bind the descriptor set for each grass blades model
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, grassPipelineLayout,
+                1, 1, &grassDescriptorSets[j], 0, nullptr);
 
             // Draw
             // TODO: Uncomment this when the buffers are populated
             // vkCmdDrawIndirect(commandBuffers[i], scene->GetBlades()[j]->GetNumBladesBuffer(), 0, 1, sizeof(BladeDrawIndirect));
+            vkCmdDrawIndirect(commandBuffers[i], scene->GetBlades()[j]->GetNumBladesBuffer(), 0, 1, sizeof(BladeDrawIndirect));
         }
 
         // End render pass
@@ -995,10 +1137,28 @@ void Renderer::RecordCommandBuffers() {
     }
 }
 
-void Renderer::Frame() {
+void Renderer::BeginFrame() {
+    // Wait before updating shared uniforms
+    vkWaitForFences(logicalDevice, 1, &frameFence, VK_TRUE, UINT64_MAX);
+}
+
+bool Renderer::Frame() {
+    // Acquire before resetting the fence
+    if (!swapChain->Acquire()) {
+        RecreateFrameResources();
+        return false;
+    }
+    vkResetFences(logicalDevice, 1, &frameFence);
 
     VkSubmitInfo computeSubmitInfo = {};
     computeSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkPipelineStageFlags computeWaitStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    computeSubmitInfo.waitSemaphoreCount = 1;
+    computeSubmitInfo.pWaitSemaphores = &graphicsFinishedSemaphore;
+    computeSubmitInfo.pWaitDstStageMask = &computeWaitStage;
+    computeSubmitInfo.signalSemaphoreCount = 1;
+    computeSubmitInfo.pSignalSemaphores = &computeFinishedSemaphore;
 
     computeSubmitInfo.commandBufferCount = 1;
     computeSubmitInfo.pCommandBuffers = &computeCommandBuffer;
@@ -1007,41 +1167,45 @@ void Renderer::Frame() {
         throw std::runtime_error("Failed to submit draw command buffer");
     }
 
-    if (!swapChain->Acquire()) {
-        RecreateFrameResources();
-        return;
-    }
-
     // Submit the command buffer
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = { swapChain->GetImageAvailableVkSemaphore() };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-    submitInfo.waitSemaphoreCount = 1;
+    // Wait at each resource's first use
+    VkSemaphore waitSemaphores[] = { swapChain->GetImageAvailableVkSemaphore(), computeFinishedSemaphore };
+    VkPipelineStageFlags waitStages[] = {
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_VERTEX_INPUT_BIT
+    };
+    submitInfo.waitSemaphoreCount = 2;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffers[swapChain->GetIndex()];
 
-    VkSemaphore signalSemaphores[] = { swapChain->GetRenderFinishedVkSemaphore() };
-    submitInfo.signalSemaphoreCount = 1;
+    VkSemaphore signalSemaphores[] = { swapChain->GetRenderFinishedVkSemaphore(), graphicsFinishedSemaphore };
+    submitInfo.signalSemaphoreCount = 2;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device->GetQueue(QueueFlags::Graphics), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (vkQueueSubmit(device->GetQueue(QueueFlags::Graphics), 1, &submitInfo, frameFence) != VK_SUCCESS) {
         throw std::runtime_error("Failed to submit draw command buffer");
     }
 
     if (!swapChain->Present()) {
         RecreateFrameResources();
+        return false;
     }
+    return true;
 }
 
 Renderer::~Renderer() {
     vkDeviceWaitIdle(logicalDevice);
 
     // TODO: destroy any resources you created
+    vkDestroyFence(logicalDevice, frameFence, nullptr);
+    vkDestroySemaphore(logicalDevice, graphicsFinishedSemaphore, nullptr);
+    vkDestroySemaphore(logicalDevice, computeFinishedSemaphore, nullptr);
 
     vkFreeCommandBuffers(logicalDevice, graphicsCommandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     vkFreeCommandBuffers(logicalDevice, computeCommandPool, 1, &computeCommandBuffer);
@@ -1057,11 +1221,13 @@ Renderer::~Renderer() {
     vkDestroyDescriptorSetLayout(logicalDevice, cameraDescriptorSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(logicalDevice, modelDescriptorSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(logicalDevice, timeDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(logicalDevice, grassDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(logicalDevice, computeDescriptorSetLayout, nullptr);
 
     vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 
-    vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
     DestroyFrameResources();
+    vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
     vkDestroyCommandPool(logicalDevice, computeCommandPool, nullptr);
     vkDestroyCommandPool(logicalDevice, graphicsCommandPool, nullptr);
 }

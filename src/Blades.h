@@ -71,6 +71,8 @@ struct BladeDrawIndirect {
 
 class Blades : public Model {
 private:
+    // Total blades, including hidden ones
+    uint32_t bladeCount;
     VkBuffer bladesBuffer;
     VkBuffer culledBladesBuffer;
     VkBuffer numBladesBuffer;
@@ -80,7 +82,8 @@ private:
     VkDeviceMemory numBladesBufferMemory;
 
 public:
-    Blades(Device* device, VkCommandPool commandPool, float planeDim);
+    Blades(Device* device, VkCommandPool commandPool, float planeDim, uint32_t bladeCount = NUM_BLADES);
+    uint32_t GetBladeCount() const;
     VkBuffer GetBladesBuffer() const;
     VkBuffer GetCulledBladesBuffer() const;
     VkBuffer GetNumBladesBuffer() const;

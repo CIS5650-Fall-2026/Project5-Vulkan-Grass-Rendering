@@ -39,7 +39,9 @@ public:
     void RecordCommandBuffers();
     void RecordComputeCommandBuffer();
 
-    void Frame();
+    // Wait before editing shared buffers
+    void BeginFrame();
+    bool Frame();
 
 private:
     Device* device;
@@ -56,11 +58,15 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout grassDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
 
     VkPipelineLayout graphicsPipelineLayout;
@@ -79,4 +85,9 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+
+    // Graphics -> compute -> next frame
+    VkSemaphore graphicsFinishedSemaphore;
+    VkSemaphore computeFinishedSemaphore;
+    VkFence frameFence;
 };

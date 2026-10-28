@@ -189,8 +189,9 @@ void Image::CopyFromBuffer(Device* device, VkCommandPool commandPool, VkBuffer b
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(device->GetQueue(QueueFlags::Transfer), 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(device->GetQueue(QueueFlags::Transfer));
+    // Match the upload pool's queue
+    vkQueueSubmit(device->GetQueue(QueueFlags::Graphics), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device->GetQueue(QueueFlags::Graphics));
     vkFreeCommandBuffers(device->GetVkDevice(), commandPool, 1, &commandBuffer);
 }
 
