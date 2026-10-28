@@ -1,0 +1,38 @@
+#version 450
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(set = 0, binding = 0) uniform sampler2D sourceDepth;
+layout(set = 0, binding = 1, r32f) uniform writeonly image2D destinationDepth;
+
+void main() {
+    ivec2 destinationSize = imageSize(destinationDepth);
+    ivec2 destinationPixel = ivec2(gl_GlobalInvocationID.xy);
+    if (any(greaterThanEqual(destinationPixel, destinationSize))) {
+        return;
+    }
+
+    ivec2 sourceSize = textureSize(sourceDepth, 0);
+    if (all(equal(sourceSize, destinationSize))) {
+        float depth = texelFetch(sourceDepth, destinationPixel, 0).r;
+        imageStore(destinationDepth, destinationPixel, vec4(depth, 0.0, 0.0, 0.0));
+        return;
+    }
+
+    // Integer-ratio partitions include every source texel, including odd edges.
+    ivec2 sourceBegin = (destinationPixel * sourceSize) / destinationSize;
+    ivec2 sourceEnd = ((destinationPixel + ivec2(1)) * sourceSize) / destinationSize;
+    sourceEnd = max(sourceEnd, sourceBegin + ivec2(1));
+    sourceEnd = min(sourceEnd, sourceSize);
+
+    float maximumDepth = 0.0;
+    for (int y = sourceBegin.y; y < sourceEnd.y; ++y) {
+        for (int x = sourceBegin.x; x < sourceEnd.x; ++x) {
+            maximumDepth = max(maximumDepth,
+                               texelFetch(sourceDepth, ivec2(x, y), 0).r);
+        }
+    }
+
+    imageStore(destinationDepth, destinationPixel,
+               vec4(maximumDepth, 0.0, 0.0, 0.0));
+}
