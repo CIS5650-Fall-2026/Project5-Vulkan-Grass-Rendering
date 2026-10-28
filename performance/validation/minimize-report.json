@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "source_commit": "5534108b3628826e967717e661beaf88f4aae3ab",
+  "command": [
+    "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+    "--preset",
+    "final",
+    "--blades",
+    "8192",
+    "--width",
+    "1024",
+    "--height",
+    "576",
+    "--validation",
+    "on"
+  ],
+  "window_manager": "Openbox",
+  "minimized_state": "WM_STATE(WM_STATE):\n\t\twindow state: Iconic\n\t\ticon window: 0x0",
+  "restored_state": "WM_STATE(WM_STATE):\n\t\twindow state: Normal\n\t\ticon window: 0x0",
+  "returncode": 0,
+  "validation_stderr": ""
+}

@@ -1,82 +1,22 @@
 #pragma once
 
-#include "Device.h"
-#include "SwapChain.h"
-#include "Scene.h"
-#include "Camera.h"
+#include "AppConfig.h"
+
+#include <memory>
 
 class Renderer {
 public:
-    Renderer() = delete;
-    Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* camera);
+    explicit Renderer(const RunOptions& options);
     ~Renderer();
 
-    void CreateCommandPools();
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
-    void CreateRenderPass();
-
-    void CreateCameraDescriptorSetLayout();
-    void CreateModelDescriptorSetLayout();
-    void CreateTimeDescriptorSetLayout();
-    void CreateComputeDescriptorSetLayout();
-
-    void CreateDescriptorPool();
-
-    void CreateCameraDescriptorSet();
-    void CreateModelDescriptorSets();
-    void CreateGrassDescriptorSets();
-    void CreateTimeDescriptorSet();
-    void CreateComputeDescriptorSets();
-
-    void CreateGraphicsPipeline();
-    void CreateGrassPipeline();
-    void CreateComputePipeline();
-
-    void CreateFrameResources();
-    void DestroyFrameResources();
-    void RecreateFrameResources();
-
-    void RecordCommandBuffers();
-    void RecordComputeCommandBuffer();
-
-    void Frame();
+    int Run();
 
 private:
-    Device* device;
-    VkDevice logicalDevice;
-    SwapChain* swapChain;
-    Scene* scene;
-    Camera* camera;
-
-    VkCommandPool graphicsCommandPool;
-    VkCommandPool computeCommandPool;
-
-    VkRenderPass renderPass;
-
-    VkDescriptorSetLayout cameraDescriptorSetLayout;
-    VkDescriptorSetLayout modelDescriptorSetLayout;
-    VkDescriptorSetLayout timeDescriptorSetLayout;
-    
-    VkDescriptorPool descriptorPool;
-
-    VkDescriptorSet cameraDescriptorSet;
-    std::vector<VkDescriptorSet> modelDescriptorSets;
-    VkDescriptorSet timeDescriptorSet;
-
-    VkPipelineLayout graphicsPipelineLayout;
-    VkPipelineLayout grassPipelineLayout;
-    VkPipelineLayout computePipelineLayout;
-
-    VkPipeline graphicsPipeline;
-    VkPipeline grassPipeline;
-    VkPipeline computePipeline;
-
-    std::vector<VkImageView> imageViews;
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
-    std::vector<VkFramebuffer> framebuffers;
-
-    std::vector<VkCommandBuffer> commandBuffers;
-    VkCommandBuffer computeCommandBuffer;
+    class Impl;
+    std::unique_ptr<Impl> impl_;
 };

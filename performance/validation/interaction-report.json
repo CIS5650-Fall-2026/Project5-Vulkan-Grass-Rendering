@@ -1,0 +1,1000 @@
+{
+  "acceptance_passed": true,
+  "actions_log": "/tmp/grass-final-closing-checks/interaction/actions.jsonl",
+  "cases": {
+    "early_automated_close": {
+      "automation_progress": {
+        "benchmark_expected": 100000000,
+        "benchmark_rows": 14,
+        "requested": 100000000,
+        "submitted": 14,
+        "verification_expected": 100000000,
+        "verification_processed": 14
+      },
+      "benchmark_artifact": {
+        "bytes": 1316,
+        "exists": true,
+        "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
+      },
+      "benchmark_path": "/tmp/grass-final-closing-checks/interaction/early-close.csv",
+      "checks": [
+        {
+          "details": {
+            "pid": 8729,
+            "window_id": 2097159
+          },
+          "name": "found exactly one visible PID-scoped early-close window",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "name": "focused early-close window with windowfocus",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "negative_or_signal": false,
+            "returncode": 1
+          },
+          "name": "early-close process exited with expected code 1",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "error_lines": [],
+            "has_errors": false,
+            "summary_error_counts": [],
+            "warning_count": 0
+          },
+          "name": "early-close run has no Vulkan validation errors",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "automation summary proves submitted work was incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "benchmark summary proves measured rows were incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "verification summary proves measured frames were incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "claim_found": null
+          },
+          "name": "incomplete run made no Verification passed claim",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "all_renderer_errors": [],
+            "unrelated": []
+          },
+          "name": "no unrelated Renderer error explains the expected exit",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "bytes": 1316,
+            "exists": true,
+            "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
+          },
+          "name": "early-close benchmark artifact was written",
+          "scope": "early_automated_close",
+          "status": "pass"
+        }
+      ],
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--blades",
+        "8192",
+        "--validation",
+        "on",
+        "--width",
+        "1024",
+        "--height",
+        "576",
+        "--verify",
+        "--benchmark",
+        "/tmp/grass-final-closing-checks/interaction/early-close.csv",
+        "--warmup",
+        "0",
+        "--frames",
+        "100000000"
+      ],
+      "failures": [],
+      "gaps": [],
+      "name": "early_automated_close",
+      "pid": 8729,
+      "renderer_errors": [],
+      "returncode": 1,
+      "screenshots": [],
+      "status": "pass",
+      "stderr_log": "/tmp/grass-final-closing-checks/interaction/early-close.stderr.log",
+      "stdout_log": "/tmp/grass-final-closing-checks/interaction/early-close.stdout.log",
+      "successes": [
+        {
+          "details": {
+            "pid": 8729,
+            "window_id": 2097159
+          },
+          "name": "found exactly one visible PID-scoped early-close window",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "name": "focused early-close window with windowfocus",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "negative_or_signal": false,
+            "returncode": 1
+          },
+          "name": "early-close process exited with expected code 1",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "error_lines": [],
+            "has_errors": false,
+            "summary_error_counts": [],
+            "warning_count": 0
+          },
+          "name": "early-close run has no Vulkan validation errors",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "automation summary proves submitted work was incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "benchmark summary proves measured rows were incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "counts": [
+              14,
+              100000000
+            ],
+            "expected_requested": 100000000
+          },
+          "name": "verification summary proves measured frames were incomplete",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "claim_found": null
+          },
+          "name": "incomplete run made no Verification passed claim",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "all_renderer_errors": [],
+            "unrelated": []
+          },
+          "name": "no unrelated Renderer error explains the expected exit",
+          "scope": "early_automated_close",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "bytes": 1316,
+            "exists": true,
+            "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
+          },
+          "name": "early-close benchmark artifact was written",
+          "scope": "early_automated_close",
+          "status": "pass"
+        }
+      ],
+      "validation": {
+        "error_lines": [],
+        "has_errors": false,
+        "summary_error_counts": [],
+        "warning_count": 0
+      },
+      "window_id": 2097159
+    },
+    "interactive": {
+      "checks": [
+        {
+          "details": {
+            "pid": 8488,
+            "window_id": 2097159
+          },
+          "name": "found exactly one visible PID-scoped window",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "name": "focused PID-scoped window with windowfocus",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 576,
+            "SCREEN": 0,
+            "WIDTH": 1024,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "window position is 0,0",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 540,
+            "SCREEN": 0,
+            "WIDTH": 960,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "confirmed 960x540 resize",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 720,
+            "SCREEN": 0,
+            "WIDTH": 1280,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "confirmed 1280x720 resize",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "keys": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "l",
+              "f",
+              "h"
+            ]
+          },
+          "name": "exercised edge toggles twice and restored defaults",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "keys": [
+              "Left",
+              "Right",
+              "Up",
+              "Down",
+              "w",
+              "a",
+              "s",
+              "d",
+              "q",
+              "e"
+            ]
+          },
+          "name": "exercised wind and sphere held inputs",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "seconds": 0.8748981789999561
+          },
+          "name": "paused screenshots started at least 0.5 seconds apart",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "differing_bytes": 0,
+            "differing_pixel_ratio": 0.0,
+            "differing_pixels": 0,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "total_pixels": 921600
+          },
+          "name": "paused frames are exactly equal in decoded RGBA pixels",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "differing_bytes": 279218,
+            "differing_pixel_ratio": 0.14716688368055555,
+            "differing_pixels": 135629,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
+            "total_pixels": 921600
+          },
+          "name": "unpaused frame changes and proves screenshot liveness",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "returncode": 0
+          },
+          "name": "interactive process exited normally with code 0",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "error_lines": [],
+            "has_errors": false,
+            "summary_error_counts": [],
+            "warning_count": 0
+          },
+          "name": "interactive run has no Vulkan validation errors",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "lines": []
+          },
+          "name": "interactive run has no Renderer error",
+          "scope": "interactive",
+          "status": "pass"
+        }
+      ],
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--blades",
+        "8192",
+        "--validation",
+        "on",
+        "--width",
+        "1024",
+        "--height",
+        "576"
+      ],
+      "failures": [],
+      "gaps": [],
+      "name": "interactive",
+      "origin_geometry": {
+        "HEIGHT": 576,
+        "SCREEN": 0,
+        "WIDTH": 1024,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "paused_capture_separation_seconds": 0.874898,
+      "paused_pixel_comparison": {
+        "differing_bytes": 0,
+        "differing_pixel_ratio": 0.0,
+        "differing_pixels": 0,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "total_pixels": 921600
+      },
+      "pid": 8488,
+      "renderer_errors": [],
+      "resize_1280x720": {
+        "HEIGHT": 720,
+        "SCREEN": 0,
+        "WIDTH": 1280,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "resize_960x540": {
+        "HEIGHT": 540,
+        "SCREEN": 0,
+        "WIDTH": 960,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "resumed_pixel_comparison": {
+        "differing_bytes": 279218,
+        "differing_pixel_ratio": 0.14716688368055555,
+        "differing_pixels": 135629,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
+        "total_pixels": 921600
+      },
+      "returncode": 0,
+      "screenshots": [
+        {
+          "capture_finished_seconds": 7.070063,
+          "capture_started_seconds": 6.802092,
+          "geometry": {
+            "height": 720,
+            "width": 1280,
+            "x": 0,
+            "y": 0
+          },
+          "path": "/tmp/grass-final-closing-checks/interaction/paused-1.png",
+          "rgba_bytes": 3686400,
+          "rgba_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36"
+        },
+        {
+          "capture_finished_seconds": 7.944179,
+          "capture_started_seconds": 7.67699,
+          "geometry": {
+            "height": 720,
+            "width": 1280,
+            "x": 0,
+            "y": 0
+          },
+          "path": "/tmp/grass-final-closing-checks/interaction/paused-2.png",
+          "rgba_bytes": 3686400,
+          "rgba_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36"
+        },
+        {
+          "capture_finished_seconds": 9.393257,
+          "capture_started_seconds": 9.112978,
+          "geometry": {
+            "height": 720,
+            "width": 1280,
+            "x": 0,
+            "y": 0
+          },
+          "path": "/tmp/grass-final-closing-checks/interaction/resumed.png",
+          "rgba_bytes": 3686400,
+          "rgba_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446"
+        }
+      ],
+      "status": "pass",
+      "stderr_log": "/tmp/grass-final-closing-checks/interaction/interactive.stderr.log",
+      "stdout_log": "/tmp/grass-final-closing-checks/interaction/interactive.stdout.log",
+      "successes": [
+        {
+          "details": {
+            "pid": 8488,
+            "window_id": 2097159
+          },
+          "name": "found exactly one visible PID-scoped window",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "name": "focused PID-scoped window with windowfocus",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 576,
+            "SCREEN": 0,
+            "WIDTH": 1024,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "window position is 0,0",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 540,
+            "SCREEN": 0,
+            "WIDTH": 960,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "confirmed 960x540 resize",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "HEIGHT": 720,
+            "SCREEN": 0,
+            "WIDTH": 1280,
+            "WINDOW": 2097159,
+            "X": 0,
+            "Y": 0
+          },
+          "name": "confirmed 1280x720 resize",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "keys": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "l",
+              "f",
+              "h"
+            ]
+          },
+          "name": "exercised edge toggles twice and restored defaults",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "keys": [
+              "Left",
+              "Right",
+              "Up",
+              "Down",
+              "w",
+              "a",
+              "s",
+              "d",
+              "q",
+              "e"
+            ]
+          },
+          "name": "exercised wind and sphere held inputs",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "seconds": 0.8748981789999561
+          },
+          "name": "paused screenshots started at least 0.5 seconds apart",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "differing_bytes": 0,
+            "differing_pixel_ratio": 0.0,
+            "differing_pixels": 0,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "total_pixels": 921600
+          },
+          "name": "paused frames are exactly equal in decoded RGBA pixels",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "differing_bytes": 279218,
+            "differing_pixel_ratio": 0.14716688368055555,
+            "differing_pixels": 135629,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
+            "total_pixels": 921600
+          },
+          "name": "unpaused frame changes and proves screenshot liveness",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "returncode": 0
+          },
+          "name": "interactive process exited normally with code 0",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "error_lines": [],
+            "has_errors": false,
+            "summary_error_counts": [],
+            "warning_count": 0
+          },
+          "name": "interactive run has no Vulkan validation errors",
+          "scope": "interactive",
+          "status": "pass"
+        },
+        {
+          "details": {
+            "lines": []
+          },
+          "name": "interactive run has no Renderer error",
+          "scope": "interactive",
+          "status": "pass"
+        }
+      ],
+      "validation": {
+        "error_lines": [],
+        "has_errors": false,
+        "summary_error_counts": [],
+        "warning_count": 0
+      },
+      "window_id": 2097159
+    }
+  },
+  "duration_seconds": 11.054697,
+  "executable": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+  "failures": [],
+  "finished_at": "2026-10-28T03:05:08.487722+00:00",
+  "gaps": [],
+  "output_directory": "/tmp/grass-final-closing-checks/interaction",
+  "overall_status": "pass",
+  "preflight": {
+    "checks": [
+      {
+        "details": {
+          "exists": true,
+          "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering"
+        },
+        "name": "executable is a regular executable file",
+        "scope": "preflight",
+        "status": "pass"
+      },
+      {
+        "details": {
+          "display": ":0"
+        },
+        "name": "DISPLAY is set",
+        "scope": "preflight",
+        "status": "pass"
+      },
+      {
+        "details": {
+          "path": "/usr/bin/xdotool"
+        },
+        "name": "xdotool is available",
+        "scope": "preflight",
+        "status": "pass"
+      },
+      {
+        "details": {
+          "path": "/usr/bin/ffmpeg"
+        },
+        "name": "ffmpeg is available",
+        "scope": "preflight",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "schema_version": 1,
+  "started_at": "2026-10-28T03:04:57.433087+00:00",
+  "successes": [
+    {
+      "details": {
+        "exists": true,
+        "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering"
+      },
+      "name": "executable is a regular executable file",
+      "scope": "preflight",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "display": ":0"
+      },
+      "name": "DISPLAY is set",
+      "scope": "preflight",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "path": "/usr/bin/xdotool"
+      },
+      "name": "xdotool is available",
+      "scope": "preflight",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "path": "/usr/bin/ffmpeg"
+      },
+      "name": "ffmpeg is available",
+      "scope": "preflight",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "pid": 8488,
+        "window_id": 2097159
+      },
+      "name": "found exactly one visible PID-scoped window",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "name": "focused PID-scoped window with windowfocus",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "HEIGHT": 576,
+        "SCREEN": 0,
+        "WIDTH": 1024,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "name": "window position is 0,0",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "HEIGHT": 540,
+        "SCREEN": 0,
+        "WIDTH": 960,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "name": "confirmed 960x540 resize",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "HEIGHT": 720,
+        "SCREEN": 0,
+        "WIDTH": 1280,
+        "WINDOW": 2097159,
+        "X": 0,
+        "Y": 0
+      },
+      "name": "confirmed 1280x720 resize",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "keys": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "l",
+          "f",
+          "h"
+        ]
+      },
+      "name": "exercised edge toggles twice and restored defaults",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "keys": [
+          "Left",
+          "Right",
+          "Up",
+          "Down",
+          "w",
+          "a",
+          "s",
+          "d",
+          "q",
+          "e"
+        ]
+      },
+      "name": "exercised wind and sphere held inputs",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "seconds": 0.8748981789999561
+      },
+      "name": "paused screenshots started at least 0.5 seconds apart",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "differing_bytes": 0,
+        "differing_pixel_ratio": 0.0,
+        "differing_pixels": 0,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "total_pixels": 921600
+      },
+      "name": "paused frames are exactly equal in decoded RGBA pixels",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "differing_bytes": 279218,
+        "differing_pixel_ratio": 0.14716688368055555,
+        "differing_pixels": 135629,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
+        "total_pixels": 921600
+      },
+      "name": "unpaused frame changes and proves screenshot liveness",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "returncode": 0
+      },
+      "name": "interactive process exited normally with code 0",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "error_lines": [],
+        "has_errors": false,
+        "summary_error_counts": [],
+        "warning_count": 0
+      },
+      "name": "interactive run has no Vulkan validation errors",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "lines": []
+      },
+      "name": "interactive run has no Renderer error",
+      "scope": "interactive",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "pid": 8729,
+        "window_id": 2097159
+      },
+      "name": "found exactly one visible PID-scoped early-close window",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "name": "focused early-close window with windowfocus",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "negative_or_signal": false,
+        "returncode": 1
+      },
+      "name": "early-close process exited with expected code 1",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "error_lines": [],
+        "has_errors": false,
+        "summary_error_counts": [],
+        "warning_count": 0
+      },
+      "name": "early-close run has no Vulkan validation errors",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "counts": [
+          14,
+          100000000
+        ],
+        "expected_requested": 100000000
+      },
+      "name": "automation summary proves submitted work was incomplete",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "counts": [
+          14,
+          100000000
+        ],
+        "expected_requested": 100000000
+      },
+      "name": "benchmark summary proves measured rows were incomplete",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "counts": [
+          14,
+          100000000
+        ],
+        "expected_requested": 100000000
+      },
+      "name": "verification summary proves measured frames were incomplete",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "claim_found": null
+      },
+      "name": "incomplete run made no Verification passed claim",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "all_renderer_errors": [],
+        "unrelated": []
+      },
+      "name": "no unrelated Renderer error explains the expected exit",
+      "scope": "early_automated_close",
+      "status": "pass"
+    },
+    {
+      "details": {
+        "bytes": 1316,
+        "exists": true,
+        "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
+      },
+      "name": "early-close benchmark artifact was written",
+      "scope": "early_automated_close",
+      "status": "pass"
+    }
+  ]
+}

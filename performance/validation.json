@@ -1,0 +1,125 @@
+{
+  "source_commit": "5534108b3628826e967717e661beaf88f4aae3ab",
+  "hardware": {
+    "gpu": "NVIDIA A10G, 615.71.10, 23028 MiB",
+    "cpu": "AMD EPYC 7R32",
+    "memory": "MemTotal:       16162392 kB",
+    "platform": "Linux-7.0.0-1012-aws-x86_64-with-glibc2.39"
+  },
+  "builds": [
+    {
+      "type": "Debug",
+      "cmake": "3.28.3",
+      "result": "pass"
+    },
+    {
+      "type": "Release",
+      "cmake": "3.28.3",
+      "result": "pass"
+    }
+  ],
+  "sdk_cube": "Previously rendered and visually inspected with this NVIDIA A10G SDK/driver installation; the same device/API was reconfirmed after restart.",
+  "shaders": {
+    "compiled": 14,
+    "spirv_validated": 14,
+    "graphics_stage_sets_linked": 4,
+    "report": "validation/shader-report.json"
+  },
+  "cpu_checks": {
+    "scene_geometry_controls": "pass",
+    "address_undefined_sanitizers": "pass",
+    "grass_math_tests": 7,
+    "result": "pass"
+  },
+  "gpu_correctness": {
+    "validation": "Khronos core and synchronization validation",
+    "cases": 11,
+    "measured_frames_per_case": 12,
+    "blade_counts": [
+      0,
+      1,
+      127,
+      128,
+      129,
+      8192
+    ],
+    "includes_positive_input_zero_survivors": true,
+    "length_tolerance": "1% of rest height plus 1e-4 absolute",
+    "checks_static_clearance_and_guide_reach": true,
+    "result": "pass"
+  },
+  "interaction_physics": {
+    "cohort_blades": 13,
+    "median_peak_height_ratio": 1.3694803932667003,
+    "recovered_fraction": 1.0,
+    "recovery_seconds": 2,
+    "comparison": "same zero-wind trajectory with sphere interaction disabled",
+    "report": "validation/visual-report.json"
+  },
+  "interactive_smoke": {
+    "result": true,
+    "report": "validation/interaction-report.json",
+    "actions": "validation/interaction-actions.jsonl",
+    "wrapper_sha256": "af5e12529cae3af2973d6707fa6dd872fcd3f2418e8a5512c43df7ad5b7a9021"
+  },
+  "matched_occlusion": {
+    "pixel_identical": false,
+    "difference": {
+      "changed_pixels": 1,
+      "total_pixels": 921600,
+      "first_changed_coordinates": [
+        [
+          732,
+          410
+        ]
+      ],
+      "max_channel_delta": 17
+    },
+    "within_same_setting_repeat_noise": true,
+    "report": "validation/visual-report.json"
+  },
+  "relocated_binary": {
+    "returncode": 0,
+    "original_shader_directory_hidden": true,
+    "command": [
+      "/tmp/grass-final-closing-checks/relocated/vulkan_grass_rendering",
+      "--preset",
+      "basic",
+      "--blades",
+      "129",
+      "--culling",
+      "none",
+      "--occlusion",
+      "off",
+      "--hidden",
+      "--verify",
+      "--validation",
+      "on",
+      "--warmup",
+      "0",
+      "--frames",
+      "2",
+      "--benchmark",
+      "/tmp/grass-final-closing-checks/relocated.csv"
+    ]
+  },
+  "minimize_restore": {
+    "result": true,
+    "report": "validation/minimize-report.json"
+  },
+  "performance": {
+    "runs": 87,
+    "measured_frames": 26100,
+    "source_hashes": 60,
+    "manifest": "raw/manifest.json",
+    "summary": "summary.csv"
+  },
+  "media": {
+    "gif_count": 7,
+    "manifest": "../img/media.json",
+    "walkthrough": "../img/controls-walkthrough.mp4",
+    "walkthrough_report": "validation/walkthrough-report.json",
+    "walkthrough_seconds": 120.0,
+    "walkthrough_all_inputs": true
+  }
+}

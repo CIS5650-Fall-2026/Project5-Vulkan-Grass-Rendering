@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" role="img" aria-label="Grass rendering: blade-count scaling">
+<rect width="100%" height="100%" fill="#fafbf8"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="#263129">
+<text x="90" y="32" font-size="22" font-weight="bold">Grass rendering: blade-count scaling</text>
+<path d="M90,390.0H865" stroke="#d9dfd8"/>
+<text x="78" y="395.0" text-anchor="end" font-size="13">0.00</text>
+<path d="M90,326.0H865" stroke="#d9dfd8"/>
+<text x="78" y="331.0" text-anchor="end" font-size="13">1.44</text>
+<path d="M90,262.0H865" stroke="#d9dfd8"/>
+<text x="78" y="267.0" text-anchor="end" font-size="13">2.89</text>
+<path d="M90,198.0H865" stroke="#d9dfd8"/>
+<text x="78" y="203.0" text-anchor="end" font-size="13">4.33</text>
+<path d="M90,134.00000000000003H865" stroke="#d9dfd8"/>
+<text x="78" y="139.00000000000003" text-anchor="end" font-size="13">5.78</text>
+<path d="M90,70.0H865" stroke="#d9dfd8"/>
+<text x="78" y="75.0" text-anchor="end" font-size="13">7.22</text>
+<text x="90.0" y="416" text-anchor="middle" font-size="13">8,192</text>
+<text x="311.42857142857144" y="416" text-anchor="middle" font-size="13">32,768</text>
+<text x="532.8571428571429" y="416" text-anchor="middle" font-size="13">131,072</text>
+<text x="754.2857142857142" y="416" text-anchor="middle" font-size="13">524,288</text>
+<text x="865.0" y="416" text-anchor="middle" font-size="13">1,048,576</text>
+<text x="477.5" y="457" text-anchor="middle" font-size="14">Generated grass blades (logarithmic scale)</text>
+<text transform="translate(22,230.0) rotate(-90)" text-anchor="middle" font-size="14">GPU frame span (ms)</text>
+<polyline points="90.00,386.33 311.43,379.62 532.86,352.02 754.29,245.22 865.00,104.29" fill="none" stroke="#5a6170" stroke-width="2.5"/>
+<circle cx="90.00" cy="386.33" r="4" fill="#5a6170"/>
+<circle cx="311.43" cy="379.62" r="4" fill="#5a6170"/>
+<circle cx="532.86" cy="352.02" r="4" fill="#5a6170"/>
+<circle cx="754.29" cy="245.22" r="4" fill="#5a6170"/>
+<circle cx="865.00" cy="104.29" r="4" fill="#5a6170"/>
+<path d="M90,50h18" stroke="#5a6170" stroke-width="3"/>
+<text x="114" y="54" font-size="13">none</text>
+<polyline points="90.00,386.37 311.43,379.88 532.86,353.17 754.29,249.83 865.00,113.45" fill="none" stroke="#bb7628" stroke-width="2.5"/>
+<circle cx="90.00" cy="386.37" r="4" fill="#bb7628"/>
+<circle cx="311.43" cy="379.88" r="4" fill="#bb7628"/>
+<circle cx="532.86" cy="353.17" r="4" fill="#bb7628"/>
+<circle cx="754.29" cy="249.83" r="4" fill="#bb7628"/>
+<circle cx="865.00" cy="113.45" r="4" fill="#bb7628"/>
+<path d="M236,50h18" stroke="#bb7628" stroke-width="3"/>
+<text x="260" y="54" font-size="13">orientation</text>
+<polyline points="90.00,386.77 311.43,381.50 532.86,360.51 754.29,278.57 865.00,171.00" fill="none" stroke="#377dad" stroke-width="2.5"/>
+<circle cx="90.00" cy="386.77" r="4" fill="#377dad"/>
+<circle cx="311.43" cy="381.50" r="4" fill="#377dad"/>
+<circle cx="532.86" cy="360.51" r="4" fill="#377dad"/>
+<circle cx="754.29" cy="278.57" r="4" fill="#377dad"/>
+<circle cx="865.00" cy="171.00" r="4" fill="#377dad"/>
+<path d="M382,50h18" stroke="#377dad" stroke-width="3"/>
+<text x="406" y="54" font-size="13">frustum</text>
+<polyline points="90.00,387.58 311.43,385.47 532.86,375.33 754.29,335.99 865.00,284.01" fill="none" stroke="#8c62a2" stroke-width="2.5"/>
+<circle cx="90.00" cy="387.58" r="4" fill="#8c62a2"/>
+<circle cx="311.43" cy="385.47" r="4" fill="#8c62a2"/>
+<circle cx="532.86" cy="375.33" r="4" fill="#8c62a2"/>
+<circle cx="754.29" cy="335.99" r="4" fill="#8c62a2"/>
+<circle cx="865.00" cy="284.01" r="4" fill="#8c62a2"/>
+<path d="M528,50h18" stroke="#8c62a2" stroke-width="3"/>
+<text x="552" y="54" font-size="13">distance</text>
+<polyline points="90.00,387.77 311.43,386.37 532.86,379.58 754.29,353.72 865.00,319.78" fill="none" stroke="#398b53" stroke-width="2.5"/>
+<circle cx="90.00" cy="387.77" r="4" fill="#398b53"/>
+<circle cx="311.43" cy="386.37" r="4" fill="#398b53"/>
+<circle cx="532.86" cy="379.58" r="4" fill="#398b53"/>
+<circle cx="754.29" cy="353.72" r="4" fill="#398b53"/>
+<circle cx="865.00" cy="319.78" r="4" fill="#398b53"/>
+<path d="M674,50h18" stroke="#398b53" stroke-width="3"/>
+<text x="698" y="54" font-size="13">all</text>
+</g></svg>

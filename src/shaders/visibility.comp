@@ -1,0 +1,339 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+
+#include "frame_uniform.glsl"
+
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+struct Blade {
+    vec4 v0;
+    vec4 v1;
+    vec4 v2;
+    vec4 up;
+};
+
+layout(std430, set = 1, binding = 0) readonly buffer PersistentBlades {
+    Blade blades[];
+} persistent;
+
+layout(std430, set = 1, binding = 1) writeonly buffer VisibleBlades {
+    Blade blades[];
+} visible;
+
+layout(std430, set = 1, binding = 2) buffer IndirectDraw {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} indirectDraw;
+
+layout(std430, set = 1, binding = 3) buffer VisibilityStats {
+    uint inputCount;
+    uint orientationRejected;
+    uint frustumRejected;
+    uint distanceRejected;
+    uint occlusionRejected;
+    uint visibleCount;
+    uint reserved0;
+    uint reserved1;
+} stats;
+
+layout(set = 2, binding = 0) uniform sampler2D maximumDepthPyramid;
+
+const float EPSILON = 1.0e-6;
+const uint CULL_ORIENTATION = 1u;
+const uint CULL_FRUSTUM = 2u;
+const uint CULL_DISTANCE = 4u;
+const uint CULL_OCCLUSION = 8u;
+
+bool finiteFloat(float value) {
+    return !isnan(value) && !isinf(value);
+}
+
+bool finiteVec3(vec3 value) {
+    return !any(isnan(value)) && !any(isinf(value));
+}
+
+bool finiteVec4(vec4 value) {
+    return !any(isnan(value)) && !any(isinf(value));
+}
+
+vec3 safeNormalize(vec3 value, vec3 fallbackValue) {
+    float magnitudeSquared = dot(value, value);
+    if (!finiteVec3(value) || !finiteFloat(magnitudeSquared)
+            || magnitudeSquared <= EPSILON * EPSILON) {
+        return fallbackValue;
+    }
+    return value * inversesqrt(magnitudeSquared);
+}
+
+vec3 bladeNormal(Blade blade) {
+    return safeNormalize(blade.up.xyz, vec3(0.0, 1.0, 0.0));
+}
+
+void bladeFrame(Blade blade, out vec3 lateral, out vec3 front) {
+    vec3 normal = bladeNormal(blade);
+    vec3 reference = abs(normal.y) < 0.95 ? vec3(0.0, 1.0, 0.0)
+                                          : vec3(1.0, 0.0, 0.0);
+    vec3 base = safeNormalize(cross(reference, normal), vec3(1.0, 0.0, 0.0));
+    vec3 second = safeNormalize(cross(normal, base), vec3(0.0, 0.0, 1.0));
+    float angle = finiteFloat(blade.v0.w) ? blade.v0.w : 0.0;
+    lateral = safeNormalize(cos(angle) * base + sin(angle) * second, base);
+    front = safeNormalize(cross(lateral, normal), vec3(0.0, 0.0, 1.0));
+}
+
+void controlPoints(Blade blade, out vec3 points[4]) {
+    points[0] = blade.v0.xyz;
+    points[1] = blade.v1.xyz;
+    points[2] = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+    points[3] = blade.v2.xyz;
+}
+
+void expandedControlHull(Blade blade, out vec3 minimumPoint, out vec3 maximumPoint) {
+    vec3 points[4];
+    controlPoints(blade, points);
+    minimumPoint = points[0];
+    maximumPoint = points[0];
+    for (int pointIndex = 1; pointIndex < 4; ++pointIndex) {
+        minimumPoint = min(minimumPoint, points[pointIndex]);
+        maximumPoint = max(maximumPoint, points[pointIndex]);
+    }
+    float extent = finiteFloat(blade.v2.w) ? 0.5 * abs(blade.v2.w) : 0.0;
+    minimumPoint -= vec3(extent);
+    maximumPoint += vec3(extent);
+}
+
+vec3 expandedHullCorner(vec3 minimumPoint, vec3 maximumPoint, int corner) {
+    return vec3((corner & 1) != 0 ? maximumPoint.x : minimumPoint.x,
+                (corner & 2) != 0 ? maximumPoint.y : minimumPoint.y,
+                (corner & 4) != 0 ? maximumPoint.z : minimumPoint.z);
+}
+
+bool orientationTestRejects(Blade blade) {
+    vec3 midpoint = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+    vec3 viewVector = frame.cameraTime.xyz - midpoint;
+    float viewLengthSquared = dot(viewVector, viewVector);
+    if (!finiteVec3(viewVector) || !finiteFloat(viewLengthSquared)
+            || viewLengthSquared <= EPSILON * EPSILON) {
+        return false;
+    }
+    vec3 viewDirection = viewVector * inversesqrt(viewLengthSquared);
+    vec3 lateral;
+    vec3 front;
+    bladeFrame(blade, lateral, front);
+    return abs(dot(viewDirection, lateral)) > 0.98;
+}
+
+bool frustumTestRejects(Blade blade) {
+    vec3 minimumPoint;
+    vec3 maximumPoint;
+    expandedControlHull(blade, minimumPoint, maximumPoint);
+    bool allLeft = true;
+    bool allRight = true;
+    bool allBottom = true;
+    bool allTop = true;
+    bool allNear = true;
+    bool allFar = true;
+
+    // The expanded AABB contains the curve hull and every bent width direction.
+    for (int corner = 0; corner < 8; ++corner) {
+        vec3 worldPoint = expandedHullCorner(minimumPoint, maximumPoint, corner);
+        vec4 clip = frame.proj * frame.view * vec4(worldPoint, 1.0);
+        if (!finiteVec4(clip)) {
+            return false;
+        }
+        allLeft = allLeft && (clip.x < -clip.w);
+        allRight = allRight && (clip.x > clip.w);
+        allBottom = allBottom && (clip.y < -clip.w);
+        allTop = allTop && (clip.y > clip.w);
+        allNear = allNear && (clip.z < 0.0);
+        allFar = allFar && (clip.z > clip.w);
+    }
+    return allLeft || allRight || allBottom || allTop || allNear || allFar;
+}
+
+int mapReducedTexel(int sourceTexel, int sourceSize, int destinationSize) {
+    return ((sourceTexel + 1) * destinationSize - 1) / sourceSize;
+}
+
+ivec2 mapReducedTexel(ivec2 sourceTexel, ivec2 sourceSize, ivec2 destinationSize) {
+    return ivec2(mapReducedTexel(sourceTexel.x, sourceSize.x, destinationSize.x),
+                 mapReducedTexel(sourceTexel.y, sourceSize.y, destinationSize.y));
+}
+
+// Course-seeded odd multiplies and alternating shifts spread neighboring cells;
+// the upper 24 bits map exactly to the precision of a positive float fraction.
+uint projectMix(uint value) {
+    value ^= value >> 13u;
+    value *= 5651u;
+    value ^= value << 11u;
+    value *= 7919u;
+    value ^= value >> 15u;
+    value += 104729u;
+    value ^= value << 7u;
+    return value;
+}
+
+float projectUnit(uint value) {
+    return float(projectMix(value) >> 8u) * (1.0 / 16777216.0);
+}
+
+float stableRandom(uint index, vec3 root) {
+    uint seed = projectMix(index ^ 5650u);
+    seed = projectMix(seed ^ projectMix(floatBitsToUint(root.x) + 5651u));
+    seed = projectMix(seed ^ projectMix(floatBitsToUint(root.y) + 7919u));
+    seed = projectMix(seed ^ projectMix(floatBitsToUint(root.z) + 104729u));
+    return projectUnit(seed);
+}
+
+bool distanceTestRejects(Blade blade, uint persistentIndex) {
+    vec3 normal = bladeNormal(blade);
+    vec3 cameraOffset = frame.cameraTime.xyz - blade.v0.xyz;
+    vec3 groundOffset = cameraOffset - normal * dot(cameraOffset, normal);
+    float distanceOnGround = length(groundOffset);
+    if (!finiteFloat(distanceOnGround)) {
+        return false;
+    }
+
+    float maximumDistance = frame.parameters.y;
+    if (!finiteFloat(maximumDistance) || maximumDistance <= EPSILON) {
+        return distanceOnGround > EPSILON;
+    }
+    if (distanceOnGround > maximumDistance) {
+        return true;
+    }
+
+    float encodedBucketCount = finiteFloat(frame.parameters.z)
+                             ? floor(frame.parameters.z)
+                             : 1.0;
+    uint bucketCount = uint(clamp(encodedBucketCount, 1.0, 65536.0));
+    float normalizedDistance = clamp(distanceOnGround / maximumDistance, 0.0, 1.0);
+    uint bucket = min(uint(floor(normalizedDistance * float(bucketCount))),
+                      bucketCount - 1u);
+    if (bucket == 0u) {
+        return false;
+    }
+
+    float keepProbability = 1.0 - float(bucket) / float(bucketCount);
+    return stableRandom(persistentIndex, blade.v0.xyz) >= keepProbability;
+}
+
+bool occlusionTestRejects(Blade blade) {
+    ivec2 baseSize = textureSize(maximumDepthPyramid, 0);
+    int levelCount = textureQueryLevels(maximumDepthPyramid);
+    if (baseSize.x <= 0 || baseSize.y <= 0 || levelCount <= 0) {
+        return false;
+    }
+
+    vec3 minimumPoint;
+    vec3 maximumPoint;
+    expandedControlHull(blade, minimumPoint, maximumPoint);
+    vec2 minimumUv = vec2(1.0);
+    vec2 maximumUv = vec2(0.0);
+    float nearestDepth = 1.0;
+
+    for (int corner = 0; corner < 8; ++corner) {
+        vec3 worldPoint = expandedHullCorner(minimumPoint, maximumPoint, corner);
+        vec4 clip = frame.proj * frame.view * vec4(worldPoint, 1.0);
+        if (!finiteVec4(clip) || clip.w <= EPSILON || clip.z < 0.0) {
+            return false;
+        }
+        vec3 ndc = clip.xyz / clip.w;
+        if (!finiteVec3(ndc) || ndc.z < 0.0 || ndc.z > 1.0) {
+            return false;
+        }
+        vec2 uv = ndc.xy * 0.5 + 0.5;
+        minimumUv = min(minimumUv, uv);
+        maximumUv = max(maximumUv, uv);
+        nearestDepth = min(nearestDepth, ndc.z);
+    }
+
+    // Partial screen coverage is uncertain and must remain visible.
+    if (any(lessThan(minimumUv, vec2(0.0)))
+            || any(greaterThan(maximumUv, vec2(1.0)))) {
+        return false;
+    }
+
+    ivec2 lowTexel = clamp(ivec2(floor(minimumUv * vec2(baseSize))) - ivec2(1),
+                           ivec2(0), baseSize - ivec2(1));
+    ivec2 highTexel = clamp(ivec2(floor(maximumUv * vec2(baseSize))) + ivec2(1),
+                            ivec2(0), baseSize - ivec2(1));
+    ivec2 mipSize = baseSize;
+    int mipLevel = 0;
+
+    // Follow the reducer's integer partitions exactly, including odd mip edges.
+    for (int nextLevel = 1;
+         nextLevel < levelCount && any(greaterThan(highTexel - lowTexel, ivec2(1)));
+         ++nextLevel) {
+        ivec2 nextSize = textureSize(maximumDepthPyramid, nextLevel);
+        lowTexel = mapReducedTexel(lowTexel, mipSize, nextSize);
+        highTexel = mapReducedTexel(highTexel, mipSize, nextSize);
+        mipSize = nextSize;
+        mipLevel = nextLevel;
+    }
+    if (any(greaterThan(highTexel - lowTexel, ivec2(1)))) {
+        return false;
+    }
+
+    float maximumOccluderDepth = texelFetch(maximumDepthPyramid,
+                                            ivec2(lowTexel.x, lowTexel.y),
+                                            mipLevel).r;
+    maximumOccluderDepth = max(maximumOccluderDepth,
+        texelFetch(maximumDepthPyramid, ivec2(highTexel.x, lowTexel.y), mipLevel).r);
+    maximumOccluderDepth = max(maximumOccluderDepth,
+        texelFetch(maximumDepthPyramid, ivec2(lowTexel.x, highTexel.y), mipLevel).r);
+    maximumOccluderDepth = max(maximumOccluderDepth,
+        texelFetch(maximumDepthPyramid, ivec2(highTexel.x, highTexel.y), mipLevel).r);
+    if (!finiteFloat(maximumOccluderDepth)) {
+        return false;
+    }
+
+    float bias = 2.0e-5 + 2.0e-5 * nearestDepth;
+    return nearestDepth > maximumOccluderDepth + bias;
+}
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= frame.flags.x) {
+        return;
+    }
+
+    Blade blade = persistent.blades[index];
+    atomicAdd(stats.inputCount, 1u);
+
+    bool orientationRejected = false;
+    bool frustumRejected = false;
+    bool distanceRejected = false;
+    bool occlusionRejected = false;
+
+    if ((frame.flags.y & CULL_ORIENTATION) != 0u) {
+        orientationRejected = orientationTestRejects(blade);
+        if (orientationRejected) {
+            atomicAdd(stats.orientationRejected, 1u);
+        }
+    }
+    if ((frame.flags.y & CULL_FRUSTUM) != 0u) {
+        frustumRejected = frustumTestRejects(blade);
+        if (frustumRejected) {
+            atomicAdd(stats.frustumRejected, 1u);
+        }
+    }
+    if ((frame.flags.y & CULL_DISTANCE) != 0u) {
+        distanceRejected = distanceTestRejects(blade, index);
+        if (distanceRejected) {
+            atomicAdd(stats.distanceRejected, 1u);
+        }
+    }
+    if ((frame.flags.y & CULL_OCCLUSION) != 0u) {
+        occlusionRejected = occlusionTestRejects(blade);
+        if (occlusionRejected) {
+            atomicAdd(stats.occlusionRejected, 1u);
+        }
+    }
+
+    if (!(orientationRejected || frustumRejected || distanceRejected || occlusionRejected)) {
+        uint outputIndex = atomicAdd(indirectDraw.vertexCount, 1u);
+        visible.blades[outputIndex] = blade;
+        atomicAdd(stats.visibleCount, 1u);
+    }
+}

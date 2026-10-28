@@ -402,6 +402,12 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
+__pycache__/
+*.pyc
+img/capture-frames/
+img/walkthrough-source/
+performance/checks/
+build-*/
 orleans.codegen.cs
 
 # RIA/Silverlight projects
