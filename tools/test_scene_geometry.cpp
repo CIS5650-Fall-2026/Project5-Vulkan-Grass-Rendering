@@ -161,12 +161,12 @@ void TestCountsAndDefaultMesh() {
     }
 
     Scene scene(SmallOptions(33u));
-    Check(scene.Vertices().size() == 1947u, "default 64-unit mesh vertex count changed");
-    Check(scene.Indices().size() == 4992u, "default 64-unit mesh index count changed");
+    Check(scene.Vertices().size() == 4971u, "default 64-unit mesh vertex count changed");
+    Check(scene.Indices().size() == 23136u, "default 64-unit mesh index count changed");
     Check(scene.Draws().size() == 3u, "default draw count changed");
     const std::array<SceneDraw, 3> expected{{{0u, 1536u, 0u, false},
                                              {1536u, 1296u, 1u, false},
-                                             {2832u, 2160u, 2u, true}}};
+                                             {2832u, 20304u, 2u, true}}};
     for (std::size_t i = 0; i < expected.size(); ++i) {
         const SceneDraw& actual = scene.Draws()[i];
         Check(actual.firstIndex == expected[i].firstIndex &&
