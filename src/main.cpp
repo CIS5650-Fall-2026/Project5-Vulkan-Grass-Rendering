@@ -5,6 +5,9 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "Image.h"
+#include <chrono>
+#include <iomanip>
+#include <iostream>
 
 Device* device;
 SwapChain* swapChain;
@@ -143,10 +146,29 @@ int main() {
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
 
+    using Clock = std::chrono::steady_clock;
+    Clock::time_point intervalStart = Clock::now();
+    double totalFrameMilliseconds = 0.0;
+    unsigned int frameCount = 0;
+
     while (!ShouldQuit()) {
+        const Clock::time_point frameStart = Clock::now();
         glfwPollEvents();
         scene->UpdateTime();
         renderer->Frame();
+
+        const Clock::time_point frameEnd = Clock::now();
+        totalFrameMilliseconds += std::chrono::duration<double, std::milli>(frameEnd - frameStart).count();
+        ++frameCount;
+
+        if (frameEnd - intervalStart >= std::chrono::seconds(5)) {
+            std::cout << "Average frame duration (" << frameCount << " frames): "
+                      << std::fixed << std::setprecision(3)
+                      << totalFrameMilliseconds / frameCount << " ms" << std::endl;
+            intervalStart = frameEnd;
+            totalFrameMilliseconds = 0.0;
+            frameCount = 0;
+        }
     }
 
     vkDeviceWaitIdle(device->GetVkDevice());
