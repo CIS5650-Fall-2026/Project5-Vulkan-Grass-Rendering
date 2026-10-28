@@ -1,0 +1,824 @@
+{
+  "takes": [
+    {
+      "name": "interaction",
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--camera",
+        "interaction",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--blades",
+        "524288",
+        "--validation",
+        "on",
+        "--sphere-motion",
+        "sweep",
+        "--wind-strength",
+        "0"
+      ],
+      "duration": 48,
+      "video": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/walkthrough-source/interaction.mp4",
+      "application_exit": 0,
+      "recorder_exit": 0,
+      "startup_handshake": {
+        "window": "2097159",
+        "keydown": {
+          "event": "startup_space_keydown",
+          "take": "interaction",
+          "input": "space",
+          "action": "keydown",
+          "captured_seconds": null,
+          "seconds_after_app_launch": 0.06284164899989264,
+          "evidence": "xdotool keydown completed after PID-scoped window focus"
+        },
+        "screen_readiness": {
+          "method": "bounded external ffmpeg X11 RGB sampling",
+          "attempts": 4,
+          "consecutive_ready_frames": 2,
+          "evidence": {
+            "content_ready": true,
+            "sample_count": 4096,
+            "luma_min": 23,
+            "luma_max": 246,
+            "luma_spread": 223,
+            "channel_spread": 240,
+            "luma_bucket_count": 43,
+            "rgb_sha256": "79c0e1fe61908eaabef7f8ff4728f1f77b7a823e577f8968fd722d80d26c8eb4"
+          },
+          "renderer_pause_state_proven": false
+        },
+        "recorder_readiness": {
+          "frame": 4,
+          "out_time": "00:00:00.100000",
+          "media_seconds": 0.1,
+          "progress": "continue"
+        },
+        "keyup": {
+          "event": "startup_space_keyup",
+          "take": "interaction",
+          "input": "space",
+          "action": "keyup",
+          "captured_seconds": 0.21964186299987887,
+          "evidence": "xdotool keyup completed after screen and recorder readiness"
+        },
+        "resume_target_seconds": 0.8,
+        "runtime_pause_state": "not instrumented; X11 ordering is evidenced"
+      },
+      "validation": {
+        "clean": true,
+        "matched_error_line_count": 0,
+        "matched_warning_line_count": 0,
+        "error_evidence": [],
+        "warning_evidence": [],
+        "reported_summaries": [],
+        "reported_error_counts": [],
+        "reported_warning_counts": [],
+        "reported_summary_count": 0,
+        "note": "reported_summaries contains only counters actually present in the log"
+      }
+    },
+    {
+      "name": "overview",
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--camera",
+        "overview",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--blades",
+        "32768",
+        "--validation",
+        "on"
+      ],
+      "duration": 40,
+      "video": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/walkthrough-source/overview.mp4",
+      "application_exit": 0,
+      "recorder_exit": 0,
+      "startup_handshake": {
+        "window": "4194311",
+        "keydown": {
+          "event": "startup_space_keydown",
+          "take": "overview",
+          "input": "space",
+          "action": "keydown",
+          "captured_seconds": null,
+          "seconds_after_app_launch": 0.07927844999994704,
+          "evidence": "xdotool keydown completed after PID-scoped window focus"
+        },
+        "screen_readiness": {
+          "method": "bounded external ffmpeg X11 RGB sampling",
+          "attempts": 3,
+          "consecutive_ready_frames": 2,
+          "evidence": {
+            "content_ready": true,
+            "sample_count": 4096,
+            "luma_min": 25,
+            "luma_max": 246,
+            "luma_spread": 221,
+            "channel_spread": 239,
+            "luma_bucket_count": 41,
+            "rgb_sha256": "4a137a7f83ce3abd0e849fe5bc8a9f71c3ca5367e51c42befb4ecb5718e2bccc"
+          },
+          "renderer_pause_state_proven": false
+        },
+        "recorder_readiness": {
+          "frame": 4,
+          "out_time": "00:00:00.133333",
+          "media_seconds": 0.133333,
+          "progress": "continue"
+        },
+        "keyup": {
+          "event": "startup_space_keyup",
+          "take": "overview",
+          "input": "space",
+          "action": "keyup",
+          "captured_seconds": 0.25914042800013704,
+          "evidence": "xdotool keyup completed after screen and recorder readiness"
+        },
+        "resume_target_seconds": 0.8,
+        "runtime_pause_state": "not instrumented; X11 ordering is evidenced"
+      },
+      "validation": {
+        "clean": true,
+        "matched_error_line_count": 0,
+        "matched_warning_line_count": 0,
+        "error_evidence": [],
+        "warning_evidence": [],
+        "reported_summaries": [],
+        "reported_error_counts": [],
+        "reported_warning_counts": [],
+        "reported_summary_count": 0,
+        "note": "reported_summaries contains only counters actually present in the log"
+      }
+    },
+    {
+      "name": "occlusion",
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--camera",
+        "occluder",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--blades",
+        "524288",
+        "--validation",
+        "on"
+      ],
+      "duration": 32,
+      "video": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/walkthrough-source/occlusion.mp4",
+      "application_exit": 0,
+      "recorder_exit": 0,
+      "startup_handshake": {
+        "window": "4194311",
+        "keydown": {
+          "event": "startup_space_keydown",
+          "take": "occlusion",
+          "input": "space",
+          "action": "keydown",
+          "captured_seconds": null,
+          "seconds_after_app_launch": 0.07928079300017998,
+          "evidence": "xdotool keydown completed after PID-scoped window focus"
+        },
+        "screen_readiness": {
+          "method": "bounded external ffmpeg X11 RGB sampling",
+          "attempts": 4,
+          "consecutive_ready_frames": 2,
+          "evidence": {
+            "content_ready": true,
+            "sample_count": 4096,
+            "luma_min": 23,
+            "luma_max": 246,
+            "luma_spread": 223,
+            "channel_spread": 240,
+            "luma_bucket_count": 41,
+            "rgb_sha256": "91bae6201fa5bb3c01aaebd0b7d20e7812cff94a05828229c7f3110a56beb5dd"
+          },
+          "renderer_pause_state_proven": false
+        },
+        "recorder_readiness": {
+          "frame": 4,
+          "out_time": "00:00:00.133333",
+          "media_seconds": 0.133333,
+          "progress": "continue"
+        },
+        "keyup": {
+          "event": "startup_space_keyup",
+          "take": "occlusion",
+          "input": "space",
+          "action": "keyup",
+          "captured_seconds": 0.260315596999817,
+          "evidence": "xdotool keyup completed after screen and recorder readiness"
+        },
+        "resume_target_seconds": 0.8,
+        "runtime_pause_state": "not instrumented; X11 ordering is evidenced"
+      },
+      "validation": {
+        "clean": true,
+        "matched_error_line_count": 0,
+        "matched_warning_line_count": 0,
+        "error_evidence": [],
+        "warning_evidence": [],
+        "reported_summaries": [],
+        "reported_error_counts": [],
+        "reported_warning_counts": [],
+        "reported_summary_count": 0,
+        "note": "reported_summaries contains only counters actually present in the log"
+      }
+    }
+  ],
+  "events": [
+    {
+      "event": "startup_space_keydown",
+      "take": "interaction",
+      "input": "space",
+      "action": "keydown",
+      "captured_seconds": null,
+      "seconds_after_app_launch": 0.06284164899989264,
+      "evidence": "xdotool keydown completed after PID-scoped window focus"
+    },
+    {
+      "event": "screen_content_ready",
+      "take": "interaction",
+      "captured_seconds": null,
+      "evidence": {
+        "method": "bounded external ffmpeg X11 RGB sampling",
+        "attempts": 4,
+        "consecutive_ready_frames": 2,
+        "evidence": {
+          "content_ready": true,
+          "sample_count": 4096,
+          "luma_min": 23,
+          "luma_max": 246,
+          "luma_spread": 223,
+          "channel_spread": 240,
+          "luma_bucket_count": 43,
+          "rgb_sha256": "79c0e1fe61908eaabef7f8ff4728f1f77b7a823e577f8968fd722d80d26c8eb4"
+        },
+        "renderer_pause_state_proven": false
+      }
+    },
+    {
+      "event": "recorder_ready",
+      "take": "interaction",
+      "captured_seconds": 0.20224520199985818,
+      "progress_frame": 4,
+      "progress_out_time": "00:00:00.100000",
+      "origin_method": "post-Popen monotonic anchor confirmed by FFmpeg frame >= 1",
+      "evidence": "FFmpeg progress reported at least one captured frame"
+    },
+    {
+      "event": "startup_space_keyup",
+      "take": "interaction",
+      "input": "space",
+      "action": "keyup",
+      "captured_seconds": 0.21964186299987887,
+      "evidence": "xdotool keyup completed after screen and recorder readiness"
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 0.8000989059999029,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 10.003849402000014,
+      "input": "mouse1",
+      "action": "drag",
+      "dx": 60,
+      "dy": -15
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 12.004173702999879,
+      "input": "mouse3",
+      "action": "drag",
+      "dx": 0,
+      "dy": -18
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 14.000082316999851,
+      "input": "w",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 17.00007660999995,
+      "input": "s",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 20.00007561199982,
+      "input": "a",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 23.000080834999835,
+      "input": "d",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 26.000095757999816,
+      "input": "e",
+      "action": "press",
+      "hold": 0.22
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 29.00008842599982,
+      "input": "q",
+      "action": "press",
+      "hold": 0.22
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 32.00010859899999,
+      "input": "Up",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 34.00010943799998,
+      "input": "Right",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 36.000106236999954,
+      "input": "Left",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 38.00009260599995,
+      "input": "Down",
+      "action": "press",
+      "hold": 0.55
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 40.000094393999916,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 42.00010379399987,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 44.0000937719999,
+      "input": "r",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 46.000087310000026,
+      "input": "h",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 47.00009930399983,
+      "input": "h",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "interaction",
+      "seconds": 47.650095169999986,
+      "input": "Escape",
+      "action": "press",
+      "hold": 0.08
+    },
+    {
+      "event": "startup_space_keydown",
+      "take": "overview",
+      "input": "space",
+      "action": "keydown",
+      "captured_seconds": null,
+      "seconds_after_app_launch": 0.07927844999994704,
+      "evidence": "xdotool keydown completed after PID-scoped window focus"
+    },
+    {
+      "event": "screen_content_ready",
+      "take": "overview",
+      "captured_seconds": null,
+      "evidence": {
+        "method": "bounded external ffmpeg X11 RGB sampling",
+        "attempts": 3,
+        "consecutive_ready_frames": 2,
+        "evidence": {
+          "content_ready": true,
+          "sample_count": 4096,
+          "luma_min": 25,
+          "luma_max": 246,
+          "luma_spread": 221,
+          "channel_spread": 239,
+          "luma_bucket_count": 41,
+          "rgb_sha256": "4a137a7f83ce3abd0e849fe5bc8a9f71c3ca5367e51c42befb4ecb5718e2bccc"
+        },
+        "renderer_pause_state_proven": false
+      }
+    },
+    {
+      "event": "recorder_ready",
+      "take": "overview",
+      "captured_seconds": 0.24319603399999323,
+      "progress_frame": 4,
+      "progress_out_time": "00:00:00.133333",
+      "origin_method": "post-Popen monotonic anchor confirmed by FFmpeg frame >= 1",
+      "evidence": "FFmpeg progress reported at least one captured frame"
+    },
+    {
+      "event": "startup_space_keyup",
+      "take": "overview",
+      "input": "space",
+      "action": "keyup",
+      "captured_seconds": 0.25914042800013704,
+      "evidence": "xdotool keyup completed after screen and recorder readiness"
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 0.8000717830000212,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 4.000083205999999,
+      "input": "1",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 7.000068901000077,
+      "input": "1",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 10.000083732000121,
+      "input": "2",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 13.000106622999965,
+      "input": "2",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 16.000083843000084,
+      "input": "3",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 19.000064143000145,
+      "input": "3",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 22.000106833000018,
+      "input": "f",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 25.000062944000092,
+      "input": "l",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 28.00009114700015,
+      "input": "l",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 31.0000809390001,
+      "input": "f",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 33.000068344000056,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 34.000097132000064,
+      "input": "b",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 37.000061733000166,
+      "input": "b",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "overview",
+      "seconds": 39.65008214700015,
+      "input": "Escape",
+      "action": "press",
+      "hold": 0.08
+    },
+    {
+      "event": "startup_space_keydown",
+      "take": "occlusion",
+      "input": "space",
+      "action": "keydown",
+      "captured_seconds": null,
+      "seconds_after_app_launch": 0.07928079300017998,
+      "evidence": "xdotool keydown completed after PID-scoped window focus"
+    },
+    {
+      "event": "screen_content_ready",
+      "take": "occlusion",
+      "captured_seconds": null,
+      "evidence": {
+        "method": "bounded external ffmpeg X11 RGB sampling",
+        "attempts": 4,
+        "consecutive_ready_frames": 2,
+        "evidence": {
+          "content_ready": true,
+          "sample_count": 4096,
+          "luma_min": 23,
+          "luma_max": 246,
+          "luma_spread": 223,
+          "channel_spread": 240,
+          "luma_bucket_count": 41,
+          "rgb_sha256": "91bae6201fa5bb3c01aaebd0b7d20e7812cff94a05828229c7f3110a56beb5dd"
+        },
+        "renderer_pause_state_proven": false
+      }
+    },
+    {
+      "event": "recorder_ready",
+      "take": "occlusion",
+      "captured_seconds": 0.242925835999813,
+      "progress_frame": 4,
+      "progress_out_time": "00:00:00.133333",
+      "origin_method": "post-Popen monotonic anchor confirmed by FFmpeg frame >= 1",
+      "evidence": "FFmpeg progress reported at least one captured frame"
+    },
+    {
+      "event": "startup_space_keyup",
+      "take": "occlusion",
+      "input": "space",
+      "action": "keyup",
+      "captured_seconds": 0.260315596999817,
+      "evidence": "xdotool keyup completed after screen and recorder readiness"
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 0.8000959569999395,
+      "input": "space",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 5.000057303999938,
+      "input": "4",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 11.0000458049999,
+      "input": "4",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 17.000053025999932,
+      "input": "4",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 21.00007011999992,
+      "input": "4",
+      "action": "press",
+      "hold": 0.12
+    },
+    {
+      "event": "input",
+      "take": "occlusion",
+      "seconds": 31.6500435439998,
+      "input": "Escape",
+      "action": "press",
+      "hold": 0.08
+    }
+  ],
+  "probe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "width": 1280,
+        "height": 720,
+        "coded_width": 1280,
+        "coded_height": 720,
+        "closed_captions": 0,
+        "film_grain": 0,
+        "has_b_frames": 2,
+        "pix_fmt": "yuv420p",
+        "level": 31,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "refs": 4,
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "time_base": "1/15360",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 1843200,
+        "duration": "120.000000",
+        "bit_rate": "2006717",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "3600",
+        "nb_read_frames": "3600",
+        "extradata_size": 45,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "vendor_id": "[0][0][0][0]",
+          "encoder": "Lavc60.31.102 libx264"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/controls-walkthrough.mp4",
+      "nb_streams": 1,
+      "nb_programs": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "120.000000",
+      "size": "30137426",
+      "bit_rate": "2009161",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf60.16.100"
+      }
+    }
+  },
+  "probe_validation": {
+    "passed": true,
+    "width": 1280,
+    "height": 720,
+    "avg_frame_rate": "30/1",
+    "duration_seconds": 120.0,
+    "duration_source": "format.duration",
+    "frame_count": 3600,
+    "bytes": 30137426,
+    "required_duration_range_seconds": [
+      119.0,
+      122.0
+    ],
+    "required_frame_range": [
+      3570,
+      3660
+    ],
+    "strict_byte_limit": 50000000
+  },
+  "validation_summary": {
+    "all_take_logs_clean": true,
+    "matched_error_line_count": 0,
+    "matched_warning_line_count": 0,
+    "reported_summaries": [],
+    "reported_error_counts": [],
+    "reported_warning_counts": [],
+    "note": "reported_summaries lists only counters actually emitted by renderer logs"
+  },
+  "bytes": 30137426,
+  "sha256": "e624d9c6d5e7152d3cd95357797cce0566c9356da8079700399d17be04b89204",
+  "all_inputs_exercised": true,
+  "source_commit": "5534108b3628826e967717e661beaf88f4aae3ab",
+  "wrapper_sha256": "ddaf47685be69245f70f2d66c5917e06c909d45e6061ed81cd20a47e96347dac"
+}

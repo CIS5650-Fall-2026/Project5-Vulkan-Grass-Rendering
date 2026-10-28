@@ -5,13 +5,15 @@
 - [Didrik Wiig-Andersen](https://github.com/didrikwiigandersen)
 - Tested on: Ubuntu 24.04.4 LTS, AMD EPYC 7R32 (4 vCPUs), 15.4 GiB usable RAM, NVIDIA A10G with 23,028 MiB reported VRAM (AWS g5.xlarge).
 
-![A wind-swept procedural meadow rendered with Vulkan](img/hero.png)
+[![Watch the controls walkthrough: a late-afternoon Vulkan meadow](img/hero.png)](img/controls-walkthrough.mp4)
+
+[Watch the controls walkthrough](img/controls-walkthrough.mp4): camera orbit and zoom, sphere movement, wind, all culling switches, tessellation, shading, pause, reset, and exit. Captions identify the actual mouse and keyboard inputs.
 
 A GPU-driven grass simulator and renderer. Each blade remains a compact quadratic Bézier curve during simulation and visibility testing; the graphics pipeline tessellates surviving curves into tapered geometry. Wind, gravity, elastic recovery, and a moving sphere shape the field without transferring the blade population back to the CPU.
 
 ## From curves to a meadow
 
-Clips are captured at 960 × 540 with 30 simulation steps per second, then exported as 640-pixel-wide, 20 FPS GIFs. [Media settings and encoding commands](img/media.json) preserve the capture recipe.
+Clips are captured at 1280 × 720 with 30 simulation steps per second, then exported as 720-pixel-wide, 20 FPS GIFs. [Media settings and encoding commands](img/media.json) preserve the capture recipe.
 
 | Stage | Demonstration |
 | --- | --- |
@@ -53,75 +55,91 @@ Procedural stones and the interactive sphere provide opaque blockers. A same-fra
 | --- | --- |
 | ![Opaque blockers without occlusion rejection](img/occlusion-off.png) | ![Opaque blockers with occlusion rejection](img/occlusion-on.png) |
 
-The matching captures are pixel-identical while the visible draw count falls from 86,706 to 59,628. The depth hierarchy removes hidden geometry without changing this image.
+The visible draw count falls from 83,247 to 57,221 with no visible image change. The captures differ at one of 921,600 pixels; repeating the disabled case produces the same pixel variation, consistent with overlapping blades sharing quantized depth. [The comparison and repeat controls](performance/validation/visual-report.json) record its position and color difference.
 
 ### Interactive grass
 
-A controllable sphere pushes the curve’s midpoint and physical tip aside. The same frame snapshot drives collision, object rendering, and visibility. Elastic recovery returns displaced grass toward equilibrium after the sphere passes. Keyboard controls also change wind direction and strength.
+A controllable sphere bends nearby grass using four contact samples along each curve. The same frame snapshot drives contact response, object rendering, and visibility. Elastic recovery returns displaced grass toward equilibrium after the sphere passes. Keyboard controls also change wind direction and strength.
+
+The close demonstration isolates contact with zero wind: an undisturbed field, a slow sphere passage, and recovery. Collision checks sample four locations along each curve. The sphere starts at ground contact, and manual vertical movement keeps it above the ground.
 
 ![A sphere bends grass as it crosses the field](img/interaction.gif)
 
+In a fixed central cohort of 13 blades, the median peak tip displacement is 1.37 blade heights relative to a matching interaction-disabled run. All 13 recover to within 10% of their individual peak displacement during the two-second recovery check. [Recorded checks](performance/validation/visual-report.json) and the [interaction-on](performance/validation/physics-on.csv) / [interaction-off](performance/validation/physics-off.csv) trajectories preserve the measurements.
+
 ### Better rendering
 
-The scene combines a procedural sky, directional sunlight, two-sided grass lighting, root-to-tip color variation, rounded shading normals, restrained transmission and specular highlights, and atmospheric fog. Related blades form coherent clumps, and the ground palette matches the distant field. All geometry and shading are generated in this project; no external art assets are required.
+Warm late-afternoon sunlight and cool sky illumination shape the meadow. A procedural sky includes a sun disc and soft clouds. Stones and the sphere cast filtered directional shadows onto the ground and grass. Two-sided blade shading combines root-to-tip color variation, rounded normals, transmission, and restrained highlights; lighter atmospheric haze preserves contrast in the middle distance.
+
+Each blade uses a continuous frame along its curve, including strong bends. Static-object footprints exclude roots, and nearby grass becomes shorter so its full bending reach stays outside the stones. Related blades form coherent clumps. All geometry and shading are generated in this project.
 
 ![Final meadow](img/final.gif)
 
+| Close blade shading | Color variation disabled |
+| --- | --- |
+| ![Root-to-tip colors and rounded blade shading](img/detail.png) | ![Matching blade state without root-to-tip color variation](img/detail-no-root-color.png) |
+
+| Directional shadows | Shadows disabled |
+| --- | --- |
+| ![Close grass and sphere with directional shadows](img/detail.png) | ![Matching scene without object shadows](img/detail-no-shadows.png) |
+
+The comparisons preserve camera, seed, simulation state, sun, and exposure. Further matching views isolate [rounded normals](img/detail-no-rounded-normals.png), [transmission](img/detail-no-transmission.png), [specular highlights](img/detail-no-specular.png), [the sky](img/beauty-no-sky.png), and [fog](img/beauty-no-fog.png).
+
 ## Performance
 
-All timings below are GPU frame spans in milliseconds, measured in **Release** at **1280 × 720**. Each configuration excludes 120 warmup frames and records 300 frames, repeated three times in a deterministic shuffled order. Reported values are the median of the three run medians. The 87 runs contain **26,100 measured frames**.
+All timings below are GPU frame spans in milliseconds, measured in **Release** at **1280 × 720**. Each configuration excludes 120 warmup frames and records 300 frames, repeated three times in a deterministic shuffled order. Values are the median of the three run medians. The 87 runs contain **26,100 measured frames**.
 
 | Test environment | Configuration |
 | --- | --- |
 | GPU | NVIDIA A10G, 23,028 MiB reported VRAM, driver 615.71.10 |
 | CPU / memory | AMD EPYC 7R32, 4 vCPUs, 15.4 GiB usable system memory |
 | OS / compiler | Ubuntu 24.04.4 LTS, Linux 7.0.0-1012-aws, GCC 13.3.0 |
-| SDK / build | Vulkan SDK 1.4.363.0, Vulkan device API 1.4.351, CMake 4.0.3 |
+| SDK / build | Vulkan SDK 1.4.363.0, device API 1.4.351, CMake 3.28.3 |
 | Fixed scene | Seed 5650, 64 × 64 field, 1/60-second simulation steps |
 | Baseline controls | `culling` preset, `overview` camera, 12 fixed length segments, LOD and occlusion off |
 
-The same camera, scene area, wind progression, and simulation stepping are used within each comparison. Every case uses GPU compaction and indirect drawing; the switches control rejection. Validation, screenshots, image encoding, and blade-state verification are disabled during timing. Benchmark submission waits for swapchain acquisition before the opening GPU timestamp.
+Each comparison preserves camera, field area, wind progression, and simulation stepping. All cases use GPU compaction and indirect drawing. Validation, captures, video encoding, and blade-state verification are disabled during timing. Submission waits for swapchain acquisition before the opening GPU timestamp.
 
 ### Blade-count scaling
 
 | Blades | None | Orientation | Frustum | Distance | All three |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 8,192 | 0.0605 | 0.0609 | 0.0560 | 0.0446 | 0.0439 |
-| 32,768 | 0.1487 | 0.1458 | 0.1234 | 0.0732 | 0.0645 |
-| 131,072 | 0.5290 | 0.5121 | 0.4221 | 0.2208 | 0.1721 |
-| 524,288 | 2.0027 | 1.9398 | 1.5867 | 0.8089 | 0.5997 |
-| 1,048,576 | 3.9625 | 3.8348 | 3.1183 | 1.5775 | 1.1603 |
+| 8,192 | 0.0827 | 0.0820 | 0.0729 | 0.0546 | 0.0504 |
+| 32,768 | 0.2341 | 0.2284 | 0.1917 | 0.1023 | 0.0819 |
+| 131,072 | 0.8570 | 0.8310 | 0.6653 | 0.3311 | 0.2350 |
+| 524,288 | 3.2667 | 3.1627 | 2.5143 | 1.2186 | 0.8185 |
+| 1,048,576 | 6.4466 | 6.2399 | 4.9414 | 2.3914 | 1.5845 |
 
 ![GPU frame span versus grass population](performance/scaling.svg)
 
-At the larger populations, time grows approximately linearly: doubling from 524,288 to 1,048,576 blades changes the unculled result from 2.0027 to 3.9625 ms, and the combined-culling result from 0.5997 to 1.1603 ms. At one million blades, the three tests together retain about 177,746 blades and provide a **3.42× speedup**, reducing the GPU frame span by **70.7%**.
+Doubling from 524,288 to 1,048,576 blades changes the unculled result from 3.2667 to 6.4466 ms. At one million blades, all three tests retain approximately 174,988 blades and provide a **4.07× speedup**, with **75.4% less GPU time**.
 
 ### What each culling test saves
 
 ![Speedup from independently enabled culling tests](performance/culling-speedup.svg)
 
-At 1,048,576 blades, orientation culling gives **1.03×**, frustum culling **1.27×**, and distance culling **2.51×** speedup independently. Their retained populations are approximately 1,010,208, 765,828, and 330,166 blades, respectively. The tests overlap, so their speedups and rejection counts cannot be added.
+At 1,048,576 blades, independent speedups are **1.03×** for orientation, **1.30×** for frustum, **2.70×** for distance. Their retained populations are approximately 1,009,736, 761,858, 329,537 blades, respectively. Rejection sets overlap, so the savings cannot be added.
 
-The orientation threshold of 0.98 removes only the narrowest edge-on blades, preserving dense coverage within coherent clumps. Its modest rejection rate also gives a modest performance benefit. At 8,192 blades it is **0.7% slower** than no culling: 0.0609 versus 0.0605 ms. The absolute difference is small and the run ranges overlap, so this view shows no reliable orientation-culling benefit at that scale.
+The orientation threshold of 0.98 preserves dense clump coverage and rejects only nearly edge-on blades. Its smaller rejection rate gives less opportunity to save work. At 8,192 blades, orientation takes 0.0820 ms versus 0.0827 ms without culling; the summary records the run ranges for interpreting this small difference.
 
-Distance culling saves the most work in this view by reducing distant density. Physics remains a floor: at one million blades, simulation stays between 0.2924 and 0.2932 ms across the five modes because every blade still simulates. Culling also reduces the number of complete blade records written to the visible buffer: the measured visibility/packing interval falls from 0.2982 to 0.1683 ms with all three tests at one million blades.
+Distance culling saves substantial work by reducing distant density. Physics remains a floor: at one million blades, simulation spans 0.2881–0.2899 ms across the five modes because every blade still simulates. Visibility/packing changes from 0.2981 ms without rejection to 0.1681 ms with all three tests, reducing the number of full blade records written.
 
 ### LOD and occlusion
 
-These pairs use the `final` preset, including improved shading and sphere interaction, with the same settings on both sides of each comparison. LOD uses the overview camera; occlusion uses the blocker-heavy occluder camera. They are separate experiments from the baseline table.
+These pairs use the `final` preset, including enhanced shading, directional shadows, and sphere interaction. Settings match within each pair. LOD uses the overview camera; occlusion uses the blocker-heavy occluder camera. These are separate experiments from the baseline table.
 
 | Experiment at 524,288 blades | Disabled | Enabled | Effect |
 | --- | ---: | ---: | --- |
-| Adaptive tessellation | 0.6223 ms | 0.4908 ms | 21.1% less GPU time, 1.27× speedup; same 89,180 median visible blades |
-| Occlusion, with LOD on | 0.5524 ms | 0.5366 ms | 2.9% less GPU time; median survivors fall from about 86,614 to 59,550 |
+| Adaptive tessellation | 1.2549 ms | 0.9879 ms | 21.3% less GPU time; 1.27× speedup; about 87,852 visible blades |
+| Occlusion, with LOD on | 0.8462 ms | 0.8378 ms | 1.0% less GPU time; survivors fall from 83,934 to 57,691 |
 
-Occlusion removes **31.2%** of the blades that survive the other tests, but its 0.0543 ms depth-prepass/hierarchy cost and additional visibility work consume most of the drawing savings. Its total benefit is consequently smaller than its survivor reduction. The reported time includes that overhead, and disabling the feature skips it.
+Occlusion removes **31.3%** of blades surviving the other tests. The enabled depth prepass/hierarchy costs 0.0553 ms, and visibility testing also has overhead. These costs limit the total benefit relative to the survivor reduction. Disabling occlusion skips the additional prepass and hierarchy. The directional shadow pass is independent and included on both sides of these enhanced-rendering comparisons.
 
 ### Data and measurement limits
 
-[Raw CSVs, metadata, commands, and source hashes](performance/raw/manifest.json) and the [summary table](performance/summary.csv) preserve the measurements for source revision `687540dd6cdb5afc1a73691b65d9f5619016e98a`. The summary includes minimum and maximum run medians. These results describe this GPU, fixed scene, camera, and density policy; they do not imply the same gains in every view. Runs are short, and GPU clocks and temperature are not recorded.
+[Raw CSVs, commands, metadata, and source hashes](performance/raw/manifest.json) and the [summary table](performance/summary.csv) preserve measurements for source revision `5534108b3628826e967717e661beaf88f4aae3ab`. The summary includes minimum and maximum run medians. Results apply to this GPU, scene, camera, and density policy. Trials are short, and GPU clocks and temperature are not recorded.
 
-GPU queries record simulation, visibility, depth work, a graphics tail interval, and the total GPU frame span. The graphics tail can include unfinished opaque fragments and is not an exclusive grass cost. Intervals can overlap and should not be added. Counter readback and presentation are outside the GPU interval. CPU frame time is recorded separately; inverse GPU time is not presented as application FPS.
+GPU queries record simulation, visibility, occlusion depth work, directional shadow work, a graphics tail interval, and the total frame span. The graphics tail may include unfinished opaque fragments. Stage intervals can overlap and should not be added. Readback and presentation are outside GPU timing. CPU time is measured separately; inverse GPU time is not application FPS.
 
 ## Build and run
 
@@ -143,7 +161,7 @@ On Linux, install the X11 development packages required by bundled GLFW. `tools/
 | W, A, S, D and Q, E | Move the sphere horizontally and vertically |
 | Arrow keys | Rotate wind and change its strength |
 | 1, 2, 3, 4 | Toggle orientation, frustum, distance, and occlusion culling |
-| L / F / H | Toggle adaptive tessellation / wireframe / controls overlay |
+| L / F / H / B | Toggle adaptive tessellation / wireframe / controls overlay / enhanced shading |
 | Space / R / Escape | Pause / reset the grass / exit |
 
 Use `--help` for all command-line options. Examples:
@@ -152,11 +170,16 @@ Use `--help` for all command-line options. Examples:
 ./build/bin/vulkan_grass_rendering --blades 1048576 --culling all
 ./build/bin/vulkan_grass_rendering --preset wireframe --camera grazing
 ./build/bin/vulkan_grass_rendering --preset interaction
+./build/bin/vulkan_grass_rendering --preset final --camera interaction --sphere-motion sweep --wind-strength 0
+./build/bin/vulkan_grass_rendering --preset final --camera detail --render-disable transmission
 python3 tools/check.py build/bin/vulkan_grass_rendering
+python3 tools/test_grass_math.py
+python3 tools/check_visuals.py build/bin/vulkan_grass_rendering
 python3 tools/check_interaction.py build/bin/vulkan_grass_rendering --output performance/checks/interaction
 python3 tools/benchmark.py build/bin/vulkan_grass_rendering --extras
 python3 tools/analyze.py performance/raw
 python3 tools/capture.py build/bin/vulkan_grass_rendering
+python3 tools/record_walkthrough.py build/bin/vulkan_grass_rendering
 ```
 
 The X11 interaction smoke test additionally uses `xdotool` and FFmpeg as development tools; the Ubuntu setup helper installs both. Debug builds enable Vulkan validation by default. Automated correctness, benchmark, and capture modes finish after the requested frame count and return an error code on failure.
@@ -165,9 +188,13 @@ The X11 interaction smoke test additionally uses `xdotool` and FFmpeg as develop
 
 ## Verification
 
-[Recorded checks](performance/validation.json) include the SDK cube, all 13 compiled/validated shaders, Debug and Release builds, and 11 validation-enabled GPU cases. Cases cover zero blades, partial workgroups, all survivors, a populated field with zero survivors, physics, interaction, wireframe, and occlusion. The GPU check enforces finite state, ground constraints, counter bounds, and approximate length within 1% plus a small absolute tolerance.
+[Recorded checks](performance/validation.json) include the SDK cube, all 14 compiled/validated shaders, Debug and Release builds, and 11 validation-enabled GPU cases. Cases cover zero blades, partial workgroups, all survivors, a populated field with zero survivors, physics, interaction, wireframe, and occlusion. The GPU check enforces finite state, ground constraints, static-object clearance, counter bounds, and approximate length within 1% plus a small absolute tolerance.
 
-The X11 smoke test exercises resize and keyboard controls, verifies identical paused pixels and changed pixels after resuming, and checks that early closure of an automated run returns failure. A separate native-window-manager check confirms minimize/restore. Matching occlusion captures are pixel-identical, and a relocated binary runs while the original shader directory is hidden.
+Seven numerical tests check continuous blade frames, surface derivatives, degenerate curves, front/back normals, and length correction. The CPU scene suite covers exact counts, deterministic placement, small fields, blocked-field failure, cameras, input edges, and stable light bounds; it also passes address and undefined-behavior sanitizers.
+
+The X11 smoke test exercises resize and keyboard controls, verifies identical paused pixels and changed pixels after resuming, and checks that early closure of an automated run returns failure. A separate native-window-manager check confirms minimize/restore. Matching rendering comparisons verify that each enhancement affects pixels without changing blade counts. Occlusion comparisons include same-setting repeat controls. A relocated binary runs while the original shader directory is hidden.
+
+The [walkthrough report](performance/validation/walkthrough-report.json) records actual keyboard and mouse inputs, encoder readiness, video dimensions/frame rate/duration, clean application exits, and validation results. Its three chapters demonstrate every input listed above.
 
 Validation uses `VK_LAYER_VALIDATE_SYNC=true` with `--validation on`. Linux/NVIDIA is the tested platform; Windows build paths are retained but were not runtime-tested here.
 

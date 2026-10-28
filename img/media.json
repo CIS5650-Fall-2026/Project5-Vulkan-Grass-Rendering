@@ -1,28 +1,44 @@
 {
-  "source_commit": "687540dd6cdb5afc1a73691b65d9f5619016e98a",
-  "capture": {
-    "width": 960,
-    "height": 540,
-    "seed": 5650,
-    "fixed_dt": 0.03333333333333333,
-    "warmup": 120,
-    "frames": 120
-  },
-  "gif_export": {
-    "width": 640,
-    "fps": 20,
-    "palette_colors": 96,
-    "dither": "bayer, scale 3"
-  },
+  "capture_resolution": [
+    1280,
+    720
+  ],
+  "simulation_fps": 30,
+  "gif_resolution": [
+    720,
+    405
+  ],
+  "gif_fps": 20,
   "items": [
     {
       "preset": "basic",
-      "blade_count": 524288,
       "camera": "grazing",
-      "gif": "basic.gif",
-      "gif_bytes": 108088,
-      "gif_sha256": "cc2b0191110b03fe383fbabe1695ae9ceffa5a526f9d93cc713916c2444fa971",
-      "png": "basic.png",
+      "blade_count": 524288,
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "basic",
+        "--camera",
+        "grazing",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/basic"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -36,33 +52,45 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/basic/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/basic.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "basic.gif",
+      "gif_bytes": 152065,
+      "gif_sha256": "4fa7e6062b544b7d103417e5cca7c76e6dea5cc9549d46a69f8d083215e7c6cf",
+      "png": "basic.png"
     },
     {
       "preset": "forces",
-      "blade_count": 524288,
       "camera": "grazing",
-      "gif": "forces.gif",
-      "gif_bytes": 5733928,
-      "gif_sha256": "585c1b9634fa0b71453a05898408d8f25aa184544e49711e61cb0aab6a37c283",
-      "png": "forces.png",
+      "blade_count": 524288,
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "forces",
+        "--camera",
+        "grazing",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/forces"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -76,33 +104,45 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/forces/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/forces.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "forces.gif",
+      "gif_bytes": 8320000,
+      "gif_sha256": "79fb66fa16bbc7693b96e5e2747914e549a334221a8dbb5a13264bcaa3ca2156",
+      "png": "forces.png"
     },
     {
       "preset": "culling",
-      "blade_count": 524288,
       "camera": "grazing",
-      "gif": "culling.gif",
-      "gif_bytes": 5734957,
-      "gif_sha256": "324cc3fd9600d73131d359f3ebe90806524827dc7218f384efb7aa2727ef9d0d",
-      "png": "culling.png",
+      "blade_count": 524288,
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "culling",
+        "--camera",
+        "grazing",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/culling"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -116,33 +156,45 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/culling/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/culling.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "culling.gif",
+      "gif_bytes": 7847219,
+      "gif_sha256": "94d1c4bc2c44ebfef43c13be90a4d4f6bf305789ce48eb36588e8b017add4011",
+      "png": "culling.png"
     },
     {
       "preset": "wireframe",
-      "blade_count": 32768,
       "camera": "grazing",
-      "gif": "wireframe.gif",
-      "gif_bytes": 2356346,
-      "gif_sha256": "aa0064f34a92b9017e0ebb71606593b512bd5efbeb3b35c0da4e1db6e291bea5",
-      "png": "wireframe.png",
+      "blade_count": 32768,
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "wireframe",
+        "--camera",
+        "grazing",
+        "--blades",
+        "32768",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/wireframe"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -156,33 +208,45 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/wireframe/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/wireframe.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "wireframe.gif",
+      "gif_bytes": 4143911,
+      "gif_sha256": "1d7dd0da3c8a201926a2e98a71c0f95dfa681d9e6cc296be1eb5d3df96d30be8",
+      "png": "wireframe.png"
     },
     {
       "preset": "occlusion",
-      "blade_count": 524288,
       "camera": "occluder",
-      "gif": "occlusion.gif",
-      "gif_bytes": 3926565,
-      "gif_sha256": "dd713d8bd7cbfaacb5cc047f2c11a94453a0a846b1fd53274f51a4cc20ad2fa0",
-      "png": "occlusion.png",
+      "blade_count": 524288,
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "occlusion",
+        "--camera",
+        "occluder",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/occlusion"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -196,33 +260,51 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/occlusion/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/occlusion.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "occlusion.gif",
+      "gif_bytes": 4167075,
+      "gif_sha256": "1569fad89f135b1de275562814d525fb58664a534477ea52cf69a8e454577c3f",
+      "png": "occlusion.png"
     },
     {
       "preset": "interaction",
+      "camera": "interaction",
       "blade_count": 524288,
-      "camera": "grazing",
-      "gif": "interaction.gif",
-      "gif_bytes": 5761617,
-      "gif_sha256": "07e8554083006ad60217589e14ff490f4b2fa34ee550f5feaa5024730025ab6a",
-      "png": "interaction.png",
+      "frames": 240,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "interaction",
+        "--camera",
+        "interaction",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "240",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/interaction",
+        "--sphere-motion",
+        "sweep",
+        "--wind-strength",
+        "0",
+        "--shading",
+        "enhanced"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -236,33 +318,45 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/interaction/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/interaction.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "interaction.gif",
+      "gif_bytes": 1631169,
+      "gif_sha256": "d67d1ad1c11d5afa6d8d57956d4b2bbaf64845bf842e80641293d594c57a8cff",
+      "png": "interaction.png"
     },
     {
       "preset": "final",
+      "camera": "beauty",
       "blade_count": 524288,
-      "camera": "grazing",
-      "gif": "final.gif",
-      "gif_bytes": 5990312,
-      "gif_sha256": "ad6cb3c5be0423735bedd880ab402b313f0c53022b5122aa1907241cb35ccd6c",
-      "png": "final.png",
+      "frames": 120,
+      "command": [
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
+        "--preset",
+        "final",
+        "--camera",
+        "beauty",
+        "--blades",
+        "524288",
+        "--seed",
+        "5650",
+        "--width",
+        "1280",
+        "--height",
+        "720",
+        "--fixed-dt",
+        "0.03333333333333333",
+        "--warmup",
+        "120",
+        "--frames",
+        "120",
+        "--hidden",
+        "--capture-dir",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/final"
+      ],
       "encoding_command": [
         "ffmpeg",
         "-hide_banner",
@@ -276,24 +370,16 @@
         "-i",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/capture-frames/final/frames.txt",
         "-filter_complex",
-        "fps=20,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "fps=20,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         "-loop",
         "0",
         "/home/ubuntu/Project5-Vulkan-Grass-Rendering/img/final.gif"
       ],
-      "probe": {
-        "programs": [],
-        "streams": [
-          {
-            "width": 640,
-            "height": 360,
-            "nb_read_frames": "80"
-          }
-        ],
-        "format": {
-          "duration": "4.000000"
-        }
-      }
+      "gif": "final.gif",
+      "gif_bytes": 7806431,
+      "gif_sha256": "c7b8de93b5df6436734b898114188e2d8e49c719f91b830a8fb8b013fe041872",
+      "png": "final.png"
     }
-  ]
+  ],
+  "source_commit": "5534108b3628826e967717e661beaf88f4aae3ab"
 }

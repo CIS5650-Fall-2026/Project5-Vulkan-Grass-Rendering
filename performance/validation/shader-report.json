@@ -1,0 +1,76 @@
+{
+  "source_commit": "5534108b3628826e967717e661beaf88f4aae3ab",
+  "shaders": [
+    {
+      "name": "compute.comp.spv",
+      "sha256": "98c6ddfdbc3481dcb048a59f8be8a995b28126ee4fd8b48670c4245451e18802",
+      "returncode": 0
+    },
+    {
+      "name": "depth_reduce.comp.spv",
+      "sha256": "98b849712ccc9ee12e4e0efcbb1a781660bad399f737115b72d05d69fa2ed3ee",
+      "returncode": 0
+    },
+    {
+      "name": "graphics.frag.spv",
+      "sha256": "070e419bf9bde772658669d7892443d78bcdd902af4cce9185ed63abfeda5838",
+      "returncode": 0
+    },
+    {
+      "name": "graphics.vert.spv",
+      "sha256": "569c10926b2422348e1631bbed6b43e1079fc68ea409482cd13f81bc2003fbad",
+      "returncode": 0
+    },
+    {
+      "name": "grass.frag.spv",
+      "sha256": "5f39c3e294e3e76b9c99176fd73bb47d815f3dc2fbd62320ed06e15f88c4e81a",
+      "returncode": 0
+    },
+    {
+      "name": "grass.tesc.spv",
+      "sha256": "40bc372d3311ddb76de4c18477b4fc842a3b3901cd1794c4258afa09da52647a",
+      "returncode": 0
+    },
+    {
+      "name": "grass.tese.spv",
+      "sha256": "b5d10ffa2b7b25f6a307a5f1aba4330faf5465065933b9a76468cabad128f41b",
+      "returncode": 0
+    },
+    {
+      "name": "grass.vert.spv",
+      "sha256": "f705b79a9d9b313961d65c8cb41fd6512665e17c37f65d1a61ea5c8465612664",
+      "returncode": 0
+    },
+    {
+      "name": "overlay.frag.spv",
+      "sha256": "48abe3b7d13c77b98e4c6bcd986d7b9d5d51eb7edde1e799e47fbaf51438ca15",
+      "returncode": 0
+    },
+    {
+      "name": "overlay.vert.spv",
+      "sha256": "e58e6b6a5ae8c7ee53d9b8804dfd185615119613c1fce3e68924a5e161289154",
+      "returncode": 0
+    },
+    {
+      "name": "shadow.vert.spv",
+      "sha256": "a4a44c285362cd81c87124d1ee69504b84156565579fc63c7c3e1234a995704c",
+      "returncode": 0
+    },
+    {
+      "name": "sky.frag.spv",
+      "sha256": "4b55483066d3e16ce357505aa6312c164c0d10a827f6c094e474bb8d5f8af3ca",
+      "returncode": 0
+    },
+    {
+      "name": "sky.vert.spv",
+      "sha256": "df89acbd5edb747bca84e18460a88bb12e35fb2f02ee5cfa55a3e6cc4ac5d235",
+      "returncode": 0
+    },
+    {
+      "name": "visibility.comp.spv",
+      "sha256": "c12c600240a54ed7a83b69500b3f9c0e31311d24d915bc501f2bd3a8b5cbb687",
+      "returncode": 0
+    }
+  ],
+  "graphics_stage_sets_linked": 4
+}

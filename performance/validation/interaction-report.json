@@ -1,26 +1,26 @@
 {
   "acceptance_passed": true,
-  "actions_log": "/home/ubuntu/project5-interaction-final/actions.jsonl",
+  "actions_log": "/tmp/grass-final-closing-checks/interaction/actions.jsonl",
   "cases": {
     "early_automated_close": {
       "automation_progress": {
         "benchmark_expected": 100000000,
-        "benchmark_rows": 9,
+        "benchmark_rows": 14,
         "requested": 100000000,
-        "submitted": 9,
+        "submitted": 14,
         "verification_expected": 100000000,
-        "verification_processed": 9
+        "verification_processed": 14
       },
       "benchmark_artifact": {
-        "bytes": 802,
+        "bytes": 1316,
         "exists": true,
-        "path": "/home/ubuntu/project5-interaction-final/early-close.csv"
+        "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
       },
-      "benchmark_path": "/home/ubuntu/project5-interaction-final/early-close.csv",
+      "benchmark_path": "/tmp/grass-final-closing-checks/interaction/early-close.csv",
       "checks": [
         {
           "details": {
-            "pid": 7402,
+            "pid": 8729,
             "window_id": 2097159
           },
           "name": "found exactly one visible PID-scoped early-close window",
@@ -55,7 +55,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -67,7 +67,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -79,7 +79,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -107,9 +107,9 @@
         },
         {
           "details": {
-            "bytes": 802,
+            "bytes": 1316,
             "exists": true,
-            "path": "/home/ubuntu/project5-interaction-final/early-close.csv"
+            "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
           },
           "name": "early-close benchmark artifact was written",
           "scope": "early_automated_close",
@@ -117,7 +117,7 @@
         }
       ],
       "command": [
-        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-debug/bin/vulkan_grass_rendering",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
         "--preset",
         "final",
         "--blades",
@@ -130,7 +130,7 @@
         "576",
         "--verify",
         "--benchmark",
-        "/home/ubuntu/project5-interaction-final/early-close.csv",
+        "/tmp/grass-final-closing-checks/interaction/early-close.csv",
         "--warmup",
         "0",
         "--frames",
@@ -139,17 +139,17 @@
       "failures": [],
       "gaps": [],
       "name": "early_automated_close",
-      "pid": 7402,
+      "pid": 8729,
       "renderer_errors": [],
       "returncode": 1,
       "screenshots": [],
       "status": "pass",
-      "stderr_log": "/home/ubuntu/project5-interaction-final/early-close.stderr.log",
-      "stdout_log": "/home/ubuntu/project5-interaction-final/early-close.stdout.log",
+      "stderr_log": "/tmp/grass-final-closing-checks/interaction/early-close.stderr.log",
+      "stdout_log": "/tmp/grass-final-closing-checks/interaction/early-close.stdout.log",
       "successes": [
         {
           "details": {
-            "pid": 7402,
+            "pid": 8729,
             "window_id": 2097159
           },
           "name": "found exactly one visible PID-scoped early-close window",
@@ -184,7 +184,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -196,7 +196,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -208,7 +208,7 @@
         {
           "details": {
             "counts": [
-              9,
+              14,
               100000000
             ],
             "expected_requested": 100000000
@@ -236,9 +236,9 @@
         },
         {
           "details": {
-            "bytes": 802,
+            "bytes": 1316,
             "exists": true,
-            "path": "/home/ubuntu/project5-interaction-final/early-close.csv"
+            "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
           },
           "name": "early-close benchmark artifact was written",
           "scope": "early_automated_close",
@@ -257,8 +257,8 @@
       "checks": [
         {
           "details": {
-            "pid": 7166,
-            "window_id": 4194311
+            "pid": 8488,
+            "window_id": 2097159
           },
           "name": "found exactly one visible PID-scoped window",
           "scope": "interactive",
@@ -274,7 +274,7 @@
             "HEIGHT": 576,
             "SCREEN": 0,
             "WIDTH": 1024,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -287,7 +287,7 @@
             "HEIGHT": 540,
             "SCREEN": 0,
             "WIDTH": 960,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -300,7 +300,7 @@
             "HEIGHT": 720,
             "SCREEN": 0,
             "WIDTH": 1280,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -345,7 +345,7 @@
         },
         {
           "details": {
-            "seconds": 0.8579175779998423
+            "seconds": 0.8748981789999561
           },
           "name": "paused screenshots started at least 0.5 seconds apart",
           "scope": "interactive",
@@ -356,8 +356,8 @@
             "differing_bytes": 0,
             "differing_pixel_ratio": 0.0,
             "differing_pixels": 0,
-            "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-            "second_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
             "total_pixels": 921600
           },
           "name": "paused frames are exactly equal in decoded RGBA pixels",
@@ -366,11 +366,11 @@
         },
         {
           "details": {
-            "differing_bytes": 30817,
-            "differing_pixel_ratio": 0.013659939236111111,
-            "differing_pixels": 12589,
-            "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-            "second_sha256": "7a5616ade635b7b8cebcc5d832fd23a9800b6e44cdad97e6140064cc172cfcdd",
+            "differing_bytes": 279218,
+            "differing_pixel_ratio": 0.14716688368055555,
+            "differing_pixels": 135629,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
             "total_pixels": 921600
           },
           "name": "unpaused frame changes and proves screenshot liveness",
@@ -406,7 +406,7 @@
         }
       ],
       "command": [
-        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-debug/bin/vulkan_grass_rendering",
+        "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
         "--preset",
         "final",
         "--blades",
@@ -425,26 +425,26 @@
         "HEIGHT": 576,
         "SCREEN": 0,
         "WIDTH": 1024,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
-      "paused_capture_separation_seconds": 0.857918,
+      "paused_capture_separation_seconds": 0.874898,
       "paused_pixel_comparison": {
         "differing_bytes": 0,
         "differing_pixel_ratio": 0.0,
         "differing_pixels": 0,
-        "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-        "second_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
         "total_pixels": 921600
       },
-      "pid": 7166,
+      "pid": 8488,
       "renderer_errors": [],
       "resize_1280x720": {
         "HEIGHT": 720,
         "SCREEN": 0,
         "WIDTH": 1280,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
@@ -452,68 +452,68 @@
         "HEIGHT": 540,
         "SCREEN": 0,
         "WIDTH": 960,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
       "resumed_pixel_comparison": {
-        "differing_bytes": 30817,
-        "differing_pixel_ratio": 0.013659939236111111,
-        "differing_pixels": 12589,
-        "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-        "second_sha256": "7a5616ade635b7b8cebcc5d832fd23a9800b6e44cdad97e6140064cc172cfcdd",
+        "differing_bytes": 279218,
+        "differing_pixel_ratio": 0.14716688368055555,
+        "differing_pixels": 135629,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
         "total_pixels": 921600
       },
       "returncode": 0,
       "screenshots": [
         {
-          "capture_finished_seconds": 7.040595,
-          "capture_started_seconds": 6.790054,
+          "capture_finished_seconds": 7.070063,
+          "capture_started_seconds": 6.802092,
           "geometry": {
             "height": 720,
             "width": 1280,
             "x": 0,
             "y": 0
           },
-          "path": "/home/ubuntu/project5-interaction-final/paused-1.png",
+          "path": "/tmp/grass-final-closing-checks/interaction/paused-1.png",
           "rgba_bytes": 3686400,
-          "rgba_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a"
+          "rgba_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36"
         },
         {
-          "capture_finished_seconds": 7.9103,
-          "capture_started_seconds": 7.647971,
+          "capture_finished_seconds": 7.944179,
+          "capture_started_seconds": 7.67699,
           "geometry": {
             "height": 720,
             "width": 1280,
             "x": 0,
             "y": 0
           },
-          "path": "/home/ubuntu/project5-interaction-final/paused-2.png",
+          "path": "/tmp/grass-final-closing-checks/interaction/paused-2.png",
           "rgba_bytes": 3686400,
-          "rgba_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a"
+          "rgba_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36"
         },
         {
-          "capture_finished_seconds": 9.329548,
-          "capture_started_seconds": 9.071346,
+          "capture_finished_seconds": 9.393257,
+          "capture_started_seconds": 9.112978,
           "geometry": {
             "height": 720,
             "width": 1280,
             "x": 0,
             "y": 0
           },
-          "path": "/home/ubuntu/project5-interaction-final/resumed.png",
+          "path": "/tmp/grass-final-closing-checks/interaction/resumed.png",
           "rgba_bytes": 3686400,
-          "rgba_sha256": "7a5616ade635b7b8cebcc5d832fd23a9800b6e44cdad97e6140064cc172cfcdd"
+          "rgba_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446"
         }
       ],
       "status": "pass",
-      "stderr_log": "/home/ubuntu/project5-interaction-final/interactive.stderr.log",
-      "stdout_log": "/home/ubuntu/project5-interaction-final/interactive.stdout.log",
+      "stderr_log": "/tmp/grass-final-closing-checks/interaction/interactive.stderr.log",
+      "stdout_log": "/tmp/grass-final-closing-checks/interaction/interactive.stdout.log",
       "successes": [
         {
           "details": {
-            "pid": 7166,
-            "window_id": 4194311
+            "pid": 8488,
+            "window_id": 2097159
           },
           "name": "found exactly one visible PID-scoped window",
           "scope": "interactive",
@@ -529,7 +529,7 @@
             "HEIGHT": 576,
             "SCREEN": 0,
             "WIDTH": 1024,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -542,7 +542,7 @@
             "HEIGHT": 540,
             "SCREEN": 0,
             "WIDTH": 960,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -555,7 +555,7 @@
             "HEIGHT": 720,
             "SCREEN": 0,
             "WIDTH": 1280,
-            "WINDOW": 4194311,
+            "WINDOW": 2097159,
             "X": 0,
             "Y": 0
           },
@@ -600,7 +600,7 @@
         },
         {
           "details": {
-            "seconds": 0.8579175779998423
+            "seconds": 0.8748981789999561
           },
           "name": "paused screenshots started at least 0.5 seconds apart",
           "scope": "interactive",
@@ -611,8 +611,8 @@
             "differing_bytes": 0,
             "differing_pixel_ratio": 0.0,
             "differing_pixels": 0,
-            "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-            "second_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
             "total_pixels": 921600
           },
           "name": "paused frames are exactly equal in decoded RGBA pixels",
@@ -621,11 +621,11 @@
         },
         {
           "details": {
-            "differing_bytes": 30817,
-            "differing_pixel_ratio": 0.013659939236111111,
-            "differing_pixels": 12589,
-            "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-            "second_sha256": "7a5616ade635b7b8cebcc5d832fd23a9800b6e44cdad97e6140064cc172cfcdd",
+            "differing_bytes": 279218,
+            "differing_pixel_ratio": 0.14716688368055555,
+            "differing_pixels": 135629,
+            "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+            "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
             "total_pixels": 921600
           },
           "name": "unpaused frame changes and proves screenshot liveness",
@@ -666,22 +666,22 @@
         "summary_error_counts": [],
         "warning_count": 0
       },
-      "window_id": 4194311
+      "window_id": 2097159
     }
   },
-  "duration_seconds": 11.039164,
-  "executable": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-debug/bin/vulkan_grass_rendering",
+  "duration_seconds": 11.054697,
+  "executable": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering",
   "failures": [],
-  "finished_at": "2026-10-28T01:32:47.758907+00:00",
+  "finished_at": "2026-10-28T03:05:08.487722+00:00",
   "gaps": [],
-  "output_directory": "/home/ubuntu/project5-interaction-final",
+  "output_directory": "/tmp/grass-final-closing-checks/interaction",
   "overall_status": "pass",
   "preflight": {
     "checks": [
       {
         "details": {
           "exists": true,
-          "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-debug/bin/vulkan_grass_rendering"
+          "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering"
         },
         "name": "executable is a regular executable file",
         "scope": "preflight",
@@ -715,12 +715,12 @@
     "status": "pass"
   },
   "schema_version": 1,
-  "started_at": "2026-10-28T01:32:36.719812+00:00",
+  "started_at": "2026-10-28T03:04:57.433087+00:00",
   "successes": [
     {
       "details": {
         "exists": true,
-        "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-debug/bin/vulkan_grass_rendering"
+        "path": "/home/ubuntu/Project5-Vulkan-Grass-Rendering/build-release/bin/vulkan_grass_rendering"
       },
       "name": "executable is a regular executable file",
       "scope": "preflight",
@@ -752,8 +752,8 @@
     },
     {
       "details": {
-        "pid": 7166,
-        "window_id": 4194311
+        "pid": 8488,
+        "window_id": 2097159
       },
       "name": "found exactly one visible PID-scoped window",
       "scope": "interactive",
@@ -769,7 +769,7 @@
         "HEIGHT": 576,
         "SCREEN": 0,
         "WIDTH": 1024,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
@@ -782,7 +782,7 @@
         "HEIGHT": 540,
         "SCREEN": 0,
         "WIDTH": 960,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
@@ -795,7 +795,7 @@
         "HEIGHT": 720,
         "SCREEN": 0,
         "WIDTH": 1280,
-        "WINDOW": 4194311,
+        "WINDOW": 2097159,
         "X": 0,
         "Y": 0
       },
@@ -840,7 +840,7 @@
     },
     {
       "details": {
-        "seconds": 0.8579175779998423
+        "seconds": 0.8748981789999561
       },
       "name": "paused screenshots started at least 0.5 seconds apart",
       "scope": "interactive",
@@ -851,8 +851,8 @@
         "differing_bytes": 0,
         "differing_pixel_ratio": 0.0,
         "differing_pixels": 0,
-        "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-        "second_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
         "total_pixels": 921600
       },
       "name": "paused frames are exactly equal in decoded RGBA pixels",
@@ -861,11 +861,11 @@
     },
     {
       "details": {
-        "differing_bytes": 30817,
-        "differing_pixel_ratio": 0.013659939236111111,
-        "differing_pixels": 12589,
-        "first_sha256": "73eabc55f23b350e777f214a242ecf5395fefcfdc3a9c256a9c8bb0fd22d897a",
-        "second_sha256": "7a5616ade635b7b8cebcc5d832fd23a9800b6e44cdad97e6140064cc172cfcdd",
+        "differing_bytes": 279218,
+        "differing_pixel_ratio": 0.14716688368055555,
+        "differing_pixels": 135629,
+        "first_sha256": "77ed9d4ed3484c5b4d6d1ed6d82635aad8e743390cf0bb613db70da97598cd36",
+        "second_sha256": "1b555e7fd975b88f321645bfef179c698ec43a817792e05e98498ebda2a3b446",
         "total_pixels": 921600
       },
       "name": "unpaused frame changes and proves screenshot liveness",
@@ -901,7 +901,7 @@
     },
     {
       "details": {
-        "pid": 7402,
+        "pid": 8729,
         "window_id": 2097159
       },
       "name": "found exactly one visible PID-scoped early-close window",
@@ -936,7 +936,7 @@
     {
       "details": {
         "counts": [
-          9,
+          14,
           100000000
         ],
         "expected_requested": 100000000
@@ -948,7 +948,7 @@
     {
       "details": {
         "counts": [
-          9,
+          14,
           100000000
         ],
         "expected_requested": 100000000
@@ -960,7 +960,7 @@
     {
       "details": {
         "counts": [
-          9,
+          14,
           100000000
         ],
         "expected_requested": 100000000
@@ -988,9 +988,9 @@
     },
     {
       "details": {
-        "bytes": 802,
+        "bytes": 1316,
         "exists": true,
-        "path": "/home/ubuntu/project5-interaction-final/early-close.csv"
+        "path": "/tmp/grass-final-closing-checks/interaction/early-close.csv"
       },
       "name": "early-close benchmark artifact was written",
       "scope": "early_automated_close",
