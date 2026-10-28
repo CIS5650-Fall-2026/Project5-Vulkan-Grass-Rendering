@@ -1,0 +1,92 @@
+{
+  "source_commit": "687540dd6cdb5afc1a73691b65d9f5619016e98a",
+  "hardware": {
+    "gpu": "NVIDIA A10G, 615.71.10, 23028 MiB",
+    "cpu": "AMD EPYC 7R32",
+    "memory": "MemTotal:       16162392 kB",
+    "platform": "Linux-7.0.0-1012-aws-x86_64-with-glibc2.39"
+  },
+  "builds": [
+    {
+      "type": "Debug",
+      "cmake": "3.28.3",
+      "result": "pass"
+    },
+    {
+      "type": "Release",
+      "cmake": "4.0.3",
+      "result": "pass"
+    }
+  ],
+  "sdk_cube": "rendered and visually inspected on NVIDIA A10G",
+  "shaders": {
+    "compiled": 13,
+    "spirv_validated": 13,
+    "graphics_stage_sets_linked": 4
+  },
+  "gpu_correctness": {
+    "validation": "Khronos core and synchronization validation",
+    "cases": 11,
+    "measured_frames_per_case": 12,
+    "blade_counts": [
+      0,
+      1,
+      127,
+      128,
+      129,
+      8192
+    ],
+    "includes_positive_input_zero_survivors": true,
+    "length_tolerance": "1% of rest height plus 1e-4 absolute",
+    "result": "pass"
+  },
+  "interactive_smoke": {
+    "result": true,
+    "report": "validation/interaction-report.json",
+    "actions": "validation/interaction-actions.jsonl",
+    "wrapper_sha256": "af5e12529cae3af2973d6707fa6dd872fcd3f2418e8a5512c43df7ad5b7a9021"
+  },
+  "matched_occlusion": {
+    "pixel_identical": true,
+    "report": "validation/artifact-report.json"
+  },
+  "relocated_binary": {
+    "returncode": 0,
+    "original_shader_directory_hidden": true,
+    "command": [
+      "/tmp/grass-artifact-validation/relocated/vulkan_grass_rendering",
+      "--preset",
+      "basic",
+      "--blades",
+      "129",
+      "--culling",
+      "none",
+      "--occlusion",
+      "off",
+      "--hidden",
+      "--validation",
+      "on",
+      "--verify",
+      "--warmup",
+      "0",
+      "--frames",
+      "2",
+      "--benchmark",
+      "/tmp/grass-artifact-validation/relocated.csv"
+    ]
+  },
+  "minimize_restore": {
+    "result": true,
+    "report": "validation/minimize-report.json"
+  },
+  "performance": {
+    "runs": 87,
+    "measured_frames": 26100,
+    "manifest": "raw/manifest.json",
+    "summary": "summary.csv"
+  },
+  "media": {
+    "gif_count": 7,
+    "manifest": "../img/media.json"
+  }
+}
