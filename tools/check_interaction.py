@@ -460,6 +460,14 @@ class InteractionDriver:
             raise CommandFailure(
                 f"command timed out after {bounded:.1f}s: {argv}"
             ) from error
+        except (KeyboardInterrupt, InterruptedError):
+            self.recorder.action(
+                "command_interrupted",
+                argv,
+                self.current_case,
+                command_duration_seconds=round(time.monotonic() - started, 6),
+            )
+            raise
         except OSError as error:
             self.recorder.action(
                 "command_error", argv, self.current_case, error=str(error)
@@ -1163,6 +1171,13 @@ class InteractionDriver:
             "exists": benchmark_path.is_file(),
             "bytes": benchmark_path.stat().st_size if benchmark_path.is_file() else 0,
         }
+        self.recorder.check(
+            case,
+            "early-close benchmark artifact was written",
+            case["benchmark_artifact"]["exists"]
+            and case["benchmark_artifact"]["bytes"] > 0,
+            case["benchmark_artifact"],
+        )
         self.recorder.flush_report()
 
     def run_case(self, name: str, command: Sequence[str], function: Any) -> None:
@@ -1181,13 +1196,6 @@ class InteractionDriver:
                 {"error": str(error)},
                 gap=True,
             )
-        except (SmokeFailure, subprocess.SubprocessError, OSError) as error:
-            self.recorder.check(
-                case,
-                "case completed without action failure",
-                False,
-                {"error": str(error), "type": type(error).__name__},
-            )
         except (KeyboardInterrupt, InterruptedError) as error:
             self.recorder.check(
                 case,
@@ -1196,6 +1204,13 @@ class InteractionDriver:
                 {"error": str(error), "type": type(error).__name__},
             )
             interruption = error
+        except (SmokeFailure, subprocess.SubprocessError, OSError) as error:
+            self.recorder.check(
+                case,
+                "case completed without action failure",
+                False,
+                {"error": str(error), "type": type(error).__name__},
+            )
         except Exception as error:  # Preserve a report for unexpected QA-driver bugs.
             self.recorder.check(
                 case,
