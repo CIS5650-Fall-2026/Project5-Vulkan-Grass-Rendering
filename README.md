@@ -171,7 +171,7 @@ The X11 smoke test exercises resize and keyboard controls, verifies identical pa
 
 Validation uses `VK_LAYER_VALIDATE_SYNC=true` with `--validation on`. Linux/NVIDIA is the tested platform; Windows build paths are retained but were not runtime-tested here.
 
-## References and provenance
+## References
 
 - [CIS 5650 Project 5 starter and assignment](https://github.com/CIS5650-Fall-2026/Project5-Vulkan-Grass-Rendering), baseline `d3c78889caadbcad7bc3b894b8714e34c62f3361`.
 - [Responsive Real-Time Grass Rendering for General 3D Scenes](https://www.cg.tuwien.ac.at/research/publications/2017/JAHRMANN-2017-RRTG/JAHRMANN-2017-RRTG-draft.pdf), Klemens Jahrmann and Michael Wimmer, 2017. Mathematical model and algorithm reference.
@@ -180,5 +180,3 @@ Validation uses `VK_LAYER_VALIDATE_SYNC=true` with `--validation on`. Linux/NVID
 - [Tessellation tutorial](https://ogldev.org/www/tutorial30/tutorial30.html). Conceptual reference; no sample code imported.
 - [Procedural Grass in Ghost of Tsushima](https://www.youtube.com/watch?v=Ibe1JBF5i5Y), Eric Wohllaib, GDC 2021. Visual concepts studied through the official presentation slides.
 - [README presentation guide](https://github.com/pjcozzi/Articles/blob/master/CIS565/GitHubRepo/README.md).
-
-All project implementation additions are original. Existing GLFW, GLM, and STB files are supplied by the designated starter and retain their respective notices. No code from completed student projects, external tutorials, or earlier course submissions was reused. FFmpeg is used as an external media-encoding tool, not linked into the renderer.
