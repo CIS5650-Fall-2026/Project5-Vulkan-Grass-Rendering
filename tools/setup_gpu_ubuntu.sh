@@ -11,7 +11,7 @@ apt-get update
 apt-get install -y build-essential cmake ninja-build git python3 curl ca-certificates xz-utils \
     linux-headers-"$(uname -r)" pkg-config libx11-dev libxrandr-dev libxinerama-dev \
     libxcursor-dev libxi-dev libxkbcommon-dev libxcb1-dev libx11-xcb-dev \
-    xserver-xorg-core xinit xauth x11-xserver-utils xfonts-base vulkan-tools ffmpeg
+    xserver-xorg-core xinit xauth x11-xserver-utils xfonts-base vulkan-tools ffmpeg xdotool
 curl --fail --location --retry 3 \
     https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb \
     --output /var/tmp/grass-cuda-keyring.deb
