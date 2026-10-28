@@ -1,8 +1,9 @@
 # Vulkan Grass Rendering
 
-[Didrik Wiig-Andersen](https://github.com/didrikwiigandersen)
+**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-University of Pennsylvania · CIS 5650 · Fall 2026
+- [Didrik Wiig-Andersen](https://github.com/didrikwiigandersen)
+- Tested on: Ubuntu 24.04.4 LTS, AMD EPYC 7R32 (4 vCPUs), 15.4 GiB usable RAM, NVIDIA A10G with 23,028 MiB reported VRAM (AWS g5.xlarge).
 
 ![A wind-swept procedural meadow rendered with Vulkan](img/hero.png)
 
