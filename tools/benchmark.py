@@ -46,9 +46,9 @@ def main():
     source_paths = [source_root / "CMakeLists.txt", source_root / "external/CMakeLists.txt",
                     source_root / "external/GLFW/CMakeLists.txt"]
     source_paths += [p for p in (source_root / "src").rglob("*")
-                     if p.suffix in {".h", ".cpp", ".comp", ".vert", ".frag", ".tesc", ".tese"}
+                     if p.suffix in {".h", ".cpp", ".comp", ".vert", ".frag", ".tesc", ".tese", ".glsl"}
                      or p.name == "CMakeLists.txt"]
-    source_paths += [p for p in (source_root / "tools").iterdir() if p.suffix in {".py", ".sh"}]
+    source_paths += [p for p in (source_root / "tools").iterdir() if p.suffix in {".py", ".sh", ".cpp", ".h"}]
     source_hashes = {str(p.relative_to(source_root)): hashlib.sha256(p.read_bytes()).hexdigest()
                      for p in sorted(source_paths)}
     try:

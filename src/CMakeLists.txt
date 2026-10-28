@@ -15,6 +15,9 @@ file(GLOB shader_sources CONFIGURE_DEPENDS
     "${shader_source_dir}/*.tese"
     "${shader_source_dir}/*.vert"
 )
+file(GLOB_RECURSE shader_include_sources CONFIGURE_DEPENDS
+    "${shader_source_dir}/*.glsl"
+)
 
 if(DEFINED Vulkan_GLSLANG_VALIDATOR_EXECUTABLE
    AND EXISTS "${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE}")
@@ -48,9 +51,10 @@ foreach(shader_source IN LISTS shader_sources)
         COMMAND "${glslang_validator}"
                 -V
                 --target-env vulkan1.1
+                "-I${shader_source_dir}"
                 -o "${shader_output}"
                 "${shader_source}"
-        DEPENDS "${shader_source}"
+        DEPENDS "${shader_source}" ${shader_include_sources}
         COMMENT "Compiling ${shader_name}"
         VERBATIM
     )
@@ -61,7 +65,11 @@ endforeach()
 add_custom_target(vulkan_grass_shaders ALL DEPENDS ${shader_outputs})
 set_target_properties(vulkan_grass_shaders PROPERTIES FOLDER "Shaders")
 
-add_executable(vulkan_grass_rendering ${renderer_sources} ${shader_sources})
+add_executable(vulkan_grass_rendering
+    ${renderer_sources}
+    ${shader_sources}
+    ${shader_include_sources}
+)
 add_dependencies(vulkan_grass_rendering vulkan_grass_shaders)
 
 target_link_libraries(vulkan_grass_rendering PRIVATE
@@ -97,6 +105,7 @@ endif()
 
 source_group("Source Files" FILES ${renderer_sources})
 source_group("Shaders" FILES ${shader_sources})
+source_group("Shader Includes" FILES ${shader_include_sources})
 set_target_properties(vulkan_grass_rendering PROPERTIES
     FOLDER "Application"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"

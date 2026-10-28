@@ -16,6 +16,7 @@
 #include <numeric>
 #include <optional>
 #include <random>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -29,6 +30,11 @@ constexpr uint32_t kBaselineCullMask = CullOrientation | CullFrustum | CullDista
 constexpr uint32_t kKnownCullMask = kBaselineCullMask | CullOcclusion;
 constexpr float kPi = 3.14159265358979323846f;
 constexpr float kTwoPi = 2.0f * kPi;
+constexpr float kPlacementTau = 0.01f;
+constexpr float kPlacementEpsilon = 0.01f;
+constexpr float kPlacementSafety = 0.95f;
+constexpr float kMinimumBladeHeight = 0.08f;
+constexpr uint32_t kShadowResolution = 2048u;
 
 struct PresetDefinition {
     uint32_t culling;
@@ -68,7 +74,30 @@ PresetDefinition DefinitionForPreset(const std::string& name) {
 }
 
 bool IsCameraPreset(const std::string& name) {
-    return name == "overview" || name == "grazing" || name == "occluder";
+    return name == "auto" || name == "overview" || name == "grazing" ||
+           name == "occluder" || name == "interaction" || name == "detail" ||
+           name == "beauty";
+}
+
+std::string ResolveCameraPreset(const std::string& camera, const std::string& preset) {
+    if (camera != "auto") {
+        return camera;
+    }
+    if (preset == "final") {
+        return "beauty";
+    }
+    if (preset == "interaction") {
+        return "interaction";
+    }
+    return "overview";
+}
+
+float NormalizeDegrees(float degrees) {
+    float normalized = std::fmod(degrees, 360.0f);
+    if (normalized < 0.0f) {
+        normalized += 360.0f;
+    }
+    return normalized;
 }
 
 uint32_t MixBits(uint32_t value) {
@@ -105,6 +134,97 @@ public:
 private:
     std::mt19937 engine_;
 };
+
+float Cross2(const glm::vec2& origin, const glm::vec2& a, const glm::vec2& b) {
+    const glm::vec2 first = a - origin;
+    const glm::vec2 second = b - origin;
+    return first.x * second.y - first.y * second.x;
+}
+
+std::vector<glm::vec2> ConvexHull(std::vector<glm::vec2> points) {
+    std::sort(points.begin(), points.end(), [](const glm::vec2& a, const glm::vec2& b) {
+        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    });
+    points.erase(std::unique(points.begin(), points.end(),
+                             [](const glm::vec2& a, const glm::vec2& b) {
+                                 return a.x == b.x && a.y == b.y;
+                             }),
+                 points.end());
+    if (points.size() < 3u) {
+        return points;
+    }
+
+    std::vector<glm::vec2> hull;
+    hull.reserve(points.size() * 2u);
+    for (const glm::vec2& point : points) {
+        while (hull.size() >= 2u &&
+               Cross2(hull[hull.size() - 2u], hull.back(), point) <= 0.0f) {
+            hull.pop_back();
+        }
+        hull.push_back(point);
+    }
+    const std::size_t lowerSize = hull.size();
+    for (std::size_t i = points.size() - 1u; i-- > 0u;) {
+        const glm::vec2& point = points[i];
+        while (hull.size() > lowerSize &&
+               Cross2(hull[hull.size() - 2u], hull.back(), point) <= 0.0f) {
+            hull.pop_back();
+        }
+        hull.push_back(point);
+    }
+    hull.pop_back();
+    return hull;
+}
+
+float PointSegmentDistance(const glm::vec2& point,
+                           const glm::vec2& a,
+                           const glm::vec2& b) {
+    const glm::vec2 edge = b - a;
+    const float edgeLengthSquared = glm::dot(edge, edge);
+    if (edgeLengthSquared <= 0.0f) {
+        return glm::length(point - a);
+    }
+    const float fraction = glm::clamp(glm::dot(point - a, edge) / edgeLengthSquared,
+                                      0.0f, 1.0f);
+    return glm::length(point - (a + fraction * edge));
+}
+
+float PointHullDistance(const glm::vec2& point, const std::vector<glm::vec2>& hull) {
+    if (hull.empty()) {
+        return std::numeric_limits<float>::infinity();
+    }
+    if (hull.size() == 1u) {
+        return glm::length(point - hull.front());
+    }
+
+    bool inside = hull.size() >= 3u;
+    float minimum = std::numeric_limits<float>::infinity();
+    for (std::size_t i = 0; i < hull.size(); ++i) {
+        const glm::vec2& a = hull[i];
+        const glm::vec2& b = hull[(i + 1u) % hull.size()];
+        const float edgeScale = 1.0f + glm::length(b - a);
+        if (Cross2(a, b, point) < -1.0e-6f * edgeScale) {
+            inside = false;
+        }
+        minimum = std::min(minimum, PointSegmentDistance(point, a, b));
+    }
+    if (inside || minimum <= 1.0e-6f) {
+        return 0.0f;
+    }
+    return minimum;
+}
+
+float AabbDistanceSquared(const glm::vec2& point,
+                          const glm::vec2& minimum,
+                          const glm::vec2& maximum) {
+    const float dx = point.x < minimum.x ? minimum.x - point.x
+                    : point.x > maximum.x ? point.x - maximum.x
+                                              : 0.0f;
+    const float dz = point.y < minimum.y ? minimum.y - point.y
+                    : point.y > maximum.y ? point.y - maximum.y
+                                              : 0.0f;
+    return dx * dx + dz * dz;
+}
 
 glm::vec3 ClampColor(const glm::vec3& color) {
     return glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
@@ -299,6 +419,37 @@ bool ParseOnOff(const std::string& text, const std::string& option) {
     throw std::invalid_argument(option + " expects 'on' or 'off', got '" + text + "'");
 }
 
+uint32_t RenderFeatureForName(const std::string& name) {
+    if (name == "sky") return RenderFeatureSky;
+    if (name == "root-color") return RenderFeatureRootColor;
+    if (name == "rounded-normals") return RenderFeatureRoundedNormals;
+    if (name == "transmission") return RenderFeatureTransmission;
+    if (name == "specular") return RenderFeatureSpecular;
+    if (name == "fog") return RenderFeatureFog;
+    if (name == "shadows") return RenderFeatureShadows;
+    throw std::invalid_argument("--render-disable contains unknown feature '" + name + "'");
+}
+
+void DisableRenderFeatures(const std::string& text, uint32_t& mask) {
+    if (text.empty()) {
+        throw std::invalid_argument("--render-disable requires a non-empty comma list");
+    }
+    std::size_t begin = 0u;
+    while (begin <= text.size()) {
+        const std::size_t comma = text.find(',', begin);
+        const std::size_t end = comma == std::string::npos ? text.size() : comma;
+        if (end == begin) {
+            throw std::invalid_argument("--render-disable contains an empty component");
+        }
+        const std::string name = text.substr(begin, end - begin);
+        mask &= ~RenderFeatureForName(name);
+        if (comma == std::string::npos) {
+            break;
+        }
+        begin = comma + 1u;
+    }
+}
+
 std::string RequireValue(int argc, char** argv, int& index, const std::string& option) {
     if (index + 1 >= argc || argv[index + 1] == nullptr) {
         throw std::invalid_argument("missing value for " + option);
@@ -325,9 +476,50 @@ Scene::Scene(const RunOptions& options)
     if (!std::isfinite(options_.maxDistance) || options_.maxDistance <= 0.0f) {
         throw std::invalid_argument("maximum distance must be finite and positive");
     }
+    if (!std::isfinite(options_.fixedDelta) || options_.fixedDelta <= 0.0f ||
+        options_.fixedDelta > 1.0f / 30.0f) {
+        throw std::invalid_argument("fixed timestep must be greater than 0 and at most 1/30");
+    }
+    if (!std::isfinite(options_.windStrength) || options_.windStrength < 0.0f ||
+        options_.windStrength > 18.0f) {
+        throw std::invalid_argument("wind strength must be between 0 and 18");
+    }
+    if (!std::isfinite(options_.sunAzimuth)) {
+        throw std::invalid_argument("sun azimuth must be finite");
+    }
+    if (!std::isfinite(options_.sunElevation) || options_.sunElevation < 1.0f ||
+        options_.sunElevation > 89.0f) {
+        throw std::invalid_argument("sun elevation must be between 1 and 89 degrees");
+    }
+    if (options_.sphereMotion != "manual" && options_.sphereMotion != "sweep") {
+        throw std::invalid_argument("sphere motion must be 'manual' or 'sweep'");
+    }
+    if ((options_.renderFeatureMask & ~static_cast<uint32_t>(RenderFeatureAll)) != 0u) {
+        throw std::invalid_argument("render feature mask contains unknown bits");
+    }
+    if (!options_.physicsProbePath.empty() && !options_.verify) {
+        throw std::invalid_argument("physics probe requires verification to be enabled");
+    }
+    if (!IsCameraPreset(options_.camera)) {
+        throw std::invalid_argument("invalid camera preset '" + options_.camera + "'");
+    }
 
     const PresetDefinition preset = DefinitionForPreset(options_.preset);
     featureMask_ = preset.features;
+    if (options_.interactionOverride.has_value()) {
+        if (*options_.interactionOverride) {
+            featureMask_ |= InteractiveSphere;
+        } else {
+            featureMask_ &= ~static_cast<uint32_t>(InteractiveSphere);
+        }
+    }
+    if (options_.shadingOverride.has_value()) {
+        if (*options_.shadingOverride) {
+            featureMask_ |= BetterShading;
+        } else {
+            featureMask_ &= ~static_cast<uint32_t>(BetterShading);
+        }
+    }
     if (options_.benchmarkPath.empty() && options_.captureDir.empty()) {
         featureMask_ |= ShowOverlay;
     }
@@ -336,12 +528,24 @@ Scene::Scene(const RunOptions& options)
         cullMask_ |= CullOcclusion;
     }
     lodEnabled_ = options_.lod;
-    windStrength_ = std::sqrt(wind_.x * wind_.x + wind_.z * wind_.z);
     windAngle_ = std::atan2(wind_.z, wind_.x);
+    windStrength_ = options_.windStrength;
+    wind_ = glm::vec3(std::cos(windAngle_) * windStrength_, 0.0f,
+                      std::sin(windAngle_) * windStrength_);
 
+    options_.sunAzimuth = NormalizeDegrees(options_.sunAzimuth);
+    const float azimuth = options_.sunAzimuth * kPi / 180.0f;
+    const float elevation = options_.sunElevation * kPi / 180.0f;
+    const float horizontal = std::cos(elevation);
+    sunDirection_ = glm::normalize(glm::vec3(horizontal * std::cos(azimuth),
+                                             std::sin(elevation),
+                                             horizontal * std::sin(azimuth)));
+
+    options_.camera = ResolveCameraPreset(options_.camera, options_.preset);
     ConfigureCamera(options_.camera);
-    GenerateBlades();
     GenerateGeometry();
+    BuildLightMatrix();
+    GenerateBlades();
 }
 
 void Scene::GenerateBlades() {
@@ -378,16 +582,78 @@ void Scene::GenerateBlades() {
             (static_cast<uint64_t>(offset) + static_cast<uint64_t>(i) * step) % cellCount);
         const uint32_t column = cell % columns;
         const uint32_t row = cell / columns;
-        const float rootX = ((static_cast<float>(column) + random.NextUnit()) /
+        const float baseXJitter = random.NextUnit();
+        const float baseZJitter = random.NextUnit();
+        const float baseHeight = 0.6f + 0.6f * random.NextUnit();
+        const float baseWidth = 0.025f + 0.035f * random.NextUnit();
+        const float stiffness = 7.0f + 6.0f * random.NextUnit();
+
+        const auto cellRoot = [&](float xJitter, float zJitter) {
+            const float x = ((static_cast<float>(column) + xJitter) /
                                  static_cast<float>(columns) -
-                             0.5f) *
-                            options_.fieldSize;
-        const float rootZ = ((static_cast<float>(row) + random.NextUnit()) /
+                             0.5f) * options_.fieldSize;
+            const float z = ((static_cast<float>(row) + zJitter) /
                                  static_cast<float>(rows) -
-                             0.5f) *
-                            options_.fieldSize;
-        const glm::vec3 root(glm::clamp(rootX, -halfField, halfField), 0.0f,
-                             glm::clamp(rootZ, -halfField, halfField));
+                             0.5f) * options_.fieldSize;
+            return glm::vec3(glm::clamp(x, -halfField, halfField), 0.0f,
+                             glm::clamp(z, -halfField, halfField));
+        };
+        const auto globalRoot = [&](float xUnit, float zUnit) {
+            return glm::vec3((xUnit - 0.5f) * options_.fieldSize, 0.0f,
+                             (zUnit - 0.5f) * options_.fieldSize);
+        };
+
+        glm::vec3 root(0.0f);
+        float height = 0.0f;
+        float width = 0.0f;
+        const auto accept = [&](const glm::vec3& candidate) {
+            const float distance = StaticObstacleDistance(candidate);
+            float scale = 1.0f;
+            if (std::isfinite(distance)) {
+                if (distance <= kPlacementEpsilon) {
+                    return false;
+                }
+                // A quadratic curve is a convex combination of root/guide/tip.  The guide
+                // stays above the root and corrected tip reach is <= 1.01h, so adding w/2
+                // encloses the whole ribbon; the safety-scaled epsilon gap keeps it off stone.
+                const float unscaledEnvelope =
+                    (1.0f + kPlacementTau) * baseHeight + 0.5f * baseWidth;
+                scale = std::min(1.0f, kPlacementSafety *
+                                           (distance - kPlacementEpsilon) /
+                                           unscaledEnvelope);
+            }
+            const float candidateHeight = scale * baseHeight;
+            if (!std::isfinite(scale) || scale <= 0.0f ||
+                candidateHeight < kMinimumBladeHeight) {
+                return false;
+            }
+            root = candidate;
+            height = candidateHeight;
+            width = scale * baseWidth;
+            return true;
+        };
+
+        bool placed = accept(cellRoot(baseXJitter, baseZJitter));
+        if (!placed) {
+            DeterministicRng replacement(MixBits(options_.seed ^ 0xd8b3a51fu ^ MixBits(i)));
+            for (uint32_t attempt = 0u; !placed && attempt < 8u; ++attempt) {
+                const float replacementX = replacement.NextUnit();
+                const float replacementZ = replacement.NextUnit();
+                placed = accept(cellRoot(replacementX, replacementZ));
+            }
+            for (uint32_t attempt = 0u; !placed && attempt < 256u; ++attempt) {
+                const float replacementX = replacement.NextUnit();
+                const float replacementZ = replacement.NextUnit();
+                placed = accept(globalRoot(replacementX, replacementZ));
+            }
+        }
+        if (!placed) {
+            std::ostringstream message;
+            message << "bounded grass placement failed for field size " << options_.fieldSize
+                    << ", blade count " << count << ", blade index " << i
+                    << " after 265 candidate positions";
+            throw std::runtime_error(message.str());
+        }
 
         const int32_t clumpX = static_cast<int32_t>(std::floor((root.x + halfField) / clumpSize));
         const int32_t clumpZ = static_cast<int32_t>(std::floor((root.z + halfField) / clumpSize));
@@ -403,9 +669,6 @@ void Scene::GenerateBlades() {
             lateralAngle -= kTwoPi;
         }
 
-        const float height = 0.6f + 0.6f * random.NextUnit();
-        const float width = 0.025f + 0.035f * random.NextUnit();
-        const float stiffness = 7.0f + 6.0f * random.NextUnit();
         const glm::vec3 tip = root + glm::vec3(0.0f, height, 0.0f);
 
         Blade& blade = blades_[i];
@@ -420,9 +683,11 @@ void Scene::GenerateGeometry() {
     vertices_.clear();
     indices_.clear();
     draws_.clear();
+    staticFootprints_.clear();
     vertices_.reserve(2'500u);
     indices_.reserve(5'200u);
     draws_.reserve(3u);
+    staticFootprints_.reserve(12u);
 
     const uint32_t groundFirst = static_cast<uint32_t>(indices_.size());
     constexpr uint32_t groundResolution = 16u;
@@ -456,59 +721,71 @@ void Scene::GenerateGeometry() {
     draws_.push_back({groundFirst, static_cast<uint32_t>(indices_.size()) - groundFirst, 0u, false});
 
     const uint32_t stoneFirst = static_cast<uint32_t>(indices_.size());
-    const float local = glm::clamp(options_.fieldSize / 16.0f, 0.18f, 1.0f);
+    const float layoutScale = std::min(1.0f, options_.fieldSize / 64.0f);
+    const float layoutSpan = options_.fieldSize < 64.0f ? 64.0f : options_.fieldSize;
     const auto at = [&](float xFraction, float zFraction, float offsetX, float offsetZ) {
-        return glm::vec3(xFraction * options_.fieldSize + offsetX * local, 0.0f,
-                         zFraction * options_.fieldSize + offsetZ * local);
+        return glm::vec3(xFraction * layoutSpan + offsetX, 0.0f,
+                         zFraction * layoutSpan + offsetZ);
+    };
+    const auto scaleAndRecord = [&](std::size_t firstVertex) {
+        if (layoutScale < 1.0f) {
+            for (std::size_t i = firstVertex; i < vertices_.size(); ++i) {
+                vertices_[i].position *= layoutScale;
+            }
+        }
+        RecordStaticFootprint(firstVertex);
+    };
+    const auto appendRock = [&](const glm::vec3& center, const glm::vec3& scale,
+                                float rotation, uint32_t seed, const glm::vec3& color,
+                                uint32_t segments) {
+        const std::size_t firstVertex = vertices_.size();
+        AppendFacetedRock(vertices_, indices_, center, scale, rotation, seed, color, segments);
+        scaleAndRecord(firstVertex);
+    };
+    const auto appendBlock = [&](const glm::vec3& center, const glm::vec3& halfExtent,
+                                 float rotation, const glm::vec2& topShift, uint32_t seed,
+                                 const glm::vec3& color) {
+        const std::size_t firstVertex = vertices_.size();
+        AppendFacetedBlock(vertices_, indices_, center, halfExtent, rotation, topShift,
+                           seed, color);
+        scaleAndRecord(firstVertex);
     };
 
-    AppendFacetedRock(vertices_, indices_, at(0.15f, 0.13f, 0.0f, 0.0f),
-                       glm::vec3(2.15f, 3.25f, 1.75f), 0.15f, options_.seed ^ 0x1001u,
-                       glm::vec3(0.40f, 0.38f, 0.34f), 8u);
-    AppendFacetedRock(vertices_, indices_, at(0.15f, 0.13f, -2.3f, 0.7f),
-                       glm::vec3(1.20f, 1.45f, 1.35f), -0.4f, options_.seed ^ 0x1002u,
-                       glm::vec3(0.45f, 0.42f, 0.36f), 7u);
-    AppendFacetedRock(vertices_, indices_, at(0.15f, 0.13f, 2.2f, -0.5f),
-                       glm::vec3(1.00f, 1.20f, 0.90f), 0.7f, options_.seed ^ 0x1003u,
-                       glm::vec3(0.36f, 0.37f, 0.35f), 7u);
+    appendRock(at(0.15f, 0.13f, 0.0f, 0.0f), glm::vec3(2.15f, 3.25f, 1.75f),
+               0.15f, options_.seed ^ 0x1001u, glm::vec3(0.40f, 0.38f, 0.34f), 8u);
+    appendRock(at(0.15f, 0.13f, -2.3f, 0.7f), glm::vec3(1.20f, 1.45f, 1.35f),
+               -0.4f, options_.seed ^ 0x1002u, glm::vec3(0.45f, 0.42f, 0.36f), 7u);
+    appendRock(at(0.15f, 0.13f, 2.2f, -0.5f), glm::vec3(1.00f, 1.20f, 0.90f),
+               0.7f, options_.seed ^ 0x1003u, glm::vec3(0.36f, 0.37f, 0.35f), 7u);
 
-    AppendFacetedRock(vertices_, indices_, at(-0.18f, -0.03f, 0.0f, 0.0f),
-                       glm::vec3(1.75f, 2.15f, 1.45f), 0.55f, options_.seed ^ 0x2001u,
-                       glm::vec3(0.43f, 0.39f, 0.32f), 8u);
-    AppendFacetedRock(vertices_, indices_, at(-0.18f, -0.03f, 2.0f, 0.4f),
-                       glm::vec3(1.05f, 1.05f, 1.20f), -0.2f, options_.seed ^ 0x2002u,
-                       glm::vec3(0.48f, 0.45f, 0.38f), 7u);
-    AppendFacetedRock(vertices_, indices_, at(-0.18f, -0.03f, -1.7f, -0.5f),
-                       glm::vec3(0.82f, 0.78f, 0.95f), 0.9f, options_.seed ^ 0x2003u,
-                       glm::vec3(0.38f, 0.40f, 0.34f), 7u);
+    appendRock(at(-0.18f, -0.03f, 0.0f, 0.0f), glm::vec3(1.75f, 2.15f, 1.45f),
+               0.55f, options_.seed ^ 0x2001u, glm::vec3(0.43f, 0.39f, 0.32f), 8u);
+    appendRock(at(-0.18f, -0.03f, 2.0f, 0.4f), glm::vec3(1.05f, 1.05f, 1.20f),
+               -0.2f, options_.seed ^ 0x2002u, glm::vec3(0.48f, 0.45f, 0.38f), 7u);
+    appendRock(at(-0.18f, -0.03f, -1.7f, -0.5f), glm::vec3(0.82f, 0.78f, 0.95f),
+               0.9f, options_.seed ^ 0x2003u, glm::vec3(0.38f, 0.40f, 0.34f), 7u);
 
-    AppendFacetedRock(vertices_, indices_, at(0.18f, -0.24f, 0.0f, 0.0f),
-                       glm::vec3(1.90f, 2.55f, 1.65f), -0.25f, options_.seed ^ 0x3001u,
-                       glm::vec3(0.34f, 0.36f, 0.38f), 8u);
-    AppendFacetedRock(vertices_, indices_, at(0.18f, -0.24f, -2.0f, 0.8f),
-                       glm::vec3(1.15f, 1.10f, 1.00f), 0.4f, options_.seed ^ 0x3002u,
-                       glm::vec3(0.39f, 0.40f, 0.39f), 7u);
-    AppendFacetedRock(vertices_, indices_, at(0.18f, -0.24f, 1.8f, 0.6f),
-                       glm::vec3(0.90f, 0.82f, 1.10f), 0.1f, options_.seed ^ 0x3003u,
-                       glm::vec3(0.42f, 0.39f, 0.34f), 7u);
+    appendRock(at(0.18f, -0.24f, 0.0f, 0.0f), glm::vec3(1.90f, 2.55f, 1.65f),
+               -0.25f, options_.seed ^ 0x3001u, glm::vec3(0.34f, 0.36f, 0.38f), 8u);
+    appendRock(at(0.18f, -0.24f, -2.0f, 0.8f), glm::vec3(1.15f, 1.10f, 1.00f),
+               0.4f, options_.seed ^ 0x3002u, glm::vec3(0.39f, 0.40f, 0.39f), 7u);
+    appendRock(at(0.18f, -0.24f, 1.8f, 0.6f), glm::vec3(0.90f, 0.82f, 1.10f),
+               0.1f, options_.seed ^ 0x3003u, glm::vec3(0.42f, 0.39f, 0.34f), 7u);
 
-    AppendFacetedBlock(vertices_, indices_, at(-0.24f, 0.22f, 0.0f, 0.0f),
-                        glm::vec3(1.35f, 1.65f, 0.72f), 0.32f,
-                        glm::vec2(0.14f, -0.08f), options_.seed ^ 0x4001u,
-                        glm::vec3(0.37f, 0.39f, 0.36f));
-    AppendFacetedBlock(vertices_, indices_, at(-0.24f, 0.22f, 2.1f, 0.25f),
-                        glm::vec3(0.92f, 1.12f, 0.62f), -0.28f,
-                        glm::vec2(-0.08f, 0.06f), options_.seed ^ 0x4002u,
-                        glm::vec3(0.44f, 0.42f, 0.36f));
-    AppendFacetedBlock(vertices_, indices_, at(-0.24f, 0.22f, 0.7f, -1.45f),
-                        glm::vec3(1.75f, 0.42f, 0.82f), 0.08f,
-                        glm::vec2(0.04f, 0.02f), options_.seed ^ 0x4003u,
-                        glm::vec3(0.35f, 0.36f, 0.34f));
+    appendBlock(at(-0.24f, 0.22f, 0.0f, 0.0f), glm::vec3(1.35f, 1.65f, 0.72f),
+                0.32f, glm::vec2(0.14f, -0.08f), options_.seed ^ 0x4001u,
+                glm::vec3(0.37f, 0.39f, 0.36f));
+    appendBlock(at(-0.24f, 0.22f, 2.1f, 0.25f), glm::vec3(0.92f, 1.12f, 0.62f),
+                -0.28f, glm::vec2(-0.08f, 0.06f), options_.seed ^ 0x4002u,
+                glm::vec3(0.44f, 0.42f, 0.36f));
+    appendBlock(at(-0.24f, 0.22f, 0.7f, -1.45f), glm::vec3(1.75f, 0.42f, 0.82f),
+                0.08f, glm::vec2(0.04f, 0.02f), options_.seed ^ 0x4003u,
+                glm::vec3(0.35f, 0.36f, 0.34f));
     draws_.push_back({stoneFirst, static_cast<uint32_t>(indices_.size()) - stoneFirst, 1u, false});
 
     const uint32_t sphereFirst = static_cast<uint32_t>(indices_.size());
-    constexpr uint32_t stacks = 16u;
-    constexpr uint32_t slices = 24u;
+    constexpr uint32_t stacks = 48u;
+    constexpr uint32_t slices = 72u;
     const uint32_t sphereBase = static_cast<uint32_t>(vertices_.size());
     vertices_.push_back({glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
                          glm::vec3(0.94f, 0.52f, 0.13f)});
@@ -555,6 +832,130 @@ void Scene::GenerateGeometry() {
     draws_.push_back({sphereFirst, static_cast<uint32_t>(indices_.size()) - sphereFirst, 2u, true});
 }
 
+void Scene::RecordStaticFootprint(std::size_t firstVertex) {
+    if (firstVertex >= vertices_.size()) {
+        throw std::logic_error("static object emitted no vertices");
+    }
+
+    std::vector<glm::vec2> points;
+    points.reserve(vertices_.size() - firstVertex);
+    for (std::size_t i = firstVertex; i < vertices_.size(); ++i) {
+        points.emplace_back(vertices_[i].position.x, vertices_[i].position.z);
+    }
+
+    StaticFootprint footprint;
+    footprint.hull = ConvexHull(std::move(points));
+    if (footprint.hull.empty()) {
+        throw std::logic_error("static object footprint is empty");
+    }
+    footprint.minimum = footprint.hull.front();
+    footprint.maximum = footprint.hull.front();
+    for (const glm::vec2& point : footprint.hull) {
+        footprint.minimum = glm::min(footprint.minimum, point);
+        footprint.maximum = glm::max(footprint.maximum, point);
+    }
+    staticFootprints_.push_back(std::move(footprint));
+}
+
+float Scene::StaticObstacleDistance(const glm::vec3& position) const {
+    const glm::vec2 point(position.x, position.z);
+    float minimum = std::numeric_limits<float>::infinity();
+    for (const StaticFootprint& footprint : staticFootprints_) {
+        const float lowerBoundSquared =
+            AabbDistanceSquared(point, footprint.minimum, footprint.maximum);
+        if (std::isfinite(minimum) && lowerBoundSquared >= minimum * minimum) {
+            continue;
+        }
+        minimum = std::min(minimum, PointHullDistance(point, footprint.hull));
+        if (minimum == 0.0f) {
+            break;
+        }
+    }
+    return minimum;
+}
+
+void Scene::BuildLightMatrix() {
+    constexpr float maximumGrassHeight = 1.2f;
+    constexpr float maximumGrassWidth = 0.06f;
+    const float grassReach = 1.01f * maximumGrassHeight +
+                             0.5f * maximumGrassWidth + kPlacementEpsilon;
+    const float halfField = options_.fieldSize * 0.5f;
+    glm::vec3 worldMinimum(-halfField - grassReach, 0.0f, -halfField - grassReach);
+    glm::vec3 worldMaximum(halfField + grassReach, grassReach,
+                           halfField + grassReach);
+
+    if (draws_.size() >= 2u) {
+        const SceneDraw& stone = draws_[1];
+        const uint32_t end = stone.firstIndex + stone.indexCount;
+        for (uint32_t i = stone.firstIndex; i < end; ++i) {
+            const glm::vec3& position = vertices_.at(indices_.at(i)).position;
+            worldMinimum = glm::min(worldMinimum, position);
+            worldMaximum = glm::max(worldMaximum, position);
+        }
+    }
+
+    const float horizontalCenterLimit = std::max(halfField, 4.0f);
+    const float verticalCenterLimit = std::max(6.0f, options_.fieldSize * 0.25f);
+    worldMinimum = glm::min(worldMinimum,
+                            glm::vec3(-horizontalCenterLimit - colliderRadius_, 0.0f,
+                                      -halfField - colliderRadius_));
+    worldMaximum = glm::max(worldMaximum,
+                            glm::vec3(horizontalCenterLimit + colliderRadius_,
+                                      verticalCenterLimit + colliderRadius_,
+                                      halfField + colliderRadius_));
+
+    const glm::vec3 center = 0.5f * (worldMinimum + worldMaximum);
+    const glm::vec3 extent = 0.5f * (worldMaximum - worldMinimum);
+    const float viewDistance = std::max(10.0f, glm::length(extent) * 2.5f + 4.0f);
+    const glm::vec3 up = std::abs(glm::dot(sunDirection_, glm::vec3(0.0f, 1.0f, 0.0f))) > 0.95f
+                             ? glm::vec3(0.0f, 0.0f, 1.0f)
+                             : glm::vec3(0.0f, 1.0f, 0.0f);
+    const glm::mat4 lightView = glm::lookAt(center + sunDirection_ * viewDistance,
+                                            center, up);
+
+    float minimumX = std::numeric_limits<float>::infinity();
+    float maximumX = -std::numeric_limits<float>::infinity();
+    float minimumY = std::numeric_limits<float>::infinity();
+    float maximumY = -std::numeric_limits<float>::infinity();
+    float minimumDepth = std::numeric_limits<float>::infinity();
+    float maximumDepth = -std::numeric_limits<float>::infinity();
+    for (uint32_t corner = 0u; corner < 8u; ++corner) {
+        const glm::vec3 world((corner & 1u) != 0u ? worldMaximum.x : worldMinimum.x,
+                              (corner & 2u) != 0u ? worldMaximum.y : worldMinimum.y,
+                              (corner & 4u) != 0u ? worldMaximum.z : worldMinimum.z);
+        const glm::vec4 light = lightView * glm::vec4(world, 1.0f);
+        minimumX = std::min(minimumX, light.x);
+        maximumX = std::max(maximumX, light.x);
+        minimumY = std::min(minimumY, light.y);
+        maximumY = std::max(maximumY, light.y);
+        const float depth = -light.z;
+        minimumDepth = std::min(minimumDepth, depth);
+        maximumDepth = std::max(maximumDepth, depth);
+    }
+
+    const float xySpan = std::max(maximumX - minimumX, maximumY - minimumY);
+    const float xyPadding = std::max(0.5f, xySpan * 0.03f);
+    float projectionWidth = std::max(0.01f, maximumX - minimumX + 2.0f * xyPadding);
+    float projectionHeight = std::max(0.01f, maximumY - minimumY + 2.0f * xyPadding);
+    float centerX = 0.5f * (minimumX + maximumX);
+    float centerY = 0.5f * (minimumY + maximumY);
+    const float texelX = projectionWidth / static_cast<float>(kShadowResolution);
+    const float texelY = projectionHeight / static_cast<float>(kShadowResolution);
+    centerX = std::round(centerX / texelX) * texelX;
+    centerY = std::round(centerY / texelY) * texelY;
+
+    const float depthPadding = std::max(2.0f, (maximumDepth - minimumDepth) * 0.05f);
+    const float nearPlane = std::max(0.01f, minimumDepth - depthPadding);
+    const float farPlane = std::max(nearPlane + 0.01f, maximumDepth + depthPadding);
+    glm::mat4 lightProjection = glm::ortho(centerX - 0.5f * projectionWidth,
+                                           centerX + 0.5f * projectionWidth,
+                                           centerY - 0.5f * projectionHeight,
+                                           centerY + 0.5f * projectionHeight,
+                                           nearPlane, farPlane);
+    lightProjection[1][1] *= -1.0f;
+    lightViewProj_ = lightProjection * lightView;
+}
+
 void Scene::ConfigureCamera(const std::string& preset) {
     if (!IsCameraPreset(preset)) {
         throw std::invalid_argument("invalid camera preset '" + preset + "'");
@@ -570,12 +971,27 @@ void Scene::ConfigureCamera(const std::string& preset) {
         cameraYaw_ = 0.20f;
         cameraPitch_ = 0.065f;
         cameraDistance_ = glm::clamp(options_.fieldSize * 0.47f, 10.0f, 260.0f);
-    } else {
+    } else if (preset == "occluder") {
         cameraTarget_ = glm::vec3(options_.fieldSize * 0.035f, 0.82f,
                                   -options_.fieldSize * 0.08f);
         cameraYaw_ = -0.82f;
         cameraPitch_ = 0.055f;
         cameraDistance_ = glm::clamp(options_.fieldSize * 0.47f, 10.0f, 260.0f);
+    } else if (preset == "interaction") {
+        cameraTarget_ = glm::vec3(0.0f, 0.55f, 0.0f);
+        cameraYaw_ = 0.2f;
+        cameraPitch_ = 0.22f;
+        cameraDistance_ = 6.5f;
+    } else if (preset == "detail") {
+        cameraTarget_ = glm::vec3(-2.5f, 0.55f, 3.0f);
+        cameraYaw_ = 0.25f;
+        cameraPitch_ = 0.16f;
+        cameraDistance_ = 4.0f;
+    } else {
+        cameraTarget_ = glm::vec3(0.0f, 0.95f, -0.055f * options_.fieldSize);
+        cameraYaw_ = 0.6f;
+        cameraPitch_ = 0.015f;
+        cameraDistance_ = glm::clamp(0.5f * options_.fieldSize, 12.0f, 300.0f);
     }
 }
 
@@ -587,12 +1003,35 @@ glm::vec3 Scene::CameraPosition() const {
 }
 
 void Scene::Update(GLFWwindow* window, float delta, float simTime) {
-    if (options_.preset == "interaction" && !options_.captureDir.empty()) {
-        const float scriptedTime = std::isfinite(simTime) ? simTime : 0.0f;
-        const float span = std::min(options_.fieldSize * 0.18f, 9.0f);
-        colliderCenter_ = glm::vec3(std::sin(scriptedTime * 0.58f) * span,
-                                    0.88f + 0.24f * std::sin(scriptedTime * 1.07f),
-                                    std::sin(scriptedTime * 0.37f + 0.8f) * span * 0.72f);
+    bool sweepAssigning = false;
+    if (options_.sphereMotion == "sweep" && !sweepFinished_) {
+        const bool automated = !options_.benchmarkPath.empty() ||
+                               !options_.captureDir.empty() || options_.verify;
+        const float startTime = automated
+                                    ? static_cast<float>(options_.warmup) * options_.fixedDelta
+                                    : 0.0f;
+        const float safeTime = std::isfinite(simTime) ? std::max(simTime, 0.0f) : 0.0f;
+        if (safeTime < startTime) {
+            colliderCenter_ = glm::vec3(-4.0f, colliderRadius_, 0.0f);
+            sweepAssigning = true;
+        } else {
+            const float scriptedTime = safeTime - startTime;
+            if (scriptedTime < 1.0f) {
+                colliderCenter_ = glm::vec3(-4.0f, colliderRadius_, 0.0f);
+                sweepAssigning = true;
+            } else if (scriptedTime < 6.0f) {
+                const float fraction = (scriptedTime - 1.0f) / 5.0f;
+                colliderCenter_ = glm::vec3(-4.0f + 8.0f * fraction,
+                                            colliderRadius_, 0.0f);
+                sweepAssigning = true;
+            } else if (scriptedTime < 8.0f) {
+                colliderCenter_ = glm::vec3(4.0f, colliderRadius_, 0.0f);
+                sweepAssigning = true;
+            } else {
+                colliderCenter_ = glm::vec3(4.0f, colliderRadius_, 0.0f);
+                sweepFinished_ = true;
+            }
+        }
     }
 
     if (window == nullptr) {
@@ -614,7 +1053,9 @@ void Scene::Update(GLFWwindow* window, float delta, float simTime) {
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         cameraYaw_ -= cursorDeltaX * 0.005f;
-        cameraPitch_ = glm::clamp(cameraPitch_ - cursorDeltaY * 0.004f, 0.025f, 1.45f);
+        const float minimumPitch = options_.camera == "beauty" ? 0.005f : 0.025f;
+        cameraPitch_ = glm::clamp(cameraPitch_ - cursorDeltaY * 0.004f,
+                                  minimumPitch, 1.45f);
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         cameraDistance_ *= std::exp(cursorDeltaY * 0.010f);
@@ -645,6 +1086,9 @@ void Scene::Update(GLFWwindow* window, float delta, float simTime) {
     }
     if (edgePressed(5u, GLFW_KEY_F)) {
         featureMask_ ^= Wireframe;
+    }
+    if (edgePressed(9u, GLFW_KEY_B)) {
+        featureMask_ ^= BetterShading;
     }
     if (edgePressed(8u, GLFW_KEY_H)) {
         featureMask_ ^= ShowOverlay;
@@ -691,12 +1135,12 @@ void Scene::Update(GLFWwindow* window, float delta, float simTime) {
         movement.y -= 1.0f;
     }
     const float movementLength = glm::length(movement);
-    if (movementLength > 1.0e-6f) {
+    if (!sweepAssigning && movementLength > 1.0e-6f) {
         colliderCenter_ += movement / movementLength * (4.5f * inputDelta);
         const float halfField = options_.fieldSize * 0.5f;
         colliderCenter_.x = glm::clamp(colliderCenter_.x, -halfField, halfField);
         colliderCenter_.z = glm::clamp(colliderCenter_.z, -halfField, halfField);
-        colliderCenter_.y = glm::clamp(colliderCenter_.y, 0.1f,
+        colliderCenter_.y = glm::clamp(colliderCenter_.y, colliderRadius_,
                                        std::max(6.0f, options_.fieldSize * 0.25f));
     }
 
@@ -707,7 +1151,7 @@ void Scene::Update(GLFWwindow* window, float delta, float simTime) {
         windAngle_ -= 0.90f * inputDelta;
     }
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        windStrength_ = std::min(20.0f, windStrength_ + 3.0f * inputDelta);
+        windStrength_ = std::min(18.0f, windStrength_ + 3.0f * inputDelta);
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
         windStrength_ = std::max(0.0f, windStrength_ - 3.0f * inputDelta);
@@ -726,7 +1170,8 @@ FrameUniform Scene::MakeUniform(uint32_t width, uint32_t height, float delta, fl
     const float maximumCameraDistance = std::max(12.0f, options_.fieldSize * 3.0f);
     const float farPlane = std::max(100.0f,
                                     maximumCameraDistance + options_.fieldSize * 1.5f);
-    uniform.proj = glm::perspective(55.0f * kPi / 180.0f, safeWidth / safeHeight,
+    const float verticalFov = options_.camera == "beauty" ? 70.0f : 55.0f;
+    uniform.proj = glm::perspective(verticalFov * kPi / 180.0f, safeWidth / safeHeight,
                                     0.1f, farPlane);
     uniform.proj[1][1] *= -1.0f;
 
@@ -737,9 +1182,12 @@ FrameUniform Scene::MakeUniform(uint32_t width, uint32_t height, float delta, fl
     uniform.viewport = glm::vec4(static_cast<float>(width), static_cast<float>(height), 5.0f, 40.0f);
     uniform.flags = glm::uvec4(static_cast<uint32_t>(blades_.size()), cullMask_ & kKnownCullMask,
                                lodEnabled_ ? 1u : 0u, featureMask_);
-    const glm::vec3 sun = glm::normalize(glm::vec3(-0.4f, 0.8f, 0.25f));
-    uniform.lighting = glm::vec4(sun, 1.0f);
+    uniform.lighting = glm::vec4(sunDirection_, 1.0f);
     uniform.terrain = glm::vec4(options_.fieldSize, 0.0f, 0.0f, 0.0f);
+    uniform.lightViewProj = lightViewProj_;
+    uniform.sunColor = glm::vec4(1.0f, 0.84f, 0.64f, 1.6f);
+    uniform.atmosphere = glm::vec4(22.0f, 90.0f, 0.0f, 0.0f);
+    uniform.renderControl = glm::uvec4(options_.renderFeatureMask, 0u, 0u, 0u);
     return uniform;
 }
 
@@ -825,6 +1273,21 @@ RunOptions ParseOptions(int argc, char** argv) {
             explicitLod = ParseOnOff(RequireValue(argc, argv, i, argument), argument);
         } else if (argument == "--occlusion") {
             explicitOcclusion = ParseOnOff(RequireValue(argc, argv, i, argument), argument);
+        } else if (argument == "--interaction") {
+            options.interactionOverride =
+                ParseOnOff(RequireValue(argc, argv, i, argument), argument);
+        } else if (argument == "--shading") {
+            const std::string value = RequireValue(argc, argv, i, argument);
+            if (value == "basic") {
+                options.shadingOverride = false;
+            } else if (value == "enhanced") {
+                options.shadingOverride = true;
+            } else {
+                throw std::invalid_argument("--shading expects basic or enhanced");
+            }
+        } else if (argument == "--render-disable") {
+            DisableRenderFeatures(RequireValue(argc, argv, i, argument),
+                                  options.renderFeatureMask);
         } else if (argument == "--preset") {
             const std::string value = RequireValue(argc, argv, i, argument);
             (void)DefinitionForPreset(value);
@@ -832,9 +1295,31 @@ RunOptions ParseOptions(int argc, char** argv) {
         } else if (argument == "--camera") {
             const std::string value = RequireValue(argc, argv, i, argument);
             if (!IsCameraPreset(value)) {
-                throw std::invalid_argument("--camera expects overview, grazing, or occluder");
+                throw std::invalid_argument(
+                    "--camera expects auto, overview, grazing, occluder, interaction, detail, or beauty");
             }
             options.camera = value;
+        } else if (argument == "--sphere-motion") {
+            const std::string value = RequireValue(argc, argv, i, argument);
+            if (value != "manual" && value != "sweep") {
+                throw std::invalid_argument("--sphere-motion expects manual or sweep");
+            }
+            options.sphereMotion = value;
+        } else if (argument == "--wind-strength") {
+            const float value = ParseFiniteFloat(RequireValue(argc, argv, i, argument), argument);
+            if (value < 0.0f || value > 18.0f) {
+                throw std::invalid_argument("--wind-strength must be between 0 and 18");
+            }
+            options.windStrength = value;
+        } else if (argument == "--sun-azimuth") {
+            options.sunAzimuth = NormalizeDegrees(
+                ParseFiniteFloat(RequireValue(argc, argv, i, argument), argument));
+        } else if (argument == "--sun-elevation") {
+            const float value = ParseFiniteFloat(RequireValue(argc, argv, i, argument), argument);
+            if (value < 1.0f || value > 89.0f) {
+                throw std::invalid_argument("--sun-elevation must be between 1 and 89 degrees");
+            }
+            options.sunElevation = value;
         } else if (argument == "--benchmark") {
             options.benchmarkPath = RequireValue(argc, argv, i, argument);
             if (options.benchmarkPath.empty()) {
@@ -863,6 +1348,11 @@ RunOptions ParseOptions(int argc, char** argv) {
             options.validation = ParseOnOff(RequireValue(argc, argv, i, argument), argument);
         } else if (argument == "--verify") {
             options.verify = true;
+        } else if (argument == "--physics-probe") {
+            options.physicsProbePath = RequireValue(argc, argv, i, argument);
+            if (options.physicsProbePath.empty()) {
+                throw std::invalid_argument("--physics-probe requires a non-empty path");
+            }
         } else if (argument == "--field-size") {
             options.fieldSize = ParseFiniteFloat(RequireValue(argc, argv, i, argument), argument);
             if (options.fieldSize < 1.0f || options.fieldSize > 512.0f) {
@@ -891,6 +1381,10 @@ RunOptions ParseOptions(int argc, char** argv) {
     if (explicitOcclusion.has_value()) {
         options.occlusion = *explicitOcclusion;
     }
+    if (!options.physicsProbePath.empty() && !options.verify) {
+        throw std::invalid_argument("--physics-probe requires --verify");
+    }
+    options.camera = ResolveCameraPreset(options.camera, options.preset);
     return options;
 }
 
@@ -909,9 +1403,20 @@ void PrintHelp() {
         << "  --culling MODE         none|orientation|frustum|distance|all\n"
         << "  --lod on|off           Adaptive grass detail (default on)\n"
         << "  --occlusion on|off     Depth occlusion culling (default on)\n"
+        << "  --interaction on|off   Override the preset's sphere interaction feature\n"
+        << "  --shading MODE         basic|enhanced; override the preset shading mode\n"
+        << "  --render-disable LIST  Comma-list: sky,root-color,rounded-normals,\n"
+        << "                         transmission,specular,fog,shadows (repeatable)\n"
         << "  --preset NAME          basic|forces|culling|lod|occlusion|interaction|final|wireframe\n"
-        << "                         (default final; explicit culling/LOD choices override it)\n"
-        << "  --camera NAME          overview|grazing|occluder (default overview)\n\n"
+        << "                         (default final; explicit feature choices override it)\n"
+        << "  --camera NAME          auto|overview|grazing|occluder|interaction|detail|beauty\n"
+        << "                         (default auto: beauty for final, interaction for interaction)\n"
+        << "  --sphere-motion MODE   manual|sweep (default " << defaults.sphereMotion << ")\n"
+        << "  --wind-strength VALUE  Wind magnitude, 0..18 (default " << defaults.windStrength << ")\n"
+        << "  --sun-azimuth DEGREES  Surface-to-sun azimuth, normalized to [0,360) (default "
+        << defaults.sunAzimuth << ")\n"
+        << "  --sun-elevation DEG    Surface-to-sun elevation, 1..89 (default "
+        << defaults.sunElevation << ")\n\n"
         << "Automation and diagnostics:\n"
         << "  --benchmark PATH       Write benchmark results to PATH\n"
         << "  --capture-dir PATH     Write captured frames to PATH\n"
@@ -922,11 +1427,13 @@ void PrintHelp() {
         << "  --validation on|off    Vulkan validation (build default "
         << (defaults.validation ? "on" : "off") << ")\n"
         << "  --verify               Enable renderer verification checks\n"
+        << "  --physics-probe PATH   Write physics probe data (requires --verify)\n"
         << "  --help                 Print this help without starting Vulkan\n\n"
         << "Controls:\n"
         << "  Left drag orbit; right drag zoom; W/A/S/D move the sphere; Q/E move it down/up.\n"
         << "  Arrow left/right rotate wind; arrow up/down change wind strength.\n"
         << "  1/2/3 toggle orientation/frustum/distance culling; 4 toggles occlusion.\n"
-        << "  L toggles LOD; F toggles wireframe; H toggles overlay; Space pauses.\n"
+        << "  L toggles LOD; B toggles enhanced shading; F toggles wireframe; H toggles overlay.\n"
+        << "  Space pauses.\n"
         << "  R resets grass; Esc exits.\n";
 }

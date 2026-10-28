@@ -1,20 +1,9 @@
 #version 450
+#extension GL_GOOGLE_include_directive : require
+
+#include "frame_uniform.glsl"
 
 layout(vertices = 1) out;
-
-layout(set = 0, binding = 0, std140) uniform FrameUniform {
-    mat4 view;
-    mat4 proj;
-    vec4 cameraTime;
-    vec4 wind;
-    vec4 gravity;
-    vec4 collider;
-    vec4 parameters;
-    vec4 viewport;
-    uvec4 flags;
-    vec4 lighting;
-    vec4 terrain;
-} frame;
 
 layout(location = 0) in vec4 inV0[];
 layout(location = 1) in vec4 inV1[];

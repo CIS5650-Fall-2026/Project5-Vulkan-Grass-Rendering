@@ -15,7 +15,7 @@ COLORS = {"none": "#5a6170", "orientation": "#bb7628", "frustum": "#377dad",
 
 
 def number(row, name):
-    value = float(row[name])
+    value = float(row.get(name, "0") if name == "shadow_ms" else row[name])
     if not math.isfinite(value):
         raise ValueError(f"Nonfinite {name}: {value}")
     return value
@@ -67,7 +67,7 @@ def main():
     args = parser.parse_args()
     manifest = json.loads((args.raw / "manifest.json").read_text())
     args.output.mkdir(parents=True, exist_ok=True)
-    metrics = ["gpu_ms", "sim_ms", "cull_ms", "depth_ms", "graphics_tail_ms", "cpu_ms", "visible",
+    metrics = ["gpu_ms", "sim_ms", "cull_ms", "depth_ms", "shadow_ms", "graphics_tail_ms", "cpu_ms", "visible",
                "orientation_rejected", "frustum_rejected", "distance_rejected", "occlusion_rejected"]
     grouped = defaultdict(list)
     for run in manifest["runs"]:
