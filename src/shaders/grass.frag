@@ -6,12 +6,18 @@ layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 proj;
 } camera;
 
-// TODO: Declare fragment shader inputs
+layout(location = 0) in vec3 inNormal;
+layout(location = 1) in vec2 inUV;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    // TODO: Compute fragment color
+    vec3 baseColor = vec3(0.05, 0.25, 0.03);
+    vec3 tipColor = vec3(0.45, 0.75, 0.2);
+    vec3 albedo = mix(baseColor, tipColor, inUV.y);
 
-    outColor = vec4(1.0);
+    vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));
+    float diffuse = abs(dot(normalize(inNormal), lightDir));
+
+    outColor = vec4(albedo * (0.4 + 0.6 * diffuse), 1.0);
 }

@@ -1,4 +1,5 @@
 #include <vulkan/vulkan.h>
+#include <string>
 #include "Instance.h"
 #include "Window.h"
 #include "Renderer.h"
@@ -116,7 +117,7 @@ int main() {
         grassImageMemory
     );
 
-    float planeDim = 15.f;
+    float planeDim = 120.f;
     float halfWidth = planeDim * 0.5f;
     Model* plane = new Model(device, transferCommandPool,
         {
@@ -143,10 +144,32 @@ int main() {
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
 
+    // variables for displaying the FPS in the title bar
+    double lastTime = glfwGetTime();
+    int frameCount = 0;
+
     while (!ShouldQuit()) {
         glfwPollEvents();
         scene->UpdateTime();
         renderer->Frame();
+
+        ++frameCount;
+        double rnTime = glfwGetTime();
+        double elapsed = rnTime - lastTime;
+        // measure how many frames were displayed each second
+        if (elapsed >= 1.0) {
+            double fps = frameCount / elapsed;
+            double ms = 1000.0 * elapsed / frameCount;
+            std::string display = std::string(applicationName) + " " + std::to_string(static_cast<int>(fps)) + " FPS " + std::to_string(ms) + " ms";
+
+            // set the screen dispaly
+            glfwSetWindowTitle(GetGLFWWindow(), display.c_str());
+
+            // reset measurement variables
+            frameCount = 0;
+            lastTime = rnTime;
+        }
+
     }
 
     vkDeviceWaitIdle(device->GetVkDevice());
