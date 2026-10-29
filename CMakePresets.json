@@ -1,0 +1,23 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "linux-gcc",
+      "displayName": "Linux GCC",
+      "description": "Linux build using GCC instead of the incompatible Clang 15 kit.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/linux-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <cstring>
+
 #include "Image.h"
 #include "Device.h"
 #include "Instance.h"

@@ -4,7 +4,7 @@
 #include <array>
 #include "Model.h"
 
-constexpr static unsigned int NUM_BLADES = 1 << 13;
+constexpr static unsigned int NUM_BLADES = 1 << 14;
 constexpr static float MIN_HEIGHT = 1.3f;
 constexpr static float MAX_HEIGHT = 2.5f;
 constexpr static float MIN_WIDTH = 0.1f;
@@ -74,15 +74,18 @@ private:
     VkBuffer bladesBuffer;
     VkBuffer culledBladesBuffer;
     VkBuffer numBladesBuffer;
+    VkBuffer collisionStrengthsBuffer;
 
     VkDeviceMemory bladesBufferMemory;
     VkDeviceMemory culledBladesBufferMemory;
     VkDeviceMemory numBladesBufferMemory;
+    VkDeviceMemory collisionStrengthsBufferMemory;
 
 public:
     Blades(Device* device, VkCommandPool commandPool, float planeDim);
     VkBuffer GetBladesBuffer() const;
     VkBuffer GetCulledBladesBuffer() const;
     VkBuffer GetNumBladesBuffer() const;
+    VkBuffer GetBladeCollisionStrengths() const;
     ~Blades();
 };

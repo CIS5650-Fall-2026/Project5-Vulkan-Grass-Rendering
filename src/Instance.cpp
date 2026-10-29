@@ -1,5 +1,8 @@
 #include <stdexcept>
 #include <set>
+#include <cstring>
+#include <cstdio>
+#include <string>
 #include <vector>
 #include "Instance.h"
 
@@ -14,15 +17,41 @@ namespace {
         "VK_LAYER_KHRONOS_validation"
     };
 
-    // Get the required list of extensions based on whether validation layers are enabled
-    std::vector<const char*> getRequiredExtensions() {
+    std::vector<const char*> getRequiredExtensions(bool validationEnabled) {
         std::vector<const char*> extensions;
 
-        if (ENABLE_VALIDATION) {
+        if (validationEnabled) {
             extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         }
 
         return extensions;
+    }
+
+    bool validationLayerAvailable() {
+        uint32_t layerCount = 0;
+        if (vkEnumerateInstanceLayerProperties(&layerCount, nullptr) != VK_SUCCESS) {
+            return false;
+        }
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        if (vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data()) != VK_SUCCESS) {
+            return false;
+        }
+
+        for (const char* requestedLayer : validationLayers) {
+            bool found = false;
+            for (const auto& availableLayer : availableLayers) {
+                if (std::strcmp(requestedLayer, availableLayer.layerName) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Callback function to allow messages from validation layers to be received
@@ -42,6 +71,11 @@ namespace {
 }
 
 Instance::Instance(const char* applicationName, unsigned int additionalExtensionCount, const char** additionalExtensions) {
+    validationEnabled = ENABLE_VALIDATION && validationLayerAvailable();
+    if (ENABLE_VALIDATION && !validationEnabled) {
+        std::fprintf(stderr, "Warning: VK_LAYER_KHRONOS_validation is not installed; continuing without validation.\n");
+    }
+
     // --- Specify details about our application ---
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -57,7 +91,7 @@ Instance::Instance(const char* applicationName, unsigned int additionalExtension
     createInfo.pApplicationInfo = &appInfo;
 
     // Get extensions necessary for Vulkan to interface with GLFW
-    auto extensions = getRequiredExtensions();
+    auto extensions = getRequiredExtensions(validationEnabled);
     for (unsigned int i = 0; i < additionalExtensionCount; ++i) {
         extensions.push_back(additionalExtensions[i]);
     }
@@ -65,7 +99,7 @@ Instance::Instance(const char* applicationName, unsigned int additionalExtension
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     // Specify global validation layers
-    if (ENABLE_VALIDATION) {
+    if (validationEnabled) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {
@@ -73,8 +107,9 @@ Instance::Instance(const char* applicationName, unsigned int additionalExtension
     }
 
     // Create instance
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create instance");
+    VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create instance (VkResult " + std::to_string(result) + ")");
     }
 
     initDebugReport();
@@ -134,7 +169,7 @@ VkFormat Instance::GetSupportedFormat(const std::vector<VkFormat>& candidates, V
 }
 
 void Instance::initDebugReport() {
-    if (ENABLE_VALIDATION) {
+    if (validationEnabled) {
         // Specify details for callback
         VkDebugReportCallbackCreateInfoEXT createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
@@ -337,7 +372,7 @@ Device* Instance::CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFea
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if (ENABLE_VALIDATION) {
+    if (validationEnabled) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {
@@ -361,7 +396,7 @@ Device* Instance::CreateDevice(QueueFlagBits requiredQueues, VkPhysicalDeviceFea
 }
 
 Instance::~Instance() {
-    if (ENABLE_VALIDATION) {
+    if (validationEnabled) {
         auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
         if (func != nullptr) {
             func(instance, debugReportCallback, nullptr);

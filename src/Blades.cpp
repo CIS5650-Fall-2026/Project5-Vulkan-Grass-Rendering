@@ -45,7 +45,8 @@ Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Mode
     indirectDraw.firstInstance = 0;
 
     BufferUtils::CreateBufferFromData(device, commandPool, blades.data(), NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, bladesBuffer, bladesBufferMemory);
-    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, culledBladesBuffer, culledBladesBufferMemory);
+    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, culledBladesBuffer, culledBladesBufferMemory);
+    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(float), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, collisionStrengthsBuffer, collisionStrengthsBufferMemory);
     BufferUtils::CreateBufferFromData(device, commandPool, &indirectDraw, sizeof(BladeDrawIndirect), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, numBladesBuffer, numBladesBufferMemory);
 }
 
@@ -61,6 +62,11 @@ VkBuffer Blades::GetNumBladesBuffer() const {
     return numBladesBuffer;
 }
 
+VkBuffer Blades::GetBladeCollisionStrengths() const {
+    return collisionStrengthsBuffer;
+}
+
+
 Blades::~Blades() {
     vkDestroyBuffer(device->GetVkDevice(), bladesBuffer, nullptr);
     vkFreeMemory(device->GetVkDevice(), bladesBufferMemory, nullptr);
@@ -68,4 +74,6 @@ Blades::~Blades() {
     vkFreeMemory(device->GetVkDevice(), culledBladesBufferMemory, nullptr);
     vkDestroyBuffer(device->GetVkDevice(), numBladesBuffer, nullptr);
     vkFreeMemory(device->GetVkDevice(), numBladesBufferMemory, nullptr);
+    vkDestroyBuffer(device->GetVkDevice(), collisionStrengthsBuffer, nullptr);
+    vkFreeMemory(device->GetVkDevice(), collisionStrengthsBufferMemory, nullptr);
 }

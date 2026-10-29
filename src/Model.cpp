@@ -2,6 +2,8 @@
 #include "BufferUtils.h"
 #include "Image.h"
 
+#include <cstring>
+
 Model::Model(Device* device, VkCommandPool commandPool, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
   : device(device), vertices(vertices), indices(indices) {
 
@@ -14,7 +16,17 @@ Model::Model(Device* device, VkCommandPool commandPool, const std::vector<Vertex
     }
 
     modelBufferObject.modelMatrix = glm::mat4(1.0f);
-    BufferUtils::CreateBufferFromData(device, commandPool, &modelBufferObject, sizeof(ModelBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, modelBuffer, modelBufferMemory);
+    modelBufferObject.solidColor = glm::vec4(0.0f);
+    BufferUtils::CreateBuffer(
+        device,
+        sizeof(ModelBufferObject),
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        modelBuffer,
+        modelBufferMemory
+    );
+    vkMapMemory(device->GetVkDevice(), modelBufferMemory, 0, sizeof(ModelBufferObject), 0, &mappedModelData);
+    std::memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
 }
 
 Model::~Model() {
@@ -28,6 +40,7 @@ Model::~Model() {
         vkFreeMemory(device->GetVkDevice(), vertexBufferMemory, nullptr);
     }
 
+    vkUnmapMemory(device->GetVkDevice(), modelBufferMemory);
     vkDestroyBuffer(device->GetVkDevice(), modelBuffer, nullptr);
     vkFreeMemory(device->GetVkDevice(), modelBufferMemory, nullptr);
 
@@ -80,6 +93,16 @@ void Model::SetTexture(VkImage texture) {
     if (vkCreateSampler(device->GetVkDevice(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create texture sampler");
     }
+}
+
+void Model::SetModelMatrix(const glm::mat4& modelMatrix) {
+    modelBufferObject.modelMatrix = modelMatrix;
+    std::memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
+}
+
+void Model::SetSolidColor(const glm::vec4& color) {
+    modelBufferObject.solidColor = color;
+    std::memcpy(mappedModelData, &modelBufferObject, sizeof(ModelBufferObject));
 }
 
 const std::vector<Vertex>& Model::getVertices() const {

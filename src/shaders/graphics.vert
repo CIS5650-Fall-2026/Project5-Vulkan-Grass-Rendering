@@ -8,6 +8,7 @@ layout(set = 0, binding = 0) uniform CameraBufferObject {
 
 layout(set = 1, binding = 0) uniform ModelBufferObject {
     mat4 model;
+    vec4 solidColor;
 };
 
 layout(location = 0) in vec3 inPosition;

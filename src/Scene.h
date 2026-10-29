@@ -5,6 +5,7 @@
 
 #include "Model.h"
 #include "Blades.h"
+#include "Colliders.h"
 
 using namespace std::chrono;
 
@@ -20,8 +21,9 @@ private:
     VkBuffer timeBuffer;
     VkDeviceMemory timeBufferMemory;
     Time time;
-    
-    void* mappedData;
+    void* mappedTimeData;
+
+    Colliders* colliders;
 
     std::vector<Model*> models;
     std::vector<Blades*> blades;
@@ -40,6 +42,9 @@ public:
     void AddBlades(Blades* blades);
 
     VkBuffer GetTimeBuffer() const;
+    uint32_t GetNumColliders() const;
+    VkBuffer GetCollidersBuffer() const;
+    const Collider& GetCollider(uint32_t index) const;
 
     void UpdateTime();
 };

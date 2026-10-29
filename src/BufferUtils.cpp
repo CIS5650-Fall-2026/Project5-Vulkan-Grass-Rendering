@@ -1,6 +1,8 @@
 #include "BufferUtils.h"
 #include "Instance.h"
 
+#include <cstring>
+
 void BufferUtils::CreateBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
     // Create buffer
     VkBufferCreateInfo bufferInfo = {};

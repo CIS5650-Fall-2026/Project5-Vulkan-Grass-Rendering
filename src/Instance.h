@@ -36,6 +36,7 @@ private:
 
     VkInstance instance;
     VkDebugReportCallbackEXT debugReportCallback;
+    bool validationEnabled = false;
     std::vector<const char*> deviceExtensions;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     QueueFamilyIndices queueFamilyIndices;

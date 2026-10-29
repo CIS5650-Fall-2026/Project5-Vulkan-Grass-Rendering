@@ -7,12 +7,13 @@ layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
+    vec4 pos;
 } camera;
 
 layout(set = 1, binding = 0) uniform Time {
     float deltaTime;
     float totalTime;
-};
+} time;
 
 struct Blade {
     vec4 v0;
@@ -26,31 +27,206 @@ struct Blade {
 // 2. Write out the culled blades
 // 3. Write the total number of blades remaining
 
+layout(set = 2, binding = 0) buffer InputBlades {
+    Blade blades[];
+} inputBlades;
+
+layout(set = 2, binding = 1) buffer OutputBlades {
+    Blade blades[];
+} outputBlades;
+
 // The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
 // This is sort of an advanced feature so we've showed you what this buffer should look like
 //
-// layout(set = ???, binding = ???) buffer NumBlades {
-// 	  uint vertexCount;   // Write the number of blades remaining here
-// 	  uint instanceCount; // = 1
-// 	  uint firstVertex;   // = 0
-// 	  uint firstInstance; // = 0
-// } numBlades;
+layout(set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;   // Write the number of blades remaining here
+	uint instanceCount; // = 1
+	uint firstVertex;   // = 0
+	uint firstInstance; // = 0
+} numBlades;
+
+layout(set = 2, binding = 3) buffer CollisionState {
+    float collisionStrengths[];
+} collisionState;
+
+layout(set = 3, binding = 0) buffer Spheres {
+    vec4 spheres[]; // xyz center, w radiux
+} spheres;
+
 
 bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
 }
 
+bool testPointViewFrustum(mat4 vp, vec4 p) {
+    const float t = 0.001;
+
+    vec4 n_p = vp * vec4(p.xyz, 1.0);
+    float h = n_p.w + t;
+
+    return (n_p.x<-h||n_p.x>h) || (n_p.y<-h||n_p.y>h) || (n_p.z<-h||n_p.z>h);
+}
+
+bool isCulled(Blade blade, uint bladeIdx) {
+    vec4 m = 0.25 * blade.v0 + 0.5 * blade.v1 + 0.25 * blade.v2;
+
+    // Orientation Test
+    vec3 upDir = normalize(blade.up.xyz);
+    float angle = blade.v0.w;
+    vec3 width_dir = vec3(cos(angle), 0.0, sin(angle));
+
+    vec3 toCam = camera.pos.xyz - blade.v0.xyz;
+    vec3 viewInPlane = normalize(toCam - dot(toCam, upDir) * upDir);
+
+    if (0.9 <= abs(dot(viewInPlane, width_dir))) {
+        return true;
+    }
+
+    // View-frustum Test
+    mat4 vp = camera.proj * camera.view;
+
+    if (testPointViewFrustum(vp, blade.v0) && testPointViewFrustum(vp, blade.v2) 
+            && testPointViewFrustum(vp, m)) {
+        return true;
+    }
+
+    // Distance test
+    vec3 delta = blade.v0.xyz - camera.pos.xyz;
+    float d_proj = length(delta - upDir * dot(delta, upDir));
+    const float d_max = 20; // PARAM
+    const uint n = 50; // PARAM
+
+    float dist_cull_threshold = floor(float(n) * (1 - d_proj / d_max));
+    float keepCount = floor(float(n) * (1.0 - d_proj / d_max));
+
+    if (d_proj > d_max || bladeIdx % n >= keepCount) {
+        return true;
+    }
+
+    // Occlusion Test not supported yet
+
+    return false;
+}
+
+vec3 get_recovery(Blade blade, float col_str) {
+    vec3 Iv2 = blade.v0.xyz + blade.up.xyz * blade.v1.w;
+    return (Iv2 - blade.v2.xyz) * blade.up.w * max(1 - col_str, 0.1);
+}
+
+vec3 get_gravity(Blade blade) {
+    vec4 D = vec4(0, -1, 0, 9.8);
+    float m = 1;
+
+    vec3 ge_global = (D.xyz / length(D.xyz)) * D.w; 
+    vec3 ge = m * ge_global;
+    
+    vec3 upDir = normalize(blade.up.xyz);
+    vec3 widthDir = normalize(vec3(cos(blade.v0.w), 0.0, sin(blade.v0.w)));
+    vec3 f = normalize(cross(upDir, widthDir));
+    vec3 gf = 0.25 * length(ge) * f;
+
+    return ge + gf;
+}
+
+
+vec3 get_wind(Blade blade) {
+    // A deliberately simple test force: gust strength changes about every
+    // 10 seconds, while the horizontal wind direction rotates much slower.
+    const float baseStrength = 2.5;
+    const float gustAmplitude = 0.35;
+    const float gustAngularSpeed = 0.65;
+    const float directionAngularSpeed = 0.10;
+
+    // A small spatial phase avoids every blade reaching its gust peak at once.
+    float phase = dot(blade.v0.xz, vec2(0.17, 0.11));
+    float strength = baseStrength *
+        (1.0 + gustAmplitude * sin(time.totalTime * gustAngularSpeed + phase));
+
+    float directionAngle = time.totalTime * directionAngularSpeed;
+    vec3 direction = vec3(cos(directionAngle), 0.0, sin(directionAngle));
+
+    return direction * strength;
+}
+
+void add_displacement(inout Blade blade, uint bladeIdx) {
+    vec3 m = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+
+    for (int i = 0; i < 2; i++) {
+        vec4 sphere = spheres.spheres[i];
+        float collisionRadius = sphere.w + 0.5 * blade.v2.w;
+
+        vec3 d_v2 = min(length(sphere.xyz - blade.v2.xyz) - collisionRadius, 0) * normalize(sphere.xyz - blade.v2.xyz);
+
+        if (length(d_v2) != 0) {
+            collisionState.collisionStrengths[bladeIdx] += dot(d_v2, d_v2);
+            blade.v2.xyz += d_v2;
+
+            m = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+        }
+        
+        vec3 d_m = min(length(sphere.xyz - m) - collisionRadius, 0) * normalize(sphere.xyz - m);
+        if (length(d_m) != 0) {
+            collisionState.collisionStrengths[bladeIdx] += dot(d_m, d_m);
+            blade.v2.xyz += 4.0 * d_m;
+
+            m = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+        }
+    }
+}
+
+void validate_blade(inout Blade blade) {
+    // Ensure v2 above local plane
+    blade.v2 = vec4(blade.v2.xyz - blade.up.xyz * min(blade.up.xyz * (blade.v2.xyz - blade.v0.xyz), 0), blade.v2.w);
+
+    // calculate v1 position
+    float l_proj = length(blade.v2.xyz - blade.v0.xyz - blade.up.xyz * ((blade.v2.xyz - blade.v0.xyz) * blade.up.xyz));
+    float height = blade.v1.w;
+    blade.v1 = vec4(blade.v0.xyz + height * blade.up.xyz * max(1 - l_proj / height, 0.05 * max(l_proj / height, 1)), height);
+
+    // Ensure length of bezier curve not larger than height of blade
+    float L0 = length(blade.v2.xyz - blade.v0.xyz);
+    float L1 = length(blade.v1.xyz - blade.v0.xyz)
+            + length(blade.v2.xyz - blade.v1.xyz);
+    float n = 2;
+    float L = (2 * L0 + (n-1) * L1) / (n + 1);
+
+    float r = height / L;
+    vec3 v1_corr = blade.v0.xyz + r * (blade.v1.xyz - blade.v0.xyz);
+    vec3 v2_corr = v1_corr + r * (blade.v2.xyz - blade.v1.xyz);
+
+    blade.v1 = vec4(v1_corr, blade.v1.w);
+    blade.v2 = vec4(v2_corr, blade.v2.w);
+}
+
 void main() {
+    uint bladeIdx = gl_GlobalInvocationID.x;
+
 	// Reset the number of blades to 0
-	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
+	if (bladeIdx == 0) {
+		numBlades.vertexCount = 0;
 	}
 	barrier(); // Wait till all threads reach this point
+    
+    Blade blade = inputBlades.blades[bladeIdx];
+    const float a = 1;
+    collisionState.collisionStrengths[bladeIdx] = max(collisionState.collisionStrengths[bladeIdx] - a * time.deltaTime, 0);
 
-    // TODO: Apply forces on every blade and update the vertices in the buffer
+    // Apply forces on every blade and update the vertices in the buffer
+    vec3 r = get_recovery(blade, collisionState.collisionStrengths[bladeIdx]);
+    vec3 g = get_gravity(blade);
+    vec3 w = get_wind(blade);
 
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
-	// to the culled blades buffer
-	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
-	// You want to write the visible blades to the buffer without write conflicts between threads
+    vec3 delta = (r + g + w) * time.deltaTime;
+    blade.v2 += vec4(delta, 0);
+
+    add_displacement(blade, bladeIdx);
+
+    validate_blade(blade);
+
+    inputBlades.blades[bladeIdx] = blade;
+
+    if (!isCulled(blade, bladeIdx)) {
+        uint outputIdx = atomicAdd(numBlades.vertexCount, 1);
+        outputBlades.blades[outputIdx] = blade;
+    }
 }

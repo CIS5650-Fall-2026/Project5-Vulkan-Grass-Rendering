@@ -9,6 +9,8 @@
 
 struct ModelBufferObject {
     glm::mat4 modelMatrix;
+    // alpha > 0 selects this color instead of the model texture in graphics.frag.
+    glm::vec4 solidColor;
 };
 
 class Model {
@@ -25,6 +27,7 @@ protected:
 
     VkBuffer modelBuffer;
     VkDeviceMemory modelBufferMemory;
+    void* mappedModelData = nullptr;
 
     ModelBufferObject modelBufferObject;
 
@@ -38,6 +41,8 @@ public:
     virtual ~Model();
 
     void SetTexture(VkImage texture);
+    void SetModelMatrix(const glm::mat4& modelMatrix);
+    void SetSolidColor(const glm::vec4& color);
 
     const std::vector<Vertex>& getVertices() const;
 
