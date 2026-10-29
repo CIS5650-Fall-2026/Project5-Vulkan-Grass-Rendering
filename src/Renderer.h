@@ -31,6 +31,7 @@ public:
     void CreateGraphicsPipeline();
     void CreateGrassPipeline();
     void CreateComputePipeline();
+    void CreateSkyPipeline();
 
     void CreateFrameResources();
     void DestroyFrameResources();
@@ -66,10 +67,12 @@ private:
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
     VkPipelineLayout computePipelineLayout;
+    VkPipelineLayout skyPipelineLayout;
 
     VkPipeline graphicsPipeline;
     VkPipeline grassPipeline;
     VkPipeline computePipeline;
+    VkPipeline skyPipeline;
 
     std::vector<VkImageView> imageViews;
     VkImage depthImage;
@@ -79,4 +82,9 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+
+    VkDescriptorSetLayout computeDescriptorSetLayout;
+    VkDescriptorSet computeDescriptorSet;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
+    VkSemaphore computeSemaphore;
 };
