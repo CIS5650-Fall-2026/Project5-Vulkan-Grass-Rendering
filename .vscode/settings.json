@@ -1,0 +1,23 @@
+{
+    "cmake.generator": "Ninja",
+    "cmake.buildDirectory": "${workspaceFolder}/build/ninja",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}/build/ninja/src"
+    },
+    "cmake.configureArgs": [
+        "-DCMAKE_PREFIX_PATH=${env:VULKAN_SDK}",
+        "-DCMAKE_EXE_LINKER_FLAGS=-static"
+    ],
+    "cmake.exportCompileCommandsFile": true,
+
+    "C_Cpp.intelliSenseEngine": "disabled",
+
+    "clangd.path": "C:\\Program Files\\LLVM\\bin\\clangd.exe",
+    "clangd.arguments": [
+        "--background-index",
+        "--clang-tidy",
+        "--completion-style=detailed",
+        "--query-driver=C:/msys64/ucrt64/bin/*",
+        "--compile-commands-dir=${workspaceFolder}/build/ninja"
+    ]
+}

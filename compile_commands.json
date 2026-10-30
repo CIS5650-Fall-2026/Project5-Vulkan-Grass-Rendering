@@ -1,0 +1,170 @@
+[
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\context.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\context.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/context.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/context.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\init.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\init.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/init.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/init.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\input.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\input.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/input.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/input.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\monitor.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\monitor.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/monitor.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/monitor.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\vulkan.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\vulkan.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/vulkan.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/vulkan.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\window.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\window.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/window.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/window.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_init.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_init.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_init.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_init.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_joystick.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_joystick.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_joystick.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_joystick.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_monitor.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_monitor.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_monitor.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_monitor.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_time.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_time.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_time.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_time.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_thread.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_thread.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_thread.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_thread.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\win32_window.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\win32_window.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/win32_window.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/win32_window.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\wgl_context.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\wgl_context.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/wgl_context.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/wgl_context.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\egl_context.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\egl_context.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/egl_context.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/egl_context.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe -DUNICODE -DWINVER=0x0501 -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src -g -Wall -Wdeclaration-after-statement -o external\\GLFW\\src\\CMakeFiles\\glfw.dir\\osmesa_context.c.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\external\\GLFW\\src\\osmesa_context.c",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/src/osmesa_context.c",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/external/GLFW/src/CMakeFiles/glfw.dir/osmesa_context.c.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Blades.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Blades.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Blades.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Blades.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\BufferUtils.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\BufferUtils.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/BufferUtils.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/BufferUtils.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Camera.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Camera.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Camera.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Camera.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Device.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Device.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Device.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Device.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Image.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Image.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Image.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Image.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Instance.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Instance.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Instance.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Instance.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Model.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Model.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Model.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Model.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Renderer.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Renderer.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Renderer.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Renderer.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Scene.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Scene.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Scene.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Scene.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\ShaderModule.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\ShaderModule.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/ShaderModule.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/ShaderModule.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\SwapChain.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\SwapChain.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/SwapChain.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/SwapChain.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\Window.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\Window.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/Window.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/Window.cpp.obj"
+},
+{
+  "directory": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -D_CRT_SECURE_NO_WARNINGS -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/glm -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/stb -IC:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/external/GLFW/include -isystem C:/VulkanSDK/1.4.357.0/include  -DVK_USE_PLATFORM_WIN32_KHR -DNOMINMAX -D_USE_MATH_DEFINES -g -std=gnu++11 -o src\\CMakeFiles\\vulkan_grass_rendering.dir\\main.cpp.obj -c C:\\Users\\Zachary\\MASTER\\CODE\\active-projects\\cis565\\vulkan-grass\\src\\main.cpp",
+  "file": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/src/main.cpp",
+  "output": "C:/Users/Zachary/MASTER/CODE/active-projects/cis565/vulkan-grass/build/ninja/src/CMakeFiles/vulkan_grass_rendering.dir/main.cpp.obj"
+}
+]

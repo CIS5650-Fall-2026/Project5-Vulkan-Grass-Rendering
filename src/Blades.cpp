@@ -11,7 +11,7 @@ Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Mode
     blades.reserve(NUM_BLADES);
 
     for (int i = 0; i < NUM_BLADES; i++) {
-        Blade currentBlade = Blade();
+        Blade currentBlade{};
 
         glm::vec3 bladeUp(0.0f, 1.0f, 0.0f);
 
@@ -34,6 +34,9 @@ Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Mode
         // Up vector and stiffness coefficient (up)
         float stiffness = MIN_BEND + (generateRandomFloat() * (MAX_BEND - MIN_BEND));
         currentBlade.up = glm::vec4(bladeUp, stiffness);
+
+        // no forces to start
+        currentBlade.f = glm::vec4(0);
 
         blades.push_back(currentBlade);
     }
