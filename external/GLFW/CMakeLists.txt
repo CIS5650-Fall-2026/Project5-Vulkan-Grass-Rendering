@@ -5,9 +5,8 @@ project(GLFW C)
 set(CMAKE_LEGACY_CYGWIN_WIN32 OFF)
 
 if (NOT CMAKE_VERSION VERSION_LESS "3.0")
-    # Until all major package systems have moved to CMake 3,
-    # we stick with the older INSTALL_NAME_DIR mechanism
-    cmake_policy(SET CMP0042 OLD)
+    # Use modern macOS RPATH behavior, as required by CMake 4.
+    cmake_policy(SET CMP0042 NEW)
 endif()
 
 if (NOT CMAKE_VERSION VERSION_LESS "3.1")

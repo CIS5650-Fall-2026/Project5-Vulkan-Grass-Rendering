@@ -1,4 +1,6 @@
 #include <vulkan/vulkan.h>
+#include <chrono>
+#include <iostream>
 #include "Instance.h"
 #include "Window.h"
 #include "Renderer.h"
@@ -143,10 +145,33 @@ int main() {
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
 
+    using FrameClock = std::chrono::steady_clock;
+    auto measurementStart = FrameClock::now();
+    unsigned int frameCount = 0;
+
     while (!ShouldQuit()) {
         glfwPollEvents();
         scene->UpdateTime();
         renderer->Frame();
+
+
+        ++frameCount;
+        const auto now = FrameClock::now();
+        const double seconds =
+            std::chrono::duration<double>(now - measurementStart).count();
+
+        // Measure application throughput, including presentation waits.
+        if (seconds >= 1.0) {
+            const double fps = frameCount / seconds;
+            const double milliseconds = seconds * 1000.0 / frameCount;
+            std::cout << "Blades: " << NUM_BLADES
+                << " | FPS: " << fps
+                << " | ms/frame: " << milliseconds << '\n';
+
+            frameCount = 0;
+            measurementStart = now;
+        }
+
     }
 
     vkDeviceWaitIdle(device->GetVkDevice());
