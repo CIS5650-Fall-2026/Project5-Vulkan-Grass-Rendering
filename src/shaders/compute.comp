@@ -4,6 +4,10 @@
 #define WORKGROUP_SIZE 32
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
+// defined threads per group 
+
+// bind uniforms 
+
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
@@ -26,6 +30,21 @@ struct Blade {
 // 2. Write out the culled blades
 // 3. Write the total number of blades remaining
 
+layout(set = 2, binding = 0) buffer Blades {
+    Blade blades[];
+};
+
+layout(set = 2, binding = 1) writeonly buffer CulledBlades {
+    Blade culledBlades[];
+};
+
+layout(set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} numBlades;
+
 // The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
 // This is sort of an advanced feature so we've showed you what this buffer should look like
 //
@@ -40,17 +59,151 @@ bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
 }
 
+vec3 getCamPos() {
+    mat4 invView = inverse(camera.view);
+    return invView[3].xyz;
+}
+
+bool inViewFrustum(vec3 p) {
+    vec4 ndc = camera.proj * camera.view * vec4(p, 1.0);
+    float h = ndc.w + 0.01;
+    return (abs(ndc.x) <= h) && (abs(ndc.y) <= h) && (abs(ndc.z) <= h);
+}
+
+vec2 random2(vec2 p) {
+    uvec2 q = uvec2(ivec2(p)) * uvec2(1597334673u, 3812015801u);
+    q = (q.x ^ q.y) * uvec2(1597334673u, 3812015801u);
+    return vec2(q) * (1.0 / float(0xffffffffu));
+}
+
+float surflet(vec2 p, vec2 gridPoint) {
+    float distX = abs(p.x - gridPoint.x);
+    float distY = abs(p.y - gridPoint.y);
+    float tX = 1 - 6 * distX * distX * distX * distX * distX + 15 * distX * distX * distX * distX - 10 * distX * distX * distX;
+    float tY = 1 - 6 * distY * distY * distY * distY * distY + 15 * distY * distY * distY * distY - 10 * distY * distY * distY;
+    vec2 gradient = 2.0 * random2(gridPoint) - vec2(1.f);
+    vec2 diff = p - gridPoint;
+    float height = dot(diff, gradient);
+    return height * tX * tY;
+}
+
+float perlin(vec2 uv) {
+    float surfletSum = 0.f;
+    for (int dx = 0; dx <= 1; ++dx) {
+        for (int dy = 0; dy <= 1; ++dy) {
+            surfletSum += surflet(uv, floor(uv) + vec2(dx, dy));
+        }
+    }
+    return surfletSum;
+}
+
 void main() {
 	// Reset the number of blades to 0
 	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
+		numBlades.vertexCount = 0;
 	}
 	barrier(); // Wait till all threads reach this point
 
+    // load values 
+    uint id = gl_GlobalInvocationID.x;
+    Blade b = blades[id];
+    vec3 v0 = b.v0.xyz;
+    vec3 v1 = b.v1.xyz;
+    vec3 v2 = b.v2.xyz;
+    vec3 up = b.up.xyz;
+    float dir = b.v0.w;
+    float height = b.v1.w;
+    float width = b.v2.w;
+    float stiffness = b.up.w;
+
+    vec3 c = getCamPos();
+
+    // wind
+    vec3 wDir = normalize(vec3(1.0, 0.0, 0.3));
+    vec2 timeAlongDir = wDir.xz * totalTime;
+    float wStrength = 10.0 * perlin(v0.xz * 0.3 - timeAlongDir);
+    vec3 w = wStrength * wDir;
+
+    // vec3 w = vec3(cos(totalTime), 0.0, sin(totalTime)) * 2; // eh idk
+
     // TODO: Apply forces on every blade and update the vertices in the buffer
+    vec4 D = vec4(0.0, -1.0, 0.0, 9.81); // gravity direction + acceleration 
+
+    // environmental gravity 
+    vec3 gE = normalize(D.xyz) * D.w; // no C because grass is on flat plane 
+    
+    // front gravity 
+    vec3 f = normalize(cross(up, vec3(cos(dir), 0.0, sin(dir)))); // correct order?
+    vec3 gF = 0.25 * length(gE) * f;
+
+    // total gravity 
+    vec3 g = gE + gF;
+
+    // recovery 
+    vec3 iv2 = v0 + height * up;
+    vec3 r = (iv2 - v2) * stiffness;
+
+    // wind 
+
+    // alignment value 
+    float alignmentDir = 1 - abs(dot(normalize(w), normalize(v2 - v0)));
+    float heightRatio = dot(v2 - v0, up) / height;
+    float alignmentVal = heightRatio * alignmentDir;
+
+    // wind force 
+    vec3 windForce = w * alignmentVal;
+
+    // total force 
+    vec3 total = (g + r + windForce) * deltaTime;
+
+    v2 += total;
+
+    // state validation 
+
+    // make sure v2 is above ground 
+    v2 = v2 - up * min(dot(up, v2 - v0), 0.0);
+
+    // v1 set based on v2
+    float iproj = length(v2 - v0 - up * dot(v2 - v0, up));
+    v1 = v0 + height * up * max(1 - iproj / height, 0.05 * max(iproj / height, 1.0));
+
+    // curve should maintain same length 
+    float L1 = length(v1 - v0) + length(v2 - v1);
+    float L0 = length(v2 - v0);
+    float L = (2.0 * L0 + 2.0 * L1) / 4.0;
+
+    float ratio = height / L;
+    vec3 v1Corr = v0 + ratio * (v1 - v0);
+    vec3 v2Corr = v1Corr + ratio * (v2 - v1);
+
+    // update input buffer
+    blades[id].v1.xyz = v1Corr;
+    blades[id].v2.xyz = v2Corr;
 
 	// TODO: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
+
+    // decide to cull blades based on multiple heuristics 
+    bool cull = false;
+
+    // orientation culling 
+    vec3 dirC = v0 - c;
+    dirC = normalize(vec3(dirC.x, 0.0, dirC.z));
+    cull = abs(dot(dirC, vec3(cos(dir), 0, sin(dir)))) > 0.9;
+
+    // view frustum culling 
+    vec3 m = (0.25 * v0) + (0.5 * v1Corr) + (0.25 * v2Corr);
+    cull = cull || (!inViewFrustum(v0) && !inViewFrustum(m) && !inViewFrustum(v2Corr));
+
+    // distance culling 
+    float dproj = length(v0 - c - up * dot(v0 - c, up));
+    uint dist = uint(floor(10.0 * (1 - dproj / 40.0)));
+    cull = cull || (id % 10u < dist);
+
+    if (!cull) {
+        uint idx = atomicAdd(numBlades.vertexCount, 1);
+        culledBlades[idx] = Blade(vec4(v0, dir), vec4(v1Corr, height), vec4(v2Corr, width), vec4(up, stiffness));
+    }
 }

@@ -56,11 +56,14 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
-    std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> modelDescriptorSets; // for each model: get model matrix & texture
+    std::vector<VkDescriptorSet> grassDescriptorSets; // for each blade object
+    std::vector<VkDescriptorSet> computeDescriptorSets; // for each blade object (each own own list of blades)
     VkDescriptorSet timeDescriptorSet;
 
     VkPipelineLayout graphicsPipelineLayout;

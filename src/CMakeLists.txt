@@ -31,7 +31,7 @@ else(WIN32)
 endif(WIN32)
 
 foreach(SHADER_SOURCE ${SHADER_SOURCES})
-    set(SHADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/shaders)
+    set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
     if(WIN32)
         get_filename_component(fname ${SHADER_SOURCE} NAME)
