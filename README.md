@@ -81,7 +81,7 @@ Surviving blades are drawn with an indirect draw call, using the vertex count th
 <table>
   <tr>
     <td align="center">
-      <img src="img/time_culling" width="800"><br>
+      <img src="img/time_culling.png" width="800"><br>
     </td>
   </tr>
 </table>
