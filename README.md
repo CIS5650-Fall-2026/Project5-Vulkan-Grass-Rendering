@@ -17,7 +17,7 @@ Vulkan Grass Rendering
 </div>
 
 ## Highlights
-- Real-Time rendering of grass influenced by physical forces
+- Real-time rendering of grass influenced by physical forces
 - Tessellation pipeline building blade geometry from a compact set of parameters
 - 3 types of per-blade culling for improving performance 
 - Perlin-noise wind producing natural swaying grass movement
