@@ -79,10 +79,17 @@ private:
     VkDeviceMemory culledBladesBufferMemory;
     VkDeviceMemory numBladesBufferMemory;
 
+    // host-visible copy of numBlades.vertexCount so the cpu can log how many blades were actually drawn
+    VkBuffer readbackBuffer;
+    VkDeviceMemory readbackBufferMemory;
+    uint32_t* readbackData;
+
 public:
     Blades(Device* device, VkCommandPool commandPool, float planeDim);
     VkBuffer GetBladesBuffer() const;
     VkBuffer GetCulledBladesBuffer() const;
     VkBuffer GetNumBladesBuffer() const;
+    VkBuffer GetReadbackBuffer() const;
+    uint32_t GetDrawnCount() const { return *readbackData; }
     ~Blades();
 };

@@ -1039,6 +1039,29 @@ void Renderer::RecordComputeCommandBuffer() {
 
         vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 2, 1, &computeDescriptorSets[j], 0, nullptr);
         vkCmdDispatch(computeCommandBuffer, (NUM_BLADES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE, 1, 1);
+
+        // copy the final vertexCount out to a host-visible buffer so main.cpp can log it.
+        // no fence, so the cpu sees whichever frame finished last. fine for logging once a second
+        VkBuffer readbackBuffer = scene->GetBlades()[j]->GetReadbackBuffer();
+
+        // compute wrote it -> transfer can read it
+        VkBufferMemoryBarrier toCopy = fillBarrier;
+        toCopy.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+        toCopy.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        vkCmdPipelineBarrier(computeCommandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 1, &toCopy, 0, nullptr);
+
+        VkBufferCopy region = {};
+        region.srcOffset = 0;
+        region.dstOffset = 0;
+        region.size = sizeof(uint32_t);
+        vkCmdCopyBuffer(computeCommandBuffer, numBladesBuffer, readbackBuffer, 1, &region);
+
+        // transfer wrote the readback buffer -> host can read it
+        VkBufferMemoryBarrier toHost = fillBarrier;
+        toHost.buffer = readbackBuffer;
+        toHost.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        toHost.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
+        vkCmdPipelineBarrier(computeCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 0, nullptr, 1, &toHost, 0, nullptr);
     }
 
     // ~ End recording ~
