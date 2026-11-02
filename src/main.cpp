@@ -1,4 +1,7 @@
 #include <vulkan/vulkan.h>
+#include <cstdio>
+#include <fstream>
+#include <string>
 #include "Instance.h"
 #include "Window.h"
 #include "Renderer.h"
@@ -65,7 +68,17 @@ namespace {
     }
 }
 
-int main() {
+int main(int argc, char** argv) {
+    // optional args: <label> <view> <run>. label names the config, view picks a camera, run is the repeat index.
+    // all three end up in the perf csv name, e.g. data/all_cull_65536_high_r2.csv. no label = no csv
+    std::string perfLabel = argc > 1 ? argv[1] : "";
+    std::string perfView  = argc > 2 ? argv[2] : "default";
+    std::string perfRun   = argc > 3 ? argv[3] : "1";
+
+    // camera per view: phi tilts the orbit (negative = looking down), r is the orbit radius. base code starts at phi=0, r=10
+    float viewPhi = 0.0f, viewR = 10.0f;
+    if (perfView == "high")  { viewPhi = -40.0f; viewR = 16.0f; }
+    if (perfView == "close") { viewPhi = 0.0f;   viewR = 3.0f; }
     static constexpr char* applicationName = "Vulkan Grass Rendering";
     InitializeWindow(640, 480, applicationName);
 
@@ -139,14 +152,55 @@ int main() {
 
     renderer = new Renderer(device, swapChain, scene, camera);
 
+    // UpdateOrbit adds to phi and subtracts deltaZ from r, so this moves from the default (0, 10) to the view's (phi, r)
+    camera->UpdateOrbit(0.0f, viewPhi, 10.0f - viewR);
+
     glfwSetWindowSizeCallback(GetGLFWWindow(), resizeCallback);
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
+
+    double lastTime = glfwGetTime();
+    int frameCount = 0;
+
+    // one csv per run: data/<label>_<num_blades>_<view>_r<run>.csv, one row per second. rerunning the same name overwrites it
+    std::string perfPath = std::string(DATA_DIR) + "/" + perfLabel + "_" + std::to_string(NUM_BLADES) + "_" + perfView + "_r" + perfRun + ".csv";
+    std::ofstream perfFile;
+    if (!perfLabel.empty()) {
+        perfFile.open(perfPath, std::ios::trunc);
+    }
+    if (perfFile.is_open()) {
+        perfFile << "label,num_blades,view,run,second,fps,ms,drawn\n";
+    }
+    int perfSecond = 0;
 
     while (!ShouldQuit()) {
         glfwPollEvents();
         scene->UpdateTime();
         renderer->Frame();
+
+        // profiling
+        frameCount++;
+        double now = glfwGetTime();
+        if (now - lastTime >= 1.0) {
+            double fps = frameCount / (now - lastTime);
+            double ms = 1000.0 / fps;
+
+            // show fps and frame time in the title bar
+            char title[128];
+            snprintf(title, sizeof(title), "%s | %.1f fps | %.2f ms", applicationName, fps, ms);
+            glfwSetWindowTitle(GetGLFWWindow(), title);
+
+            if (perfFile.is_open()) {
+                // drawn = blades that survived culling (read back from the gpu)
+                perfFile << perfLabel << "," << NUM_BLADES << "," << perfView << "," << perfRun << "," << perfSecond << ","
+                         << fps << "," << ms << "," << blades->GetDrawnCount() << "\n";
+                perfFile.flush();
+            }
+            perfSecond++;
+
+            frameCount = 0;
+            lastTime = now;
+        }
     }
 
     vkDeviceWaitIdle(device->GetVkDevice());
