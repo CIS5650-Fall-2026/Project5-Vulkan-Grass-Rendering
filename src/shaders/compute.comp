@@ -198,9 +198,12 @@ void main() {
     cull = cull || (!inViewFrustum(v0) && !inViewFrustum(m) && !inViewFrustum(v2Corr));
 
     // distance culling 
+    float maxDist = 30.0;
+    uint nb = 10u;
+
     float dproj = length(v0 - c - up * dot(v0 - c, up));
-    uint dist = uint(floor(10.0 * (1 - dproj / 40.0)));
-    cull = cull || (id % 10u < dist);
+    float dist = floor(float(nb) * clamp(1.0 - dproj / maxDist, 0.0, 1.0));
+    cull = cull || (id % nb) >= uint(dist);
 
     if (!cull) {
         uint idx = atomicAdd(numBlades.vertexCount, 1);
