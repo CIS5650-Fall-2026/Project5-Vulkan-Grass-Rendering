@@ -189,7 +189,7 @@ void main() {
     bool cull = false;
 
     // orientation culling 
-    vec3 dirC = v0 - c;
+    /*vec3 dirC = v0 - c;
     dirC = normalize(vec3(dirC.x, 0.0, dirC.z));
     cull = abs(dot(dirC, vec3(cos(dir), 0, sin(dir)))) > 0.9;
 
@@ -203,7 +203,7 @@ void main() {
 
     float dproj = length(v0 - c - up * dot(v0 - c, up));
     float dist = floor(float(nb) * clamp(1.0 - dproj / maxDist, 0.0, 1.0));
-    cull = cull || (id % nb) >= uint(dist);
+    cull = cull || (id % nb) >= uint(dist);*/
 
     if (!cull) {
         uint idx = atomicAdd(numBlades.vertexCount, 1);
