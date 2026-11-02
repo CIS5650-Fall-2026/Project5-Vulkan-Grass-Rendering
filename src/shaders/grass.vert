@@ -17,9 +17,6 @@ layout(location = 1) out vec4 tesc_v2;
 layout(location = 2) out vec4 tesc_vup;
 
 
-out gl_PerVertex {
-    vec4 gl_Position;
-};
 
 void main() {
     // Transform xyz to world space, keep .w (orientation / height / width / stiffness) untouched
