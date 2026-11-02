@@ -97,23 +97,34 @@ Surviving blades are drawn with an indirect draw call, using the vertex count th
 
 ## Performance Analysis 
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="img/time_bladecount.png" width="800"><br>
-      </td>
-    </tr>
-  </table>
-</div>
-
+To analyze performance, I used `std::chrono::stead_clock` to measure the average ms per frame over 5 seconds. 
 
 <div align="center">
   <table>
     <tr>
       <td align="center">
-        <img src="img/time_culling.png" width="800"><br>
+        <img src="img/blade_count.png" width="800"><br>
       </td>
     </tr>
   </table>
 </div>
+
+First, I analyzed performance for different counts of grass blades. All three culling methods were used for each trial. 
+
+With lower blade counts, we can observe similar average time. This indicates that for less blades, performance is likely dominated by fixed overhead. Additionally, we can observe an average time of 10.1 ms at 2^18 blades and 37.2 ms at 2^20 blades. Performance scales linearly with the number of blades, indicating that we are throughput bound (the GPU is gradually saturating with compute work). 
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/culling.png" width="800"><br>
+      </td>
+    </tr>
+  </table>
+</div>
+
+Then, I analyzed how each culling method influenced performance. 
+
+All culling methods were similarly effective, with distance culling yielding slightly more gains than orientation and frustum culling. Although this experiment is pretty accurate at measuring the benefit of orientation culling (since blades are randomly orientated, I expect that the performance gain for this culling method should stay consistent with varying camera angles), the benefit of distance and view-frustum culling largely depends on the location of the camera. The total reduction in average time per frame is what I expected; it reflects the contribution of each culling method without being completely additive, since some blades that are culled by one method may also be culled by another. 
+
+While implementing the culling methods, I accidentally reversed distance culling so that nearer blades get culled instead of further ones. Surprisingly, fixing this bug caused a notable decrease in performance. This could be due to bigger, nearer blades of grass being more expensive to render. 
