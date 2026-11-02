@@ -3,10 +3,128 @@ Vulkan Grass Rendering
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Grace Tan
+* Tested on: Windows 11 Home 25H2 (Build 26200), AMD Ryzen 9 8945HX @ 2.50GHz, 16GB RAM, NVIDIA GeForce RTX 5060 Laptop GPU 8GB
 
-### (TODO: Your README)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/thumbnail.gif" width="800" alt="Grass demo"><br>
+      </td>
+    </tr>
+  </table>
+</div>
 
-*DO NOT* leave the README to the last minute! It is a crucial part of the
-project, and we will not be able to grade you without a good README.
+## Highlights
+- Real-time rendering of grass influenced by physical forces
+- Tessellation pipeline building blade geometry from a compact set of parameters
+- 3 types of per-blade culling for improving performance 
+- Perlin-noise wind producing natural swaying grass movement
+- Blinn-Phong and Lambertian shading for glossy blades
+
+## Vulkan 
+Vulkan is a low-overhead, cross-platform graphics and compute API from the Khronos Group. Unlike OpenGL, which hides most of the GPU's state management inside the driver, Vulkan makes the application responsible for things like memory allocation, resource synchronization, command buffer recording, and pipeline creation. This is more verbose, but it gives predictable performance, lower CPU overhead (command buffers can be recorded ahead of time and on multiple threads), and direct control over how work is scheduled on the GPU. 
+
+The goal is to implement Jahrmann and Wimmer's [Responsive Real-Time Grass Rendering for General 3D Scenes](https://www.cg.tuwien.ac.at/research/publications/2017/JAHRMANN-2017-RRTG/JAHRMANN-2017-RRTG-draft.pdf) with two pipelines: a compute pipeline for per-blade physics and culling, and a graphics pipeline (vertex, tessellation, and fragment stages) for rendering. 
+
+## Paper Overview
+Older techniques draw grass as billboards or textured slices, which look different from different viewing angles and can't react convincingly to wind or collisions. The paper instead draws every blade as real geometry, which lets each blade respond to its environment. To keep that affordable, it runs a physical model and several culling tests per blade on the GPU, then uses indirect rendering so only the surviving blades are drawn.
+
+### Blade model
+
+A blade is defined by three control points of a quadratic Bézier curve:
+
+- `v0`: the fixed root position on the ground
+- `v1`: a guide control point, positioned based on `v2`
+- `v2`: the tip, which the physical model moves
+
+Each blade also stores a height, width, stiffness coefficient, up-vector, and direction angle. Together this fits in four `vec4`s (64 bytes per blade).
+
+### Physical model
+
+Each frame, the compute shader computes a translation for the tip `v2` from three natural forces:
+
+- **Recovery:** a spring-like force (Hooke's law) pulling the tip back toward its initial pose, scaled by the blade's stiffness.
+- **Gravity:** an environmental gravity plus a smaller "front gravity" perpendicular to the blade's width, which bends the tip forward the way as a real, flexible grass blade would.
+- **Wind:** a function of the blade's root position and time gives a wind vector. It is then scaled by how aligned the blade is with the wind.
+
+The total displacement is `δ = (recovery + gravity + wind) * Δt`. 
+
+### State validation
+
+After the forces move `v2`, the blade is corrected so it stays physically plausible:
+
+1. **`v2` stays above the ground:** it is clamped against the local plane defined by the blade's up-vector.
+2. **`v1` is repositioned from `v2`:** the more the tip is pushed sideways, the lower `v1` sits above `v0`, with a small minimum so the blade always keeps a slight curve.
+3. **Length is preserved:** the Bézier length is approximated as `(2·L0 + (n−1)·L1) / (n+1)`, and the control points are rescaled by `height / length` so blades don't stretch or shrink when bent.
+
+### Culling
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/orientation_culling.gif" width="300" alt="Gif 1"><br>
+        <sub>Orientation Culling</sub>
+      </td>
+      <td align="center">
+        <img src="img/frustum_culling.gif" width="300" alt="Gif 2"><br>
+        <sub>View-frustum Culling</sub>
+      </td>
+      <td align="center">
+        <img src="img/dist_culling.gif" width="300" alt="Gif 3"><br>
+        <sub>Distance Culling</sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+Blades that won't visibly contribute are removed in the compute shader, and the survivors are counted into the indirect draw buffer:
+
+- **Orientation test:** blade profiles can be thinner than a pixel and cause aliasing, so they are culled.
+- **View-frustum test:** the blade is culled if none are inside the view frustum.
+- **Distance test:** distant blades are culled progressively, in distance levels, to avoid overly dense far-away grass.
+
+### Rendering and blade geometry
+
+
+Surviving blades are drawn with an indirect draw call, using the vertex count the compute shader wrote to the draw buffer. Each blade is a single tessellation patch. The evaluation shader turns the tessellated `(u, v)` coordinates into positions:
+
+- **Height (`v`):** de Casteljau's algorithm on `v0, v1, v2` gives the curve point `c` and tangent `t0`.
+- **Width (`u`):** `c0 = c - w·t1` and `c1 = c + w·t1` span the blade, interpolated by `t = u + 0.5v - uv` to form a triangle shape.
+- **Normal:** `n = normalize(t0 × t1)`, used for Blinn-Phong lighting in the fragment shader.
+
+## Performance Analysis 
+
+To analyze performance, I used `std::chrono::stead_clock` to measure the average ms per frame over 5 seconds. 
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/blade_count.png" width="800"><br>
+      </td>
+    </tr>
+  </table>
+</div>
+
+First, I analyzed performance for different counts of grass blades. All three culling methods were used for each trial. 
+
+With lower blade counts, we can observe similar average time. This indicates that for less blades, performance is likely dominated by fixed overhead. Additionally, we can observe an average time of 10.1 ms at 2^18 blades and 37.2 ms at 2^20 blades. Performance scales linearly with the number of blades, indicating that we are throughput bound (the GPU is gradually saturating with compute work). 
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/culling.png" width="800"><br>
+      </td>
+    </tr>
+  </table>
+</div>
+
+Then, I analyzed how each culling method influenced performance. 
+
+All culling methods were similarly effective, with distance culling yielding slightly more gains than orientation and frustum culling. Although this experiment is pretty accurate at measuring the benefit of orientation culling (since blades are randomly orientated, I expect that the performance gain for this culling method should stay consistent with varying camera angles), the benefit of distance and view-frustum culling largely depends on the location of the camera. The total reduction in average time per frame is what I expected; it reflects the contribution of each culling method without being completely additive, since some blades that are culled by one method may also be culled by another. 
+
+While implementing the culling methods, I accidentally reversed distance culling so that nearer blades get culled instead of further ones. Surprisingly, fixing this bug caused a notable decrease in performance. This could be due to bigger, nearer blades of grass being more expensive to render. 

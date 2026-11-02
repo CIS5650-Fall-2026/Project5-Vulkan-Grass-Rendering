@@ -6,6 +6,9 @@
 #include "Scene.h"
 #include "Image.h"
 
+#include <chrono>
+#include <sstream>
+
 Device* device;
 SwapChain* swapChain;
 Renderer* renderer;
@@ -143,10 +146,41 @@ int main() {
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
 
+    using Clock = std::chrono::steady_clock;
+    auto lastFrame = Clock::now();
+    double totalMs = 0.0;
+    double avgMs = 0.0;
+    double fps = 0.0;
+    int frameCount = 0;
+
     while (!ShouldQuit()) {
         glfwPollEvents();
         scene->UpdateTime();
         renderer->Frame();
+
+        auto now = Clock::now();
+        totalMs += std::chrono::duration<double, std::milli>(now - lastFrame).count();
+        lastFrame = now;
+        frameCount++;
+
+        if (totalMs >= 5000.0) { // display average over 5 seconds
+            avgMs = totalMs / frameCount;
+            fps = 1000.0 / avgMs;
+
+            totalMs = 0.0;
+            frameCount = 0;
+
+            std::ostringstream ss;
+            ss << "[";
+            ss.precision(1);
+            ss << std::fixed << fps;
+            ss << "fps] ";
+            ss << "[";
+            ss.precision(1);
+            ss << std::fixed << avgMs;
+            ss << "ms]";
+            glfwSetWindowTitle(GetGLFWWindow(), ss.str().c_str());
+        }
     }
 
     vkDeviceWaitIdle(device->GetVkDevice());
