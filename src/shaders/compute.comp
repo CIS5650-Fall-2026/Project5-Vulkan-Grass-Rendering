@@ -4,6 +4,10 @@
 #define WORKGROUP_SIZE 32
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
+#define CULL_ORIENTATION 1
+#define CULL_FRUSTUM 1
+#define CULL_DISTANCE 1
+
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
@@ -43,12 +47,21 @@ bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
 }
 
+bool inFrustum(vec3 p) {
+    float tolerance = 0.1;
+    vec4 pc = camera.proj * camera.view * vec4(p, 1.0);
+    float h = pc.w + tolerance;
+
+    if (inBounds(pc.x, h) && inBounds(pc.y, h) && (pc.z >= 0 && pc.z <= h)) {
+        return true;
+    }
+
+    return false;
+}
+
+
 void main() {
-	// Reset the number of blades to 0. Re-enable when culling is added
-//	if (gl_GlobalInvocationID.x == 0) {
-//		// numBlades.vertexCount = 0;
-//	}
-//	barrier(); // Wait till all threads reach this point
+    // numBlades.vertexCount is zeroed on the cpu side (vkCmdFillBuffer) before this dispatch
 
     // Apply forces on every blade and update the vertices in the buffer
     uint id = gl_GlobalInvocationID.x;
@@ -102,13 +115,41 @@ void main() {
     v1 = v0 + ratio * (v1 - v0);
     v2 = v1 + ratio * (v2 - v1);
 
-    // 5. update back to blades[] and culledblades[]
+    // 5. update back to blades[]
     blades[id].v1.xyz = v1;
     blades[id].v2.xyz = v2;
-    culledBlades[id] = blades[id];
 
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
+	// Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
-	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
-	// You want to write the visible blades to the buffer without write conflicts between threads
+    bool culled = false;
+    vec3 camPos = inverse(camera.view)[3].xyz;
+
+#if CULL_ORIENTATION
+    vec3 viewDir = normalize(v0 - camPos);
+    if (abs(dot(viewDir, t1)) > 0.9) {
+        culled = true;
+    }
+#endif
+
+#if CULL_FRUSTUM
+    vec3 m = 0.25 * v0 + 0.5 * v1 + 0.25 * v2;
+    if (!inFrustum(v0) && !inFrustum(v2) && !inFrustum(m)) {
+        culled = true;
+    }
+#endif
+
+#if CULL_DISTANCE
+    vec3 d = v0 - camPos;
+    float dproj = length(d - up * dot(d, up));
+    float maxDistance = 30.0;
+    uint numBuckets = 10;
+    if (id % numBuckets >= uint(floor(numBuckets * max((1.0 - dproj / maxDistance), 0.0)))) {
+        culled = true;
+    }
+#endif
+
+    if (!culled) {
+        uint idx = atomicAdd(numBlades.vertexCount, 1);
+        culledBlades[idx] = blades[id];
+    }
 }

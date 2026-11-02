@@ -1018,6 +1018,25 @@ void Renderer::RecordComputeCommandBuffer() {
 
     // For each group of blades bind its descriptor set and dispatch
     for (uint32_t j = 0; j < scene->GetBlades().size(); ++j) {
+        VkBuffer numBladesBuffer = scene->GetBlades()[j]->GetNumBladesBuffer();
+
+        // zero vertexCount (first 4 bytes) before the shader starts atomicAdd-ing to it.
+        // done here instead of in the shader because barrier() only syncs one workgroup
+        vkCmdFillBuffer(computeCommandBuffer, numBladesBuffer, 0, sizeof(uint32_t), 0);
+
+        // make sure the fill finishes before the compute shader touches the buffer
+        VkBufferMemoryBarrier fillBarrier = {};
+        fillBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+        fillBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        fillBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+        fillBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        fillBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        fillBarrier.buffer = numBladesBuffer;
+        fillBarrier.offset = 0;
+        fillBarrier.size = sizeof(uint32_t);
+
+        vkCmdPipelineBarrier(computeCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 1, &fillBarrier, 0, nullptr);
+
         vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 2, 1, &computeDescriptorSets[j], 0, nullptr);
         vkCmdDispatch(computeCommandBuffer, (NUM_BLADES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE, 1, 1);
     }
