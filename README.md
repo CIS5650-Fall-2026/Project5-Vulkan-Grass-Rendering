@@ -6,6 +6,16 @@ Vulkan Grass Rendering
 * Grace Tan
 * Tested on: Windows 11 Home 25H2 (Build 26200), AMD Ryzen 9 8945HX @ 2.50GHz, 16GB RAM, NVIDIA GeForce RTX 5060 Laptop GPU 8GB
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/thumbnail.gif" width="800" alt="Grass demo"><br>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## Highlights
 - Real-Time rendering of grass influenced by physical forces
 - Tessellation pipeline building blade geometry from a compact set of parameters
@@ -51,6 +61,25 @@ After the forces move `v2`, the blade is corrected so it stays physically plausi
 
 ### Culling
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/orientation_culling.gif" width="300" alt="Gif 1"><br>
+        <sub>Orientation Culling</sub>
+      </td>
+      <td align="center">
+        <img src="img/frustum_culling.gif" width="300" alt="Gif 2"><br>
+        <sub>View-frustum Culling</sub>
+      </td>
+      <td align="center">
+        <img src="img/dist_culling.gif" width="300" alt="Gif 3"><br>
+        <sub>Distance Culling</sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
 Blades that won't visibly contribute are removed in the compute shader, and the survivors are counted into the indirect draw buffer:
 
 - **Orientation test:** blade profiles can be thinner than a pixel and cause aliasing, so they are culled.
@@ -66,22 +95,25 @@ Surviving blades are drawn with an indirect draw call, using the vertex count th
 - **Width (`u`):** `c0 = c - w·t1` and `c1 = c + w·t1` span the blade, interpolated by `t = u + 0.5v - uv` to form a triangle shape.
 - **Normal:** `n = normalize(t0 × t1)`, used for Blinn-Phong lighting in the fragment shader.
 
-## Demo
-
 ## Performance Analysis 
 
-<table>
-  <tr>
-    <td align="center">
-      <img src="img/time_bladecount.png" width="800"><br>
-    </td>
-  </tr>
-</table>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/time_bladecount.png" width="800"><br>
+      </td>
+    </tr>
+  </table>
+</div>
 
-<table>
-  <tr>
-    <td align="center">
-      <img src="img/time_culling.png" width="800"><br>
-    </td>
-  </tr>
-</table>
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="img/time_culling.png" width="800"><br>
+      </td>
+    </tr>
+  </table>
+</div>
