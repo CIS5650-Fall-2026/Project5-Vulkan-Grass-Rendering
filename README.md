@@ -34,9 +34,9 @@ Each blade is stored as four vectors. The first three are the Bezier control poi
 * **`v2`:** the tip control point, plus the width.
 * **`up`:** the up vector, plus the stiffness.
 
-Each blade enters the pipeline as a patch with one control point. The tessellation control shader sets all levels to 8, and the evaluation shader uses De Casteljau's algorithm to find the curve position and tangent. It then tapers the width to a point at the tip.
+Each blade enters the pipeline as a patch with one control point. The tessellation control shader sets the tessellation levels, described under Tessellation Level of Detail below, and the evaluation shader uses De Casteljau's algorithm to find the curve position and tangent. It then tapers the width to a point at the tip.
 
-The first fragment shader blends from dark green at the root to light green at the tip. Lighting is Lambert with a small ambient term, and it uses the absolute value of the dot product so that both faces are lit. The GIFs in this section and the next, and all performance tests, use this version.
+The first fragment shader blends from dark green at the root to light green at the tip. Lighting is Lambert with a small ambient term, and it uses the absolute value of the dot product so that both faces are lit. The GIFs in this section and the next use this version, and so do the blade count, culling, and camera view performance tests.
 
 ![](img/readme/static_grass.gif)
 
@@ -97,9 +97,31 @@ A blade is removed if it fails any of these tests:
 
 *The field thins out as the camera moves away.*
 
+### Tessellation Level of Detail
+
+The base code splits every blade into 8 × 8 segments. The final tessellation control shader reduces this in two steps:
+
+* **Width:** each blade gets 1 segment across instead of 8. The position in the evaluation shader is linear across the blade, so the shape is exactly the same. Shading is also nearly the same, because the normal and `uv.y` do not depend on the position across the blade. The only difference is how `viewDir` is interpolated.
+* **Distance:** the requested level along the blade falls from 8 at 10 units from the camera to 2 at 30 units, which is the distance culling limit.
+
+The evaluation shader uses `fractional_odd_spacing`, so the segment lengths change smoothly as the level changes instead of popping. The cost is that each level is rounded up to an odd number of segments: a level of 8 gives 9 segments, and a level of 2 gives 3.
+
+The `LOD` define in `grass.tesc` picks one of three settings:
+
+* **0:** requests the base code's 8 × 8, which gives 9 × 9 segments after rounding.
+* **1:** the width change only, 1 × 9 segments.
+* **2:** the width change plus the distance change. This is the default.
+
+There are three settings so that the two changes can be measured separately. The gap between 0 and 1 is the width saving, and the gap between 1 and 2 is the distance saving.
+
 ## Performance Analysis
 
-All tests ran in Release at 640 × 480 with 8 × 8 tessellation per blade, using the first fragment shader, before the final shading was added. Runs were shuffled so that slow drift over the session would not favor one configuration.
+All tests ran in Release at 640 × 480. Runs were shuffled so that slow drift over the session would not favor one configuration.
+
+* **Blade count, culling, and camera view tests:** fixed 8 × 8 tessellation and the first fragment shader, before the final shading and LOD were added.
+* **Tessellation tests:** the final shading and `fractional_odd_spacing`, with all culling on, run in a separate session.
+
+Every test was measured the same way:
 
 * **Repeats:** each configuration ran 3 times for 12 seconds.
 * **Warm up:** the first second of each run was dropped.
@@ -107,6 +129,8 @@ All tests ran in Release at 640 × 480 with 8 × 8 tessellation per blade, using
 * **Blades drawn:** read back from the indirect draw buffer, so these counts come from the GPU.
 
 ### Number of Blades
+
+> All culling makes frames 2.6 to 4.0 times faster from 16K blades up.
 
 ![](img/readme/perf_blades.png)
 
@@ -127,6 +151,8 @@ Frame time grows close to linearly with blade count from 16K blades up. From 16K
 All culling together makes frames 2.6 to 4.0 times faster in that range. At 1M blades, it raises the frame rate from 24 to 95 FPS. The 4K results are too close to the noise floor to compare reliably: with all culling, the runs vary by 8% between repeats, against about 1% or less everywhere else.
 
 ### Culling Tests
+
+> Together the three tests draw 29% of the blades and save 70% of the frame time. Distance culling saves the most on its own.
 
 ![](img/readme/perf_culling.png)
 
@@ -151,6 +177,8 @@ Time saved does not exactly match the share of blades removed:
 
 ### Camera Views
 
+> The ranking of the tests changes with the camera, but all three together save 57% to 71% in every view.
+
 ![](img/readme/perf_views.png)
 
 *The same five configurations at 65536 blades from all three camera views.*
@@ -166,17 +194,57 @@ Time saved does not exactly match the share of blades removed:
 The value of each test depends on the camera, so a single view would give a misleading ranking:
 
 * **Frustum** is the strongest test up close, where most blades are behind or beside the camera.
-* **Orientation** does nothing from the high view, because the downward view direction keeps the dot product below 0.9.
+* **Orientation** does nothing from the high view, because the downward view direction keeps the dot product below 0.9 for almost every blade.
 * **Distance** is the strongest test from the high view, and it gets weaker as the camera moves closer to the field.
 
 The full set of tests saves a similar amount from the default and close views, even though a different test leads in each one.
 
+### Tessellation Level of Detail
+
+> Dropping the redundant width segments roughly halves the frame time. Distance LOD adds 7% to 8% from the high view and is close to the noise from the default view.
+
+![](img/readme/perf_lod.png)
+
+*Frame time for the three `LOD` settings with all culling on. The legend shows requested levels: fixed 8 × 8 is 9 × 9 segments after rounding. The percentages above the bars are relative to `LOD` 0, so the orange bars include the width saving.*
+
+| View | Blades | LOD 0 (ms) | LOD 1 (ms) | LOD 2 (ms) | Width saving | Distance saving on top |
+| --- | --- | --- | --- | --- | --- | --- |
+| Default | 65536 | 0.798 | 0.357 | 0.352 | 55% | 1% |
+| Default | 262144 | 3.122 | 1.409 | 1.333 | 55% | 5% |
+| Default | 1048576 | 11.697 | 5.659 | 5.534 | 52% | 2% |
+| High | 65536 | 1.029 | 0.599 | 0.560 | 42% | 7% |
+| High | 262144 | 4.205 | 2.610 | 2.398 | 38% | 8% |
+| High | 1048576 | 16.263 | 10.232 | 9.392 | 37% | 8% |
+
+*Width saving is `LOD` 1 relative to `LOD` 0. Distance saving on top is `LOD` 2 relative to `LOD` 1, so it differs from the chart: for the high view at 1M blades, the chart shows 42% and the table 8%.*
+
+All three settings draw the same blades, 29% from the default view and 48% from the high view, so the differences come from tessellation alone.
+
+Dropping the width segments is the main win. It cuts each blade from 162 triangles to 18 and roughly halves the frame time: 52% to 55% from the default view and 37% to 42% from the high view. The saving is far less than 8/9, which suggests that much of the remaining time is spent outside tessellation. At 1M blades from the default view, the frame rate rises from 85 to 177 FPS, and to 181 FPS with distance LOD as well.
+
+Distance LOD adds a small saving on top. From the high view it saves 7% to 8%, well above the noise. From the default view it saves 1% to 5%, which is close to the noise: the values do not grow steadily with blade count, and the 256K difference is only 2.2 times the larger standard deviation.
+
+The gain is small because the field is small compared with the LOD range:
+
+* **Default view:** blades are about 3 to 19 units from the camera. The farthest request a level of about 5, which rounds up to 7 segments.
+* **High view:** blades are about 12 to 23 units away. The farthest request a level of about 4, which rounds up to 5 segments. This is likely why distance LOD saves more here.
+
+Both views save almost the same absolute time from the width change, even though the high view draws 1.66 times as many blades:
+
+* **64K:** 0.44 ms from the default view, 0.43 ms from the high view.
+* **256K:** 1.71 ms and 1.60 ms.
+* **1M:** 6.04 ms and 6.03 ms.
+
+The cause is unconfirmed. Since the high view has a higher frame time, the same saving is a smaller percentage there.
+
 ### Limitations
 
 * Results apply to this scene, window size, and these three cameras.
-* The final shading does more work per vertex and per fragment, so absolute frame times with it would be higher. It was not measured.
 * All runs use the same blade layout, so the error bars show timing repeatability only.
 * Orientation and distance culling change the image, so their savings are not free.
+* The final shading and the switch to `fractional_odd_spacing` together cost about 10% more frame time, and this data cannot separate the two. The spacing change alone turns 8 × 8 segments into 9 × 9, which is 27% more triangles. With all culling from the default view, frame time went from 0.723 to 0.798 ms at 64K, 2.814 to 3.122 ms at 256K, and 10.569 to 11.697 ms at 1M. The two sets ran in different sessions, so this is a rough comparison.
+* Distance LOD was only tested with near and far distances of 10 and 30. A smaller far distance, such as 20, might save more, but it was not tested.
+* The visual effect of distance LOD was not evaluated. In the tested views, the farthest blades drop to 5 segments, and the formula allows as few as 3, so their curves are less smooth. The width change does not change the shape.
 
 ## CMake Changes
 

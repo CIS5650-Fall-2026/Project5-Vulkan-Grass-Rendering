@@ -132,4 +132,34 @@ ax.legend(frameon=False, fontsize=9, ncol=5, loc="upper center", handlelength=1.
 fig.tight_layout()
 fig.savefig(os.path.join(img, "perf_views.png"), dpi=150, facecolor=SURFACE)
 
+# ---- chart 4: tessellation lod on vs off (only if the lod set has been run) --
+lod_series = (("lod_off", "fixed 8 x 8", BLUE), ("lod_width", "1 across, 8 along", AQUA), ("lod_on", "1 across, 8 -> 2 along by distance", ORANGE))
+lod = {(r["view"], r["label"], r["num_blades"]): r for r in rows if r["label"] in {k for k, _, _ in lod_series}}
+if lod:
+    lod_views = ["default", "high"]
+    counts = sorted({k[2] for k in lod})
+    fig, axes = plt.subplots(1, 2, figsize=(9, 3.8), facecolor=SURFACE, sharey=True)
+    for ax, view in zip(axes, lod_views):
+        style(ax)
+        for i, (key, name, c) in enumerate(lod_series):
+            xs = [j + (i - 1) * 0.27 for j in range(len(counts))]
+            vals = [lod[(view, key, n)]["mean_ms"] for n in counts]
+            errs = [lod[(view, key, n)]["std_ms"] for n in counts]
+            ax.bar(xs, vals, width=0.25, color=c, label=name, yerr=errs, error_kw={"ecolor": TEXT2, "capsize": 2})
+            if key != "lod_off":
+                # saving relative to lod 0 (8x8 requested)
+                for x, n, v in zip(xs, counts, vals):
+                    base_ms = lod[(view, "lod_off", n)]["mean_ms"]
+                    ax.text(x, v + lod[(view, key, n)]["std_ms"], f"{(v / base_ms - 1) * 100:+.0f}%",
+                            ha="center", va="bottom", fontsize=7, color=TEXT)
+        ax.set_xticks(range(len(counts)))
+        ax.set_xticklabels([f"{n // 1024}K" if n < 1 << 20 else "1M" for n in counts])
+        ax.set_title(view + " view", loc="left", color=TEXT, fontsize=10)
+    axes[0].set_ylabel("frame time (ms, mean of per-run medians)", color=TEXT2)
+    axes[0].legend(frameon=False, fontsize=8, loc="upper left")
+    fig.suptitle("Tessellation levels, all culling on", x=0.02, ha="left", color=TEXT, fontsize=11)
+    fig.tight_layout()
+    fig.savefig(os.path.join(img, "perf_lod.png"), dpi=150, facecolor=SURFACE)
+    print("wrote img/readme/perf_lod.png")
+
 print("wrote img/readme/perf_blades.png, img/readme/perf_culling.png, img/readme/perf_views.png")
