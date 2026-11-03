@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(quads, equal_spacing, ccw) in;
+layout(quads, fractional_odd_spacing, ccw) in;
 
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
