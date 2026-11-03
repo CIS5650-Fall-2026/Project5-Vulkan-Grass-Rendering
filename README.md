@@ -36,7 +36,7 @@ Each blade is stored as four vectors. The first three are the Bezier control poi
 
 Each blade enters the pipeline as a patch with one control point. The tessellation control shader sets all levels to 8, and the evaluation shader uses De Casteljau's algorithm to find the curve position and tangent. It then tapers the width to a point at the tip.
 
-The fragment shader blends from dark green at the root to light green at the tip. Lighting is Lambert with a small ambient term, and it uses the absolute value of the dot product so that both faces are lit.
+The first fragment shader blends from dark green at the root to light green at the tip. Lighting is Lambert with a small ambient term, and it uses the absolute value of the dot product so that both faces are lit. The GIFs in this section and the next, and all performance tests, use this version.
 
 ![](img/readme/static_grass.gif)
 
@@ -55,6 +55,25 @@ After the forces are applied, a validation step keeps the blade plausible. It ke
 ![](img/readme/with_wind.gif)
 
 *Gravity, recovery, and wind applied.*
+
+### Shading
+
+The final shading keeps the root to tip gradient and adds a few inexpensive effects:
+
+* **Color variation:** each blade gets a random brightness between 0.85 and 1.15 and a small warm or cool tint, from a hash of its root position. This breaks up the uniform green of the field.
+* **Both faces lit:** the normal is flipped toward the camera, so whichever face is visible is shaded as the front.
+* **Wrapped diffuse:** the diffuse dot product is remapped to the range 0 to 1 and squared, so faces turned away from the sun darken gradually instead of going flat.
+* **Hemisphere ambient:** faces pointing up pick up a blue sky color, and faces pointing down a dim brown ground color.
+* **Warm sun:** the direct light is tinted slightly yellow.
+* **Translucency:** adds a faint yellow green glow, stronger near the tip, when the camera looks through a blade toward the sun. The sun is high in this scene, so the effect is subtle in these views.
+
+![](img/readme/grass_w_better_render.png)
+
+*Final shading.*
+
+![](img/readme/grass_w_better_render.gif)
+
+*Final shading in the wind.*
 
 ### Culling
 
@@ -80,7 +99,7 @@ A blade is removed if it fails any of these tests:
 
 ## Performance Analysis
 
-All tests ran in Release at 640 × 480 with 8 × 8 tessellation per blade. Runs were shuffled so that slow drift over the session would not favor one configuration.
+All tests ran in Release at 640 × 480 with 8 × 8 tessellation per blade, using the first fragment shader, before the final shading was added. Runs were shuffled so that slow drift over the session would not favor one configuration.
 
 * **Repeats:** each configuration ran 3 times for 12 seconds.
 * **Warm up:** the first second of each run was dropped.
@@ -155,6 +174,7 @@ The full set of tests saves a similar amount from the default and close views, e
 ### Limitations
 
 * Results apply to this scene, window size, and these three cameras.
+* The final shading does more work per vertex and per fragment, so absolute frame times with it would be higher. It was not measured.
 * All runs use the same blade layout, so the error bars show timing repeatability only.
 * Orientation and distance culling change the image, so their savings are not free.
 

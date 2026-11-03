@@ -15,6 +15,12 @@ layout(location = 2) in vec4 tese_vup[];
 
 layout(location = 0) out vec4 normal;
 layout(location = 1) out vec2 uv;
+layout(location = 2) out float bladeRand;
+layout(location = 3) out vec3 viewDir;
+
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main() {
     float u = gl_TessCoord.x;
@@ -44,6 +50,10 @@ void main() {
     // World -> clip space; pass normal and (u, v) to fragment shader
     gl_Position = camera.proj * camera.view * vec4(pos, 1.0);
 
+    vec3 camPos = inverse(camera.view)[3].xyz;
+    viewDir = normalize(camPos - pos);
+
     normal = vec4(n, 0.0);
     uv = vec2(u, v);
+    bladeRand = hash(vec2(v0.x, v0.z));
 }
