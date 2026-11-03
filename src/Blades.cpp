@@ -45,8 +45,14 @@ Blades::Blades(Device* device, VkCommandPool commandPool, float planeDim) : Mode
     indirectDraw.firstInstance = 0;
 
     BufferUtils::CreateBufferFromData(device, commandPool, blades.data(), NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, bladesBuffer, bladesBufferMemory);
-    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, culledBladesBuffer, culledBladesBufferMemory);
-    BufferUtils::CreateBufferFromData(device, commandPool, &indirectDraw, sizeof(BladeDrawIndirect), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, numBladesBuffer, numBladesBufferMemory);
+    BufferUtils::CreateBuffer(device, NUM_BLADES * sizeof(Blade), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, culledBladesBuffer, culledBladesBufferMemory);
+    // TRANSFER_SRC so vertexCount can be copied out to the readback buffer every frame
+    BufferUtils::CreateBufferFromData(device, commandPool, &indirectDraw, sizeof(BladeDrawIndirect), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, numBladesBuffer, numBladesBufferMemory);
+
+    // tiny host-visible buffer, mapped once and left mapped (same as Camera does)
+    BufferUtils::CreateBuffer(device, sizeof(uint32_t), VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, readbackBuffer, readbackBufferMemory);
+    vkMapMemory(device->GetVkDevice(), readbackBufferMemory, 0, sizeof(uint32_t), 0, (void**)&readbackData);
+    *readbackData = 0;
 }
 
 VkBuffer Blades::GetBladesBuffer() const {
@@ -61,7 +67,14 @@ VkBuffer Blades::GetNumBladesBuffer() const {
     return numBladesBuffer;
 }
 
+VkBuffer Blades::GetReadbackBuffer() const {
+    return readbackBuffer;
+}
+
 Blades::~Blades() {
+    vkUnmapMemory(device->GetVkDevice(), readbackBufferMemory);
+    vkDestroyBuffer(device->GetVkDevice(), readbackBuffer, nullptr);
+    vkFreeMemory(device->GetVkDevice(), readbackBufferMemory, nullptr);
     vkDestroyBuffer(device->GetVkDevice(), bladesBuffer, nullptr);
     vkFreeMemory(device->GetVkDevice(), bladesBufferMemory, nullptr);
     vkDestroyBuffer(device->GetVkDevice(), culledBladesBuffer, nullptr);

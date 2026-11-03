@@ -54,4 +54,7 @@ target_include_directories(vulkan_grass_rendering PRIVATE
   ${STB_INCLUDE_DIR}
 )
 
+# where main.cpp writes the perf csv (repo root /data)
+target_compile_definitions(vulkan_grass_rendering PRIVATE DATA_DIR="${CMAKE_SOURCE_DIR}/data")
+
 InternalTarget("" vulkan_grass_rendering)
