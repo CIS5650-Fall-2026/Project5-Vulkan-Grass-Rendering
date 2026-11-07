@@ -45,6 +45,37 @@ namespace {
         }
     }
 
+    void keyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_D) {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                camera->UpdateCube(0.1f, 0.0f);
+            }
+            else if (action == GLFW_RELEASE) {
+            }
+        }
+        else if (key == GLFW_KEY_A) {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                camera->UpdateCube(-0.1f, 0.0f);
+            }
+            else if (action == GLFW_RELEASE) {
+            }
+        }
+        if (key == GLFW_KEY_S) {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                camera->UpdateCube(0.0f, 0.1f);
+            }
+            else if (action == GLFW_RELEASE) {
+            }
+        }
+        else if (key == GLFW_KEY_W) {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                camera->UpdateCube(0.0f, -0.1f);
+            }
+            else if (action == GLFW_RELEASE) {
+            }
+        }
+    }
+
     void mouseMoveCallback(GLFWwindow* window, double xPosition, double yPosition) {
         if (leftMouseDown) {
             double sensitivity = 0.5;
@@ -142,6 +173,7 @@ int main() {
     glfwSetWindowSizeCallback(GetGLFWWindow(), resizeCallback);
     glfwSetMouseButtonCallback(GetGLFWWindow(), mouseDownCallback);
     glfwSetCursorPosCallback(GetGLFWWindow(), mouseMoveCallback);
+    glfwSetKeyCallback(GetGLFWWindow(), keyDownCallback);
 
     while (!ShouldQuit()) {
         glfwPollEvents();

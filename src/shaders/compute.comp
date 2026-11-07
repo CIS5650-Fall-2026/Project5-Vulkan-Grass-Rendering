@@ -7,6 +7,8 @@ layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
+    vec4 camPos;
+    vec4 cubePos;
 } camera;
 
 layout(set = 1, binding = 0) uniform Time {
@@ -26,31 +28,250 @@ struct Blade {
 // 2. Write out the culled blades
 // 3. Write the total number of blades remaining
 
+// input blades
+layout(set = 2, binding = 0) buffer InputBlades {
+	Blade blades[];
+};
+
+// culled blades
+layout(set = 2, binding = 1) buffer CulledBlades {
+	Blade blades[];
+} culledBlades;
+
 // The project is using vkCmdDrawIndirect to use a buffer as the arguments for a draw call
 // This is sort of an advanced feature so we've showed you what this buffer should look like
 //
-// layout(set = ???, binding = ???) buffer NumBlades {
-// 	  uint vertexCount;   // Write the number of blades remaining here
-// 	  uint instanceCount; // = 1
-// 	  uint firstVertex;   // = 0
-// 	  uint firstInstance; // = 0
-// } numBlades;
+layout(set = 2, binding = 2) buffer NumBlades {
+ 	uint vertexCount;   // Write the number of blades remaining here
+ 	uint instanceCount; // = 1
+ 	uint firstVertex;   // = 0
+ 	uint firstInstance; // = 0
+} numBlades;
 
 bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
 }
 
 void main() {
+    vec3 CubeMin = camera.cubePos.xyz + vec3(-1.0, 0.0, -1.0);
+    vec3 CubeMax = camera.cubePos.xyz + vec3(1.0, 0.0, 1.0);
+
 	// Reset the number of blades to 0
 	if (gl_GlobalInvocationID.x == 0) {
-		// numBlades.vertexCount = 0;
+		//numBlades.vertexCount = 0;
 	}
+    uint index = gl_GlobalInvocationID.x;
 	barrier(); // Wait till all threads reach this point
 
-    // TODO: Apply forces on every blade and update the vertices in the buffer
+    bool culled = false;
+    vec3 input_v0 = blades[index].v0.xyz;
+    vec3 input_v1 = blades[index].v1.xyz;
+    vec3 input_v2 = blades[index].v2.xyz;
+    vec3 input_up = blades[index].up.xyz;
+    float input_orientation = blades[index].v0.w;
+    float input_height = blades[index].v1.w;
+    float input_width = blades[index].v2.w;
+    float input_stiffness = blades[index].up.w;
+    vec3 initialV2 = input_v0 + input_up * input_height;
 
+    mat3 orientationMatrix = mat3(
+        cos(input_orientation), 0.0,    -1.0 * sin(input_orientation),  // col 1 
+        0.0,        1.0,    0.0,                //col 2
+        sin(input_orientation), 0.0,    cos(input_orientation)          // col3
+    );
+    vec3 front = orientationMatrix * vec3(1.0, 0.0, 0.0);
+    float bitang_theta = input_orientation - 1.5708;
+    mat3 bitangMatrix = mat3(
+        cos(bitang_theta), 0.0,    -1.0 * sin(bitang_theta),  // col 1 
+        0.0,        1.0,    0.0,                //col 2
+        sin(bitang_theta), 0.0,    cos(bitang_theta)          // col3
+    );
+    vec3 bitangent = bitangMatrix * vec3(1.0, 0.0, 0.0);
+
+    // TODO: Apply forces on every blade and update the vertices in the buffer
+    //GRAVITY
+    vec3 down = -1.0 * input_up;
+    vec3 gravity_e = normalize(down) * 5.0; // environmental gravity
+    vec3 gravity_f = 0.25 * length(gravity_e) * front;
+    vec3 total_gravity = gravity_e + gravity_f;
+    // RECOVERY
+    vec3 recovery = (initialV2 - input_v2) * input_stiffness;
+    // WIND
+    vec3 wind = vec3(1.0, 0, 0.0)  * (cos(input_v0.x*.7-4.0*totalTime) + 1 ) * (cos(input_v0.z*0.25-totalTime) + 1 ) * 10.0;
+    float directionAlignment = 1.0 - abs(dot(normalize(wind), normalize(input_v2 - input_v0)));
+    float heightRatio = dot((input_v2 - input_v0), input_up) / input_height;
+    vec3 total_wind = wind * directionAlignment * heightRatio;
+    // CALCULATE V2 FROM FORCES
+    vec3 output_v2 = input_v2 + (total_gravity + recovery + total_wind) * deltaTime;
+    output_v2 = output_v2 - input_up * min(dot(input_up, (output_v2 - input_v0)), 0.0); // account for v2 being underground
+    // PREVENT CUBE INTERSECTION
+    if (input_v0.x < CubeMin.x && input_v0.z >=  CubeMin.z && input_v0.z <  CubeMax.z ) {
+        output_v2.x = min(CubeMin.x+0.3, output_v2.x);
+    }
+
+    // CALCULATE V1 FROM NEW V2
+    float l_proj = length(output_v2 - input_v0 - input_up * dot((output_v2 - input_v0), input_up));
+    vec3 output_v1 = input_v0 + input_height * input_up * max(1.0 - l_proj/input_height, 0.5*max(l_proj/input_height, 1.0));
+    // CORRECT NEW V1 AND V2 FOR GRASS LENGTH
+    float L0 = length(output_v2 - input_v0);
+    float L1 = length(output_v1 - input_v0) + length(output_v2 - output_v1);
+    float L = (2.0*L0 + L1) / 3.0;
+    float r = input_height / L;
+    vec3 v1_corr = input_v0 + r * (output_v1 - input_v0);
+    vec3 v2_corr = v1_corr + r * (output_v2 - output_v1);
+    
 	// TODO: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
+
+    // ORIENTATION CULLING
+    if (abs(dot(normalize(camera.camPos.xyz), normalize(bitangent))) > 0.9 ) {
+        culled = true;
+    }
+    // DISTANCE CULLING
+    float grassId = input_v0.x*100.0 + input_v0.z*10.0; // create id based on location to enable below distance bucketing method
+    int n = 4; // number of buckets
+    float max_distance = 38.0;
+    float d_proj = length(input_v0 - camera.camPos.xyz - input_up * dot(input_v0 - camera.camPos.xyz, input_up));
+    float distanceTestVal = float(n) * (1.0 - (d_proj/max_distance));
+    if (int(grassId) % n > distanceTestVal) {
+        culled = true;
+    }
+    // simplified version of distance culling
+    // FRUSTUM CULLING 
+    vec4 screenV0 = camera.proj * camera.view * vec4(input_v0, 1);
+    screenV0 = screenV0 / screenV0.w;
+    vec4 screenV2 = camera.proj * camera.view * vec4(v2_corr, 1);
+    screenV2 = screenV2 / screenV2.w;
+    float boundVal = 1.8;
+    if (!inBounds(screenV0.y, boundVal) || !inBounds(screenV2.y, boundVal) 
+        || !inBounds(screenV0.x, boundVal) || !inBounds(screenV2.x, boundVal) ) {
+        culled = true;
+    }
+
+    // CUBE CHANGES
+    if(input_v0.x >=  CubeMin.x && input_v0.x <  CubeMax.x
+        && input_v0.z >=  CubeMin.z && input_v0.z <  CubeMax.z) {
+        //culled = true;
+        input_up = vec3(0.95,0.05,0);
+        input_up = normalize(normalize(input_v0.xyz - camera.cubePos.xyz) + vec3(0.0,0.2,0));
+    }
+    else {
+        input_up = vec3(0.0,1.0,0);
+    }
+
+    // SKYBOX
+    
+    if (index >= 2 && index <= 13 ) {
+        input_stiffness = -1.0;
+        input_height = 200.0;
+        input_width = 200.0;
+
+        float boxRadius = 35.0;
+
+        if (index == 2) {  //front
+            input_v0 = vec3(0,-36,-boxRadius);
+            v2_corr = vec3(1,0,0); // right
+            v1_corr = input_v0 + vec3(0, input_height, 0);
+        }
+        else if (index == 3) {   //behind
+            input_v0 = vec3(0,-36,boxRadius);
+            v2_corr = vec3(1,0,0); // right
+            v1_corr = input_v0 + vec3(0, input_height, 0);
+        }
+        else if (index == 4) {   //right
+            input_v0 = vec3(boxRadius,-36,0);
+            v2_corr = vec3(0,0,1); // right
+            v1_corr = input_v0 + vec3(0, input_height, 0);
+        }
+        else if (index == 5) {   //left
+            input_v0 = vec3(-boxRadius,-36,0);
+            v2_corr = vec3(0,0,1); // right
+            v1_corr = input_v0 + vec3(0, input_height, 0);
+        }
+        else if (index == 6) {   //top
+            input_height = 200.0;
+            input_width = 200.0;
+            input_v0 = vec3(-40,boxRadius,0);
+            v2_corr = vec3(0,0,1); // right
+            v1_corr = input_v0 + vec3(input_height, 0, 0);
+        }
+        else if (index == 7) {   //bottom
+            input_height = 300.0;
+            input_width = 300.0;
+            input_v0 = vec3(-70,-boxRadius,0);
+            v2_corr = vec3(0,0,1); // right
+            v1_corr = input_v0 + vec3(input_height, 0, 0);
+        }
+        // MOVABLE CUBE
+        else {
+            float cubeRadius = 0.86;
+            input_stiffness = -1.0;
+            input_height = 4.0 * cubeRadius;
+            input_width = 2.0 * cubeRadius;
+            input_stiffness = -3.0;
+
+            if (index == 8) {  //front
+                input_v0 = vec3(0,0,-cubeRadius) +camera.cubePos.xyz;
+                v2_corr = vec3(1,0,0); // right
+                v1_corr = input_v0 + vec3(0, input_height, 0);
+            }
+            else if (index == 9) {   //behind
+                input_v0 = vec3(0,0,cubeRadius) +camera.cubePos.xyz;
+                v2_corr = vec3(1,0,0); // right
+                v1_corr = input_v0 + vec3(0, input_height, 0);
+            }
+            else if (index == 10) {   //right
+                input_v0 = vec3(cubeRadius,0,0) +camera.cubePos.xyz;
+                v2_corr = vec3(0,0,1); // right
+                v1_corr = input_v0 + vec3(0, input_height, 0);
+            }
+            else if (index == 11) {   //left
+                input_v0 = vec3(-cubeRadius,0,0) +camera.cubePos.xyz;
+                v2_corr = vec3(0,0,1); // right
+                v1_corr = input_v0 + vec3(0, input_height, 0);
+            }
+            else if (index == 12) {   //top
+                input_v0 = vec3(-cubeRadius,input_width,0) +camera.cubePos.xyz;
+                v2_corr = vec3(0,0,1); // right
+                v1_corr = input_v0 + vec3(2.0*input_width, 0, 0);
+            }
+            else if (index == 13) {   //bottom
+                input_v0 = vec3(-cubeRadius,0,0) +camera.cubePos.xyz;
+                v2_corr = vec3(0,0,-1); // right
+                v1_corr = input_v0 + vec3(2.0*input_width, 0, 0);
+            }
+        }
+
+        culledBlades.blades[index].v0 = vec4(input_v0, input_orientation);
+        culledBlades.blades[index].v1 = vec4(v1_corr, input_height);
+        culledBlades.blades[index].v2 = vec4(v2_corr, input_width);
+        culledBlades.blades[index].up = vec4(input_up, input_stiffness);
+    }
+    else {
+        if(culled == false) {
+            culledBlades.blades[index].v0 = vec4(input_v0, input_orientation);
+            culledBlades.blades[index].v1 = vec4(v1_corr, input_height);
+            culledBlades.blades[index].v2 = vec4(v2_corr, input_width);
+            culledBlades.blades[index].up = vec4(input_up, input_stiffness);
+
+            barrier();
+            //numBlades.vertexCount = atomicAdd(numBlades.vertexCount, 1);
+            barrier();
+        }
+        else {
+            vec4 zeroOut = vec4(0.0, 0.0, 0.0, 0.0);
+            culledBlades.blades[index].v0 = zeroOut;
+            culledBlades.blades[index].v1 = zeroOut;
+            culledBlades.blades[index].v2 = zeroOut;
+            culledBlades.blades[index].up = zeroOut;
+        }
+    }
+
+    blades[index].v0 = vec4(input_v0, input_orientation);
+    blades[index].v1 = vec4(v1_corr, input_height);
+    blades[index].v2 = vec4(v2_corr, input_width);
+    blades[index].up = vec4(input_up, input_stiffness);
+
 }
