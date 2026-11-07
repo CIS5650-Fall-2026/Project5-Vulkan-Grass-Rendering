@@ -36,8 +36,36 @@ struct Blade {
 // 	  uint firstInstance; // = 0
 // } numBlades;
 
+layout(set = 2, binding = 0) buffer BladeState {
+    Blade blades[];
+} state;
+
+layout(set = 2, binding = 1) writeonly buffer CulledBlades {
+    Blade culledBlades[];
+} culledBlades;
+
+layout(set = 2, binding = 2) buffer NumBlades {
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} numBlades;
+
 bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
+}
+
+bool inFrustum(vec3 position) {
+
+    vec4 clip = camera.proj * camera.view * vec4(position, 1.0);
+
+    if (clip.w <= 0.0) {
+        return false;
+    }
+
+    float h = 0.05 * clip.w;
+
+    return inBounds(clip.x, clip.w + h) && inBounds(clip.y, clip.w + h) && clip.z >= -h && clip.z <= clip.w + h;
 }
 
 void main() {
@@ -47,10 +75,112 @@ void main() {
 	}
 	barrier(); // Wait till all threads reach this point
 
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= uint(state.blades.length())) {
+        return;
+    }
+
+    Blade blade = state.blades[index];
+
     // TODO: Apply forces on every blade and update the vertices in the buffer
+
+    // Grvaity direction; g for accel
+    vec4 D = vec4(0.0, -1.0, 0.0, 9.81);
+
+    // Environmental gravity
+    vec3 gE = normalize(D.xyz) * D.w;
+
+    float orient = blade.v0.w;
+    vec3 widthDirection = vec3(cos(orient), 0.0, sin(orient));
+    vec3 front = normalize(cross(widthDirection, blade.up.xyz));
+
+    vec3 gF = 0.25 * length(gE) * front;
+    vec3 gravity = gE + gF;
+
+    // Recovery
+
+    // v0 + up_dir * height
+    vec3 iv2 = blade.v0.xyz + blade.up.xyz * blade.v1.w;
+
+    float stiffness = blade.up.w;
+    vec3 recovery = (iv2 - blade.v2.xyz) * stiffness;
+
+    // Wind
+
+    // wind function as sin wave
+    float wave = sin(totalTime * 2.0 + blade.v0.x * 0.5 + blade.v0.z * 0.314);
+
+    float windStrength = 5.0 * (0.5 + 0.5 * wave);
+    vec3 windDirection = normalize(vec3(1.0, 0.0, 0.314));
+
+    float windAlignment = abs(dot(front, windDirection));
+
+    vec3 wind = windDirection * windStrength * windAlignment;
+
+    // Combine total forces
+
+    vec3 translation = (gravity + recovery + wind) * deltaTime;
+
+    vec3 v0 = blade.v0.xyz;
+    vec3 v2 = blade.v2.xyz + translation;
+    vec3 up = normalize(blade.up.xyz);
+    float height = blade.v1.w;
+
+    // Dont let tip clip
+    v2 -= up * min(dot(up, v2 - v0), 0.0);
+
+    // Find bending offset
+    vec3 offset = v2 - v0;
+    float projectedLength = length(offset - up * dot(offset, up));
+
+    float bendRatio = projectedLength / height;
+    
+    vec3 v1 = v0 + up * height * max(1.0 - bendRatio, 0.05 * max(bendRatio, 1.0));
+
+    float curveLength = (2.0 * length(v2 - v0) + (length(v1 - v0) + length(v2 - v1))) / 3.0;
+
+    // correct
+    float correction = height / max(curveLength, 0.000001);
+
+    blade.v1.xyz = v0 + correction * (v1 - v0);
+    blade.v2.xyz = v0 + correction * (v2 - v0);
+
+    state.blades[index] = blade;
 
 	// TODO: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
+
+    // Orientation culling (skip blades viewed edge-on)
+
+    vec3 cameraPosition = inverse(camera.view)[3].xyz;
+    vec3 viewDirection = normalize(cameraPosition - blade.v0.xyz);
+
+    bool orientationVisible = abs(dot(widthDirection, viewDirection)) < 0.9;
+
+    // Frustum culling
+    vec3 midpoint = 0.25 * blade.v0.xyz + 0.5 * blade.v1.xyz + 0.25 * blade.v2.xyz;
+    bool frustumVisible = inFrustum(blade.v0.xyz) || inFrustum(midpoint) || inFrustum(blade.v2.xyz);
+
+    // Distance culling
+    vec3 CamOffset = blade.v0.xyz - cameraPosition;
+    vec3 bladeUp = normalize(blade.up.xyz);
+
+    float dProj = length(CamOffset - bladeUp * dot(CamOffset, bladeUp));
+
+    const float maxDist = 30.0;
+    const uint bucketCount = 5u;
+
+    float keepFraction = clamp(1.0 - dProj / maxDist, 0.0, 1.0);
+    uint keepCount = uint(floor(float(bucketCount) * keepFraction));
+
+    bool distanceVisible = (index % bucketCount) < keepCount;
+
+
+
+    if (orientationVisible && frustumVisible && distanceVisible) {
+        uint outputIndex = atomicAdd(numBlades.vertexCount, 1);
+        culledBlades.culledBlades[outputIndex] = blade;
+    }
 }

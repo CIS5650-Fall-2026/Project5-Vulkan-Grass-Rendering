@@ -61,6 +61,7 @@ private:
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
 
     VkPipelineLayout graphicsPipelineLayout;
@@ -79,4 +80,8 @@ private:
 
     std::vector<VkCommandBuffer> commandBuffers;
     VkCommandBuffer computeCommandBuffer;
+
+    // Allocate one compute descriptor set per grass group
+    VkDescriptorSetLayout computeDescriptorSetLayout;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
 };
