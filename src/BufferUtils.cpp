@@ -1,3 +1,4 @@
+#include <cstring>
 #include "BufferUtils.h"
 #include "Instance.h"
 

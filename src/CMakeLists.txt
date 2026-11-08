@@ -22,6 +22,15 @@ file(GLOB_RECURSE SHADER_SOURCES
 
 source_group("Shaders" FILES ${SHADER_SOURCES})
 
+if(NOT WIN32)
+    find_program(GLSLANG_VALIDATOR glslangValidator
+        HINTS "$ENV{VULKAN_SDK}/bin"
+    )
+    if(NOT GLSLANG_VALIDATOR)
+        message(FATAL_ERROR "glslangValidator not found. Install the Vulkan SDK and ensure it is on PATH or VULKAN_SDK is set.")
+    endif()
+endif()
+
 if(WIN32)
     add_executable(vulkan_grass_rendering WIN32 ${SOURCES} ${SHADER_SOURCES})
     target_link_libraries(vulkan_grass_rendering ${WINLIBS})
@@ -42,9 +51,20 @@ foreach(SHADER_SOURCE ${SHADER_SOURCES})
         )
         ExternalTarget("Shaders" ${fname}.spv)
         add_dependencies(vulkan_grass_rendering ${fname}.spv)
+    else(WIN32)
+        get_filename_component(fname ${SHADER_SOURCE} NAME)
+        set(SHADER_OUTPUT ${SHADER_DIR}/${fname}.spv)
+        add_custom_command(
+            OUTPUT ${SHADER_OUTPUT}
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_DIR}
+            COMMAND ${GLSLANG_VALIDATOR} -V ${SHADER_SOURCE} -o ${SHADER_OUTPUT} -g
+            DEPENDS ${SHADER_SOURCE}
+            COMMENT "Compiling ${fname}"
+        )
+        add_custom_target(${fname}.spv DEPENDS ${SHADER_OUTPUT})
+        ExternalTarget("Shaders" ${fname}.spv)
+        add_dependencies(vulkan_grass_rendering ${fname}.spv)
     endif(WIN32)
-
-    # TODO: Build shaders on not windows
 endforeach()
 
 target_link_libraries(vulkan_grass_rendering ${ASSIMP_LIBRARIES} Vulkan::Vulkan glfw)
