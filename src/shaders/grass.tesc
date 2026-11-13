@@ -27,11 +27,12 @@ void main() {
     outV2[gl_InvocationID] = inV2[gl_InvocationID];
     outUp[gl_InvocationID] = inUp[gl_InvocationID];
 
-    // One segment across the blade, several along its length.
+    // u runs across the blade, v runs from root to tip.
+    // Left and right edges (along v) get the curve samples. Top and bottom stay one segment wide.
     gl_TessLevelOuter[0] = 8.0;
     gl_TessLevelOuter[1] = 1.0;
     gl_TessLevelOuter[2] = 8.0;
     gl_TessLevelOuter[3] = 1.0;
-    gl_TessLevelInner[0] = 1.0;
-    gl_TessLevelInner[1] = 8.0;
+    gl_TessLevelInner[0] = 8.0;
+    gl_TessLevelInner[1] = 1.0;
 }
