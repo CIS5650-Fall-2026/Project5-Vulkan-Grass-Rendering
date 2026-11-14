@@ -3,7 +3,7 @@
 
 #define WORKGROUP_SIZE 32
 // Keep this in sync with NUM_BLADES in Blades.h (1 << 13).
-#define NUM_BLADES 8192
+#define NUM_BLADES 1<<13
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
 layout(set = 0, binding = 0) uniform CameraBufferObject {
@@ -134,40 +134,68 @@ vec3 cameraPosition() {
     return inverse(camera.view)[3].xyz;
 }
 
-// Equation 18. A point survives if it lies in the expanded clip-space box.
-bool inFrustum(vec3 p) {
+// True when p is inside the real window. Vulkan depth is [0, w], and w <= 0 is behind the camera.
+bool inWindow(vec3 p) {
     vec4 clip = camera.proj * camera.view * vec4(p, 1.0);
-    float h = clip.w + FRUSTUM_TOLERANCE;
-    return inBounds(clip.x, h) && inBounds(clip.y, h) && inBounds(clip.z, h);
+    if (clip.w <= 0.0) {
+        return false;
+    }
+    return inBounds(clip.x, clip.w) && inBounds(clip.y, clip.w)
+        && clip.z >= 0.0 && clip.z <= clip.w;
 }
 
-bool passesCulling(uint id, vec3 v0, vec3 v1, vec3 v2, vec3 up, vec3 face) {
+vec3 bezierPoint(float t, vec3 p0, vec3 p1, vec3 p2) {
+    float s = 1.0 - t;
+    return s * s * p0 + 2.0 * s * t * p1 + t * t * p2;
+}
+
+vec3 bezierTangent(float t, vec3 p0, vec3 p1, vec3 p2) {
+    return 2.0 * (1.0 - t) * (p1 - p0) + 2.0 * t * (p2 - p1);
+}
+
+// The whole blade, including its width, must sit inside the window. One corner outside drops it,
+// so the rasterizer never clips a tip and leaves half a blade on screen.
+bool bladeFullyInside(vec3 v0, vec3 v1, vec3 v2, vec3 face, float width) {
+    for (int i = 0; i <= 4; i++) {
+        float t = float(i) * 0.25;
+        vec3 center = bezierPoint(t, v0, v1, v2);
+        vec3 tangent = safeNormalize(bezierTangent(t, v0, v1, v2), safeNormalize(v2 - v0, vec3(0.0, 1.0, 0.0)));
+        vec3 side = safeNormalize(cross(tangent, face), vec3(1.0, 0.0, 0.0));
+        // grass.tese: offset is (u - 0.5) * width * (1 - t), so the corners are half of that.
+        float halfWidth = 0.5 * width * (1.0 - t);
+        if (!inWindow(center + side * halfWidth) || !inWindow(center - side * halfWidth)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool passesCulling(uint id, vec3 v0, vec3 v1, vec3 v2, vec3 up, vec3 face, float width) {
     vec3 cam = cameraPosition();
     vec3 viewDir = safeNormalize(cam - v0, vec3(0.0, 0.0, 1.0));
     // Width is perpendicular to the facing direction. Edge-on blades align with it.
     vec3 widthDir = safeNormalize(cross(up, face), vec3(0.0, 0.0, 1.0));
-    if (abs(dot(viewDir, widthDir)) > ORIENTATION_THRESHOLD) {
-        return false;
-    }
+    // if (abs(dot(viewDir, widthDir)) > ORIENTATION_THRESHOLD) {
+    //     return false;
+    // }
 
-    // Midpoint of the quadratic curve, not the Bezier handle v1.
-    vec3 midpoint = 0.25 * v0 + 0.5 * v1 + 0.25 * v2;
-    if (!inFrustum(v0) && !inFrustum(midpoint) && !inFrustum(v2)) {
+    // Drop the blade when any part of it, tip or width, leaves the window.
+    if (!bladeFullyInside(v0, v1, v2, face, width)) {
         return false;
     }
 
     // Equation 19: distance along the ground, ignoring height above the plane.
     vec3 offset = v0 - cam;
     float dproj = length(offset - up * dot(offset, up));
-    if (dproj >= MAX_CULL_DISTANCE) {
-        return false;
-    }
+    // if (dproj >= MAX_CULL_DISTANCE) {
+    //     return false;
+    // }
     // Closest bucket keeps every blade. Each farther bucket drops more of them,
     // and the last bucket drops all of them.
-    uint kept = uint(floor(float(DISTANCE_BUCKETS) * (1.0 - dproj / MAX_CULL_DISTANCE)));
-    if ((id % DISTANCE_BUCKETS) >= kept) {
-        return false;
-    }
+    // uint kept = uint(floor(float(DISTANCE_BUCKETS) * (1.0 - dproj / MAX_CULL_DISTANCE)));
+    // if ((id % DISTANCE_BUCKETS) >= kept) {
+    //     return false;
+    // }
     return true;
 }
 
@@ -214,7 +242,8 @@ void main() {
     vec3 windDir = windAt(v0, totalTime);
     vec3 wind = windDir * windAlignment(windDir, face, v0, v2, up, height);
 
-    v2 += (gravity + recovery + wind) * dt;
+    v2 += (gravity + recovery + wind) * dt; 
+    // v2 += (gravity + recovery + wind) * dt;
     correctBlade(v1, v2, v0, up, height);
 
     blade.v1 = vec4(v1, blade.v1.w);
@@ -225,7 +254,7 @@ void main() {
 	// to the culled blades buffer
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
-    if (passesCulling(id, v0, v1, v2, up, face)) {
+    if (passesCulling(id, v0, v1, v2, up, face, blade.v2.w)) {
         uint slot = atomicAdd(numBlades.vertexCount, 1u);
         culledBlades[slot] = blade;
     }
