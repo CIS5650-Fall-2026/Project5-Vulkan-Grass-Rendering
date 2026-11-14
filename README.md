@@ -9,7 +9,9 @@ Vulkan Grass Rendering
 `src/CMakeLists.txt` was modified beyond the source file list. On Linux, `glslangValidator` compiles the shaders during the build.
 
 ### Overview
+
 ![](media/Final-Grass-Rendering.gif)
+
 2^13 = 8192 grass blades rendering simulation. 
 
 This project used Vulkan to render physics realistic grass, and is an implementation of the paper [Responsive Real-Time Grass Rendering for General 3D Scenes](https://www.cg.tuwien.ac.at/research/publications/2017/JAHRMANN-2017-RRTG/JAHRMANN-2017-RRTG-draft.pdf). In the simulation, a blade of grass is described by three vertices, v0, v1, and v2, which are the control points of a Bezier curve. To make the movement of grass more realistic, the simulator also take into account gravity, recovery, and wind. In order to make the simulation computationally efficient, the simulator culls grass blades that are not visible, implementing distance and orientation culling. 
@@ -17,6 +19,7 @@ This project used Vulkan to render physics realistic grass, and is an implementa
 
 ### Rendering
 Each blade is one tessellation patch. The evaluation shader walks the Bezier curve from root to tip, tapers the width to a point, and writes clip space. With the forces left off, every blade stays in the pose it was generated with.
+
 ![](media/Still-Grass.gif)
 
 
