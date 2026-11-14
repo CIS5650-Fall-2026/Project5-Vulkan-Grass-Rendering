@@ -56,12 +56,21 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
     VkDescriptorSet cameraDescriptorSet;
     std::vector<VkDescriptorSet> modelDescriptorSets;
+    std::vector<VkDescriptorSet> grassDescriptorSets;
     VkDescriptorSet timeDescriptorSet;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
+
+    // computeFinished: graphics waits so it reads blades after the force update.
+    // bladeRead: the next compute dispatch waits so it does not overwrite blades still being drawn.
+    VkSemaphore computeFinishedSemaphore = VK_NULL_HANDLE;
+    VkSemaphore bladeReadSemaphore = VK_NULL_HANDLE;
+    bool bladeReadPending = false;
 
     VkPipelineLayout graphicsPipelineLayout;
     VkPipelineLayout grassPipelineLayout;
