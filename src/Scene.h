@@ -41,5 +41,6 @@ public:
 
     VkBuffer GetTimeBuffer() const;
 
-    void UpdateTime();
+    // a positive fixedStep replaces the wall-clock frame time
+    void UpdateTime(float fixedStep = 0.0f);
 };

@@ -23,12 +23,12 @@ void Scene::AddBlades(Blades* blades) {
   this->blades.push_back(blades);
 }
 
-void Scene::UpdateTime() {
+void Scene::UpdateTime(float fixedStep) {
     high_resolution_clock::time_point currentTime = high_resolution_clock::now();
     duration<float> nextDeltaTime = duration_cast<duration<float>>(currentTime - startTime);
     startTime = currentTime;
 
-    time.deltaTime = nextDeltaTime.count();
+    time.deltaTime = fixedStep > 0.0f ? fixedStep : nextDeltaTime.count();
     time.totalTime += time.deltaTime;
 
     memcpy(mappedData, &time, sizeof(Time));
